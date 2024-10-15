@@ -20,10 +20,6 @@
   // Vitest
   "testing.openTesting": "neverOpen", // Don't open the testing view automatically when running tests
 
-  // I18n
-  "i18n-ally.localesPaths": ["src/locales"],
-  "i18n-ally.keystyle": "nested",
-
   // Disable the default formatter, use ESLint instead
   "prettier.enable": false,
   "editor.formatOnSave": false,

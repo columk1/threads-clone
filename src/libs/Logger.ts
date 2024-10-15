@@ -1,10 +1,10 @@
-import logtail from '@logtail/pino';
-import pino, { type DestinationStream } from 'pino';
-import pretty from 'pino-pretty';
+import logtail from '@logtail/pino'
+import pino, { type DestinationStream } from 'pino'
+import pretty from 'pino-pretty'
 
-import { Env } from './Env';
+import { Env } from './Env'
 
-let stream: DestinationStream;
+let stream: DestinationStream
 
 if (Env.LOGTAIL_SOURCE_TOKEN) {
   stream = pino.multistream([
@@ -17,11 +17,11 @@ if (Env.LOGTAIL_SOURCE_TOKEN) {
     {
       stream: pretty(), // Prints logs to the console
     },
-  ]);
+  ])
 } else {
   stream = pretty({
     colorize: true,
-  });
+  })
 }
 
-export const logger = pino({ base: undefined }, stream);
+export const logger = pino({ base: undefined }, stream)

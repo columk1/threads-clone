@@ -57,7 +57,8 @@
     "./out/**/*",
     "./node_modules/**/*",
     "**/*.spec.ts",
-    "**/*.e2e.ts"
+    "**/*.e2e.ts",
+    "./sandbox/**/*"
   ],
   "include": [
     "next-env.d.ts",

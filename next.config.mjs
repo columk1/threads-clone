@@ -1,40 +1,37 @@
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from 'node:url'
 
-import withBundleAnalyzer from '@next/bundle-analyzer';
-import { withSentryConfig } from '@sentry/nextjs';
-import createJiti from 'jiti';
-import withNextIntl from 'next-intl/plugin';
+import withBundleAnalyzer from '@next/bundle-analyzer'
+import { withSentryConfig } from '@sentry/nextjs'
+import createJiti from 'jiti'
 
-const jiti = createJiti(fileURLToPath(import.meta.url));
+const jiti = createJiti(fileURLToPath(import.meta.url))
 
-jiti('./src/libs/Env');
+jiti('./src/libs/Env')
 
-const withNextIntlConfig = withNextIntl('./src/libs/i18n.ts');
+const nextConfig = {
+  eslint: {
+    dirs: ['.'],
+  },
+  poweredByHeader: false,
+  reactStrictMode: true,
+  experimental: {
+    serverComponentsExternalPackages: ['@libsql/client'],
+  },
+}
 
 const bundleAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
-});
+})
 
 /** @type {import('next').NextConfig} */
 export default withSentryConfig(
-  bundleAnalyzer(
-    withNextIntlConfig({
-      eslint: {
-        dirs: ['.'],
-      },
-      poweredByHeader: false,
-      reactStrictMode: true,
-      experimental: {
-        serverComponentsExternalPackages: ['@electric-sql/pglite'],
-      },
-    }),
-  ),
+  bundleAnalyzer(nextConfig),
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options
-    // FIXME: Add your Sentry organization and project names
-    org: 'nextjs-boilerplate-org',
-    project: 'nextjs-boilerplate',
+    // Sentry organization and project names
+    org: 'threads-u0',
+    project: 'threads-clone',
 
     // Only print logs for uploading source maps in CI
     silent: !process.env.CI,
@@ -66,4 +63,4 @@ export default withSentryConfig(
     // Disable Sentry telemetry
     telemetry: false,
   },
-);
+)

@@ -1,11 +1,11 @@
-import antfu from '@antfu/eslint-config';
-import nextPlugin from '@next/eslint-plugin-next';
-import jestDom from 'eslint-plugin-jest-dom';
-import jsxA11y from 'eslint-plugin-jsx-a11y';
-import playwright from 'eslint-plugin-playwright';
-import simpleImportSort from 'eslint-plugin-simple-import-sort';
-import tailwind from 'eslint-plugin-tailwindcss';
-import testingLibrary from 'eslint-plugin-testing-library';
+import antfu from '@antfu/eslint-config'
+import nextPlugin from '@next/eslint-plugin-next'
+import jestDom from 'eslint-plugin-jest-dom'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
+import playwright from 'eslint-plugin-playwright'
+import simpleImportSort from 'eslint-plugin-simple-import-sort'
+import tailwind from 'eslint-plugin-tailwindcss'
+import testingLibrary from 'eslint-plugin-testing-library'
 
 export default antfu({
   react: true,
@@ -15,7 +15,7 @@ export default antfu({
   isInEditor: false,
 
   stylistic: {
-    semi: true,
+    semi: false,
   },
 
   formatters: {
@@ -55,6 +55,8 @@ export default antfu({
   ],
   ...playwright.configs['flat/recommended'],
 }, {
+  ignores: ['sandbox/**'],
+}, {
   rules: {
     'import/order': 'off', // Avoid conflicts with `simple-import-sort` plugin
     'sort-imports': 'off', // Avoid conflicts with `simple-import-sort` plugin
@@ -65,4 +67,4 @@ export default antfu({
     'test/padding-around-all': 'error', // Add padding in test files
     'test/prefer-lowercase-title': 'off', // Allow using uppercase titles in test titles
   },
-});
+})

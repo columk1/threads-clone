@@ -49,3 +49,9 @@ local
 
 # vercel
 .vercel
+
+# tests
+/tests
+
+# sandbox
+/sandbox
