@@ -11,7 +11,7 @@ export async function generateMetadata() {
 const SignInPage = () => (
   <div className="w-full px-3 sm:px-0">
     <h1 className="mb-4 text-center font-bold">Log in with your Facebook account</h1>
-    <form>
+    <form autoComplete="off">
       <div className="flex w-full flex-col gap-2 text-[15px]">
         <div className="flex flex-col gap-2">
           <AuthInput
