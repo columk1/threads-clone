@@ -6,7 +6,7 @@ export async function generateMetadata() {
   }
 }
 
-const UserProfilePage = async ({ params }: { params: { username: string } }) => {
+const UserProfilePage = ({ params }: { params: { username: string } }) => {
   logger.info(params)
   // const user = await currentUser()
 

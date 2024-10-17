@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark; /* Hack to remove white artifacts from corners of autofilled form inputs */
+    --font-family-system: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    --primary-bg: rgb(16, 16, 16);
+    --tertiary-bg: rgb(30, 30, 30);
+    --primary-text: rgb(243, 245, 247);
+    --placeholder-text: rgb(138, 141, 145);
+    --gray-text: rgb(119, 119, 119);
+    --primary-outline: rgba(243, 245, 247, 0.15);
+    --secondary-button: rgb(16, 16, 16);
+  }
+}
+
+/* autofill style hack: https://github.com/tailwindlabs/tailwindcss/discussions/8679 */
+@layer components {
+  .autofill-text:-webkit-autofill {
+    -webkit-text-fill-color: var(--primary-text);
+  }
+  .text-input {
+    @apply autofill-text; /* set text colour */
+    @apply autofill:shadow-[inset_0_0_0px_1000px_#272e3c]; /* set 'background' colour */
+    /* @apply autofill:text-md; set font size */
+  }
+}

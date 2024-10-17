@@ -1,4 +1,4 @@
-export const Hello = async () => {
+export const Hello = () => {
   // const user = await currentUser()
 
   return (
