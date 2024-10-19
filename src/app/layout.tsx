@@ -30,11 +30,15 @@ export default function RootLayout(props: {
 }) {
   return (
     <html lang="en-US">
-      <body className="min-h-screen bg-primary-bg font-system text-primary-text">
-        {props.children}
-        <footer className="flex h-[70px] items-center justify-center text-xs text-gray-text">
-          © 2024
-        </footer>
+      <body className="bg-primary-bg font-system text-primary-text">
+        <div className="flex min-h-screen flex-col justify-between">
+          <main>
+            {props.children}
+          </main>
+          <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-text">
+            © 2024
+          </footer>
+        </div>
       </body>
     </html>
   )
