@@ -43,10 +43,10 @@ export async function signup(_: unknown, formData: FormData) {
 
   if (!submission.success) {
     const errors = submission.error.flatten().fieldErrors
-    logger.info(errors)
+    logger.info(submission)
 
     // return redirect('sign-up')
-    return { data: null, error: {
+    return { data: submission.data, error: {
       email: errors.email ? errors.email[0] : null,
       password: errors.password ? errors.password[0] : null,
       name: errors.name ? errors.name[0] : null,
@@ -60,13 +60,13 @@ export async function signup(_: unknown, formData: FormData) {
   const isValidEmail = await (isUniqueField('email', email))
 
   if (!isValidEmail) {
-    return { data: null, error: { email: 'Another account is using the same email.' } }
+    return { data: submission.data, error: { email: 'Another account is using the same email.' } }
   }
 
   const isValidUsername = await (isUniqueField('username', username))
 
   if (!isValidUsername) {
-    return { data: null, error: { username: 'This username isn\'t available. Please try another.' } }
+    return { data: submission.data, error: { username: 'This username isn\'t available. Please try another.' } }
   }
 
   const hashedPassword = await bcrypt.hash(password, 10)

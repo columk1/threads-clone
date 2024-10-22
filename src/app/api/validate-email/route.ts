@@ -14,7 +14,7 @@ export const POST = async (req: NextRequest) => {
       )
     }
 
-    const isUnique = await isEmailUnique(email)
+    const isUnique = await isEmailUnique(email.trim())
 
     return NextResponse.json({ isUnique })
   } catch (error) {

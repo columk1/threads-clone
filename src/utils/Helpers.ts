@@ -48,10 +48,10 @@ export const createErrorMessageLookup = (
   fieldName: string,
   defaultMessage = '',
 ): ErrorMessages => ({
-  valueMissing: `${capitalize(fieldName)} is required.`,
-  typeMismatch: `Please enter a valid ${fieldName}.`,
+  valueMissing: `This field is required.`,
+  typeMismatch: `Enter a valid ${fieldName}.`,
   tooShort: field =>
-    `${capitalize(fieldName)} should be at least ${field.minLength} characters long.`,
+    `Create a ${fieldName} at least ${field.minLength} characters long.`,
   customError: field => field.validationMessage,
   defaultMessage,
 })

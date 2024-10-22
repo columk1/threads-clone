@@ -1,6 +1,6 @@
 'use client'
 
-import { type FunctionComponent, useActionState, useRef } from 'react'
+import { type FunctionComponent, useActionState, useCallback, useRef, useState } from 'react'
 
 import { signup } from '@/app/actions'
 
@@ -27,21 +27,30 @@ const validateEmail = async (email: string) => {
   const isUnique = await isEmailUnique(email)
   if (!isUnique) {
     return {
-      error: 'Email already exists',
+      error: 'Another account is using the same email.',
     }
   }
-  return { error: '' }
+  return Promise.resolve({ error: '' })
 }
 
 const SignupForm: FunctionComponent = () => {
   const [state, formAction, isPending] = useActionState(signup, null)
+  const [isFormValid, setIsFormValid] = useState(false)
+
   const formRef = useRef<HTMLFormElement>(null)
+
+  const handleInput = useCallback(() => {
+    if (formRef.current && !state?.error) {
+      setIsFormValid(formRef.current.checkValidity())
+    }
+  }, [state?.error])
 
   return (
     <form
       ref={formRef}
       action={formAction}
       autoComplete="off"
+      onInput={handleInput}
     >
       <div className="flex w-full flex-col gap-2 text-[15px]">
         {/* {state?.error && (
@@ -65,10 +74,12 @@ const SignupForm: FunctionComponent = () => {
             type="email"
             label="Email"
             placeholder="Email"
+            defaultValue={state?.data?.email}
             autoCapitalize="none"
             required
             error={state?.error?.email}
             customValidator={validateEmail}
+            validateForm={(isValid: boolean) => setIsFormValid(isValid)}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c]"
           />
           <AuthInput
@@ -76,6 +87,7 @@ const SignupForm: FunctionComponent = () => {
             type="password"
             label="Password"
             placeholder="Password"
+            defaultValue={state?.data?.password}
             minLength={8}
             autoComplete="new-password"
             autoCapitalize="none"
@@ -88,6 +100,7 @@ const SignupForm: FunctionComponent = () => {
             type="text"
             label="Full Name"
             placeholder="Full Name"
+            defaultValue={state?.data?.name}
             required
             error={state?.error?.name}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
@@ -97,6 +110,7 @@ const SignupForm: FunctionComponent = () => {
             type="text"
             label="Username"
             placeholder="Username"
+            defaultValue={state?.data?.username}
             autoComplete="new-username"
             required
             error={state?.error?.username}
@@ -104,7 +118,7 @@ const SignupForm: FunctionComponent = () => {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <button type="submit" disabled={isPending || formRef.current?.checkValidity() === false} className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text">
+          <button type="submit" disabled={isPending || !isFormValid} className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text">
             Sign up
           </button>
           <div className="text-center text-sm text-gray-text ">

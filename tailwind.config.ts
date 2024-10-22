@@ -22,6 +22,7 @@ export default {
         'gray-text': 'var(--gray-text)',
         'primary-outline': 'var(--primary-outline)',
         'secondary-button': 'var(--secondary-button)',
+        'notification': 'var(--notification)',
       },
     },
   },
