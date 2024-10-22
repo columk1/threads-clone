@@ -23,11 +23,37 @@ const isEmailUnique = async (email: string): Promise<boolean> => {
   return true
 }
 
+const isUsernameUnique = async (username: string): Promise<boolean> => {
+  const res = await fetch('/api/validate-username', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username }),
+  })
+
+  if (res.ok) {
+    const { isUnique } = await res.json()
+    return isUnique
+  }
+  return true
+}
+
 const validateEmail = async (email: string) => {
   const isUnique = await isEmailUnique(email)
   if (!isUnique) {
     return {
       error: 'Another account is using the same email.',
+    }
+  }
+  return Promise.resolve({ error: '' })
+}
+
+const validateUsername = async (username: string) => {
+  const isUnique = await isUsernameUnique(username)
+  if (!isUnique) {
+    return {
+      error: 'A user with that username already exists.',
     }
   }
   return Promise.resolve({ error: '' })
@@ -114,6 +140,7 @@ const SignupForm: FunctionComponent = () => {
             autoComplete="new-username"
             required
             error={state?.error?.username}
+            customValidator={validateUsername}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
         </div>

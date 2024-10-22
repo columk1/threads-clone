@@ -17,14 +17,14 @@ import { SignupSchema } from '@/models/zod.schema'
 //   logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // send an email to user with this OTP
 // }
 
-export const isEmailUnique = async (email: string) => {
-  const user = await db
-    .select()
-    .from(userTable)
-    .where(eq(userTable.email, email))
-    .all()
-  return !user.length
-}
+// export const isEmailUnique = async (email: string) => {
+//   const user = await db
+//     .select()
+//     .from(userTable)
+//     .where(eq(userTable.email, email))
+//     .all()
+//   return !user.length
+// }
 
 export const isUniqueField = async (field: 'email' | 'username', value: string) => {
   const user = await db
