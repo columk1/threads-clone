@@ -7,3 +7,15 @@ export const SignupSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   username: z.string().min(1, 'Username is required'),
 })
+
+export const verifyEmailSchema = z.object({
+  code: z
+    .string({ required_error: 'Code is required' })
+    .length(6, { message: 'Must be exactly 6-digits long' }),
+})
+
+export const loginSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .email('Invalid email address'),
+})

@@ -1,21 +1,26 @@
 'use server'
 
-// import { cookies } from 'next/headers'
+import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
 import { eq } from 'drizzle-orm'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { isWithinExpirationDate } from 'oslo'
 import { ulid } from 'ulidx'
+import { z } from 'zod'
 
+import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
 import { db } from '@/libs/DB'
 import { logger } from '@/libs/Logger'
-import { userTable } from '@/models/Schema'
-// import { VERIFIED_EMAIL_ALERT } from '@/app/lib/constants'
-import { SignupSchema } from '@/models/zod.schema'
+import { lucia } from '@/libs/Lucia'
+import { emailVerificationCodeTable, userTable } from '@/models/Schema'
+import { loginSchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
+import { generateRandomString } from '@/utils/generate-random-string'
 
-// export async function sendEmailVerificationCode(userId: string, email: string) {
-//   const code = await generateEmailVerificationCode(userId)
-//   logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // send an email to user with this OTP
-// }
+export async function sendEmailVerificationCode(userId: string, email: string) {
+  const code = await generateEmailVerificationCode(userId)
+  logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // send an email to user with this OTP
+}
 
 // export const isEmailUnique = async (email: string) => {
 //   const user = await db
@@ -80,18 +85,155 @@ export async function signup(_: unknown, formData: FormData) {
 
   logger.info(user)
 
-  // try {
-  //   sendEmailVerificationCode(userId, submission.value.email)
+  try {
+    sendEmailVerificationCode(userId, submission.data.email)
 
-  //   const cookieStore = await cookies()
-  //   cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
-  //     maxAge: 60 * 1000, // 1 minute
-  //   })
-  // } catch (err) {
-  //   console.error(`Signup error while creating Lucia session:`)
-  //   console.error(err)
-  // }
+    const cookieStore = await cookies()
+    cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
+      maxAge: 60 * 1000, // 1 minute
+    })
+  } catch (err) {
+    console.error(`Signup error while creating Lucia session:`)
+    console.error(err)
+  }
 
   // return { data: user, error: null }
   return redirect('/verify-email')
+}
+
+// Verify Email
+export async function verifyEmail(_: unknown, formData: FormData) { // first param is prevState
+  const submission = await parseWithZod(formData, {
+    schema: verifyEmailSchema.transform(async (data, ctx) => {
+      const { code } = data
+
+      const databaseCode = await db
+        .select()
+        .from(emailVerificationCodeTable)
+        .where(eq(emailVerificationCodeTable.code, code))
+        .execute()
+        .then(s => s[0])
+
+      if (!databaseCode) {
+        ctx.addIssue({
+          path: ['code'],
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid OTP. Try again!',
+        })
+        return z.NEVER
+      }
+
+      if (
+        databaseCode.expiresAt && !isWithinExpirationDate(new Date(databaseCode.expiresAt))
+      ) {
+        ctx.addIssue({
+          path: ['code'],
+          code: z.ZodIssueCode.custom,
+          message: 'Verification code expired',
+        })
+        return z.NEVER
+      }
+
+      await db
+        .delete(emailVerificationCodeTable)
+        .where(eq(emailVerificationCodeTable.id, databaseCode.id))
+
+      return { ...data, ...databaseCode }
+    }),
+    async: true,
+  })
+
+  if (submission.status !== 'success') {
+    return submission.reply()
+  }
+
+  const user = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.id, submission.value.userId))
+    .execute()
+    .then(s => s[0])
+
+  if (!user) {
+    throw new Error('User not found')
+  }
+
+  await lucia.invalidateUserSessions(user.id)
+  await db
+    .update(userTable)
+    .set({ emailVerified: 1 })
+    .where(eq(userTable.id, user.id))
+
+  logger.info(`\n😊 ${user.email} has been verified.\n`)
+
+  const session = await lucia.createSession(user.id, {})
+  const sessionCookie = lucia.createSessionCookie(session.id)
+  const cookieStore = await cookies()
+  cookieStore.set(sessionCookie)
+
+  cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
+    maxAge: 10 * 60 * 1000, // 10 minutes
+  })
+
+  return redirect('/dashboard')
+}
+
+// Login
+export async function login(_: unknown, formData: FormData) { // first param is prevState
+  const submission = await parseWithZod(formData, {
+    schema: loginSchema.transform(async (data, ctx) => {
+      const existingEmail = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.email, data.email))
+        .execute()
+        .then(s => s[0])
+      if (!(existingEmail && existingEmail.id)) {
+        ctx.addIssue({
+          path: ['email'],
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid email',
+        })
+        return z.NEVER
+      }
+
+      return { ...data, ...existingEmail }
+    }),
+    async: true,
+  })
+
+  if (submission.status !== 'success') {
+    return submission.reply()
+  }
+
+  try {
+    sendEmailVerificationCode(submission.value.id, submission.value.email)
+    const cookieStore = await cookies()
+    cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
+      maxAge: 10 * 60 * 1000, // 10 minutes
+    })
+  } catch (err) {
+    console.error(`Login error while creating Lucia session:`)
+    console.error(err)
+  }
+
+  return redirect('/verify-email')
+}
+
+export async function generateEmailVerificationCode(
+  userId: string,
+): Promise<string> {
+  await db
+    .delete(emailVerificationCodeTable)
+    .where(eq(emailVerificationCodeTable.userId, userId))
+
+  const code = generateRandomString(6)
+
+  await db.insert(emailVerificationCodeTable).values({
+    code,
+    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+    userId,
+  })
+
+  return code
 }
