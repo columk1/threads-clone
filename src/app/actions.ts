@@ -12,11 +12,35 @@ import { z } from 'zod'
 import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
 import { db } from '@/libs/DB'
 import { logger } from '@/libs/Logger'
-import { lucia } from '@/libs/Lucia'
+import { lucia, validateRequest } from '@/libs/Lucia'
 import { emailVerificationCodeTable, userTable } from '@/models/Schema'
 import { loginSchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
 import { generateRandomString } from '@/utils/generate-random-string'
 
+/*
+ * Generate Email Verification Code
+ */
+export const generateEmailVerificationCode = async (
+  userId: string,
+): Promise<string> => {
+  await db
+    .delete(emailVerificationCodeTable)
+    .where(eq(emailVerificationCodeTable.userId, userId))
+
+  const code = generateRandomString(6)
+
+  await db.insert(emailVerificationCodeTable).values({
+    code,
+    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+    userId,
+  })
+
+  return code
+}
+
+/*
+ * Send Email Verification Code
+ */
 export async function sendEmailVerificationCode(userId: string, email: string) {
   const code = await generateEmailVerificationCode(userId)
   logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // send an email to user with this OTP
@@ -31,6 +55,9 @@ export async function sendEmailVerificationCode(userId: string, email: string) {
 //   return !user.length
 // }
 
+/*
+ * Is Unique Field
+ */
 export const isUniqueField = async (field: 'email' | 'username', value: string) => {
   const user = await db
     .select()
@@ -40,6 +67,9 @@ export const isUniqueField = async (field: 'email' | 'username', value: string) 
   return !user.length
 }
 
+/*
+ * Sign Up
+ */
 export async function signup(_: unknown, formData: FormData) {
   // const {} = await signupLimiter.consume()
 
@@ -50,7 +80,7 @@ export async function signup(_: unknown, formData: FormData) {
     const errors = submission.error.flatten().fieldErrors
     logger.info(submission)
 
-    // return redirect('sign-up')
+    // return redirect('signup')
     return { data: submission.data, error: {
       email: errors.email ? errors.email[0] : null,
       password: errors.password ? errors.password[0] : null,
@@ -101,7 +131,9 @@ export async function signup(_: unknown, formData: FormData) {
   return redirect('/verify-email')
 }
 
-// Verify Email
+/*
+ * Verify Email
+ */
 export async function verifyEmail(_: unknown, formData: FormData) { // first param is prevState
   const submission = await parseWithZod(formData, {
     schema: verifyEmailSchema.transform(async (data, ctx) => {
@@ -178,29 +210,43 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
   return redirect('/dashboard')
 }
 
-// Login
+/*
+ * Login
+ */
 export async function login(_: unknown, formData: FormData) { // first param is prevState
   const submission = await parseWithZod(formData, {
     schema: loginSchema.transform(async (data, ctx) => {
-      const existingEmail = await db
+      const user = await db
         .select()
         .from(userTable)
         .where(eq(userTable.email, data.email))
         .execute()
         .then(s => s[0])
-      if (!(existingEmail && existingEmail.id)) {
+      if (!(user && user.id)) {
         ctx.addIssue({
-          path: ['email'],
+          path: ['password'],
           code: z.ZodIssueCode.custom,
-          message: 'Invalid email',
+          message: 'Sorry, your password was incorrect. Please double-check your password.',
         })
         return z.NEVER
       }
 
-      return { ...data, ...existingEmail }
+      const isPasswordValid = await bcrypt.compare(data.password, user.password)
+
+      if (!isPasswordValid) {
+        ctx.addIssue({
+          path: ['password'],
+          code: z.ZodIssueCode.custom,
+          message: 'Sorry, your password was incorrect. Please double-check your password.',
+        })
+        return z.NEVER
+      }
+
+      return { ...data, ...user }
     }),
     async: true,
   })
+  logger.info(submission) // { status, payload (form data), value (user object) }
 
   if (submission.status !== 'success') {
     return submission.reply()
@@ -220,20 +266,30 @@ export async function login(_: unknown, formData: FormData) { // first param is 
   return redirect('/verify-email')
 }
 
-export async function generateEmailVerificationCode(
-  userId: string,
-): Promise<string> {
-  await db
-    .delete(emailVerificationCodeTable)
-    .where(eq(emailVerificationCodeTable.userId, userId))
+/*
+ * Logout
+ */
+export const logout = async () => {
+  const { session } = await validateRequest()
 
-  const code = generateRandomString(6)
+  if (!session) {
+    return {
+      error: 'Unauthorized',
+    }
+  }
 
-  await db.insert(emailVerificationCodeTable).values({
-    code,
-    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-    userId,
-  })
+  await lucia.invalidateSession(session.id)
 
-  return code
+  const sessionCookie = lucia.createBlankSessionCookie()
+  const cookieStore = await cookies()
+  cookieStore.set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  )
+  await lucia.deleteExpiredSessions()
+
+  cookieStore.delete(VERIFIED_EMAIL_ALERT)
+
+  return redirect('/login')
 }
