@@ -16,6 +16,6 @@ export const verifyEmailSchema = z.object({
 
 export const loginSchema = z.object({
   email: z
-    .string({ required_error: 'Email is required' })
-    .email('Invalid email address'),
+    .string({ required_error: 'Email is required' }),
+  password: z.string({ required_error: 'Password is required' }),
 })

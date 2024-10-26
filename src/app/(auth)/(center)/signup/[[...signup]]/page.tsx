@@ -7,10 +7,6 @@ export async function generateMetadata() {
   }
 }
 
-// const signUp = async (formData: FormData) => {
-//   const { data, error } = await signup(formData)
-// }
-
 const SignUpPage = () => {
   return (
     <div className="w-full px-3 sm:px-0">

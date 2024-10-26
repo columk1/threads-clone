@@ -1,36 +1,42 @@
-import AuthInput from '@/components/AuthInput'
-import FacebookAuthButton from '@/components/FacebookAuthButton'
+'use client'
 
-export async function generateMetadata() {
-  return {
-    title: 'Sign in',
-    description: 'Seamlessly sign in to your account with our user-friendly login process.',
-  }
-}
+import { useActionState } from 'react'
 
-const SignInPage = () => (
-  <div className="w-full px-3 sm:px-0">
-    <h1 className="mb-4 text-center font-bold">Log in with your Facebook account</h1>
-    <form autoComplete="off">
+import { login } from '@/app/actions'
+
+import AuthInput from './AuthInput'
+import FacebookAuthButton from './FacebookAuthButton'
+
+const LoginForm = () => {
+  const [state, formAction, isPending] = useActionState(login, null)
+
+  return (
+    <form action={formAction} autoComplete="off">
       <div className="flex w-full flex-col gap-2 text-[15px]">
         <div className="flex flex-col gap-2">
           <AuthInput
             type="text"
+            name="email"
             label="Username, phone or email"
             placeholder="Username, phone or email"
-            name="username"
+            autoComplete="current-email"
+            defaultValue={state?.initialValue?.email?.toString()}
+            error={state?.error?.email && state?.error?.email[0]}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
           <AuthInput
             type="password"
+            name="password"
             label="Password"
             placeholder="Password"
-            name="password"
+            autoComplete="current-password"
+            defaultValue={state?.initialValue?.password?.toString()}
+            error={state?.error?.password && state?.error?.password[0]}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
         </div>
         <div className="flex flex-col gap-4">
-          <button type="submit" className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button">
+          <button type="submit" disabled={isPending}className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button">
             Log in
           </button>
           <div className="text-center">
@@ -47,7 +53,7 @@ const SignInPage = () => (
         </div>
       </div>
     </form>
-  </div>
-)
+  )
+}
 
-export default SignInPage
+export default LoginForm

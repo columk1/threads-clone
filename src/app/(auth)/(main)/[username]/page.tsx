@@ -7,7 +7,8 @@ export async function generateMetadata() {
 }
 
 const UserProfilePage = async ({ params }: { params: { username: string } } | any) => {
-  logger.info(params)
+  const { username } = await params
+  logger.info(username)
   // const user = await currentUser()
 
   // if (!user || user.username !== params.username) {

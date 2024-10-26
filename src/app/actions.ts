@@ -207,7 +207,7 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
     maxAge: 10 * 60 * 1000, // 10 minutes
   })
 
-  return redirect('/dashboard')
+  return redirect('/')
 }
 
 /*

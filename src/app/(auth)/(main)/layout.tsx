@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { logout } from '@/app/actions'
 import { BaseTemplate } from '@/templates/BaseTemplate'
 
 export default async function DashboardLayout(props: { children: React.ReactNode }) {
@@ -28,9 +29,11 @@ export default async function DashboardLayout(props: { children: React.ReactNode
       )}
       rightNav={(
         <li>
-          <button className="border-none text-gray-700 hover:text-gray-900" type="button">
-            Sign out
-          </button>
+          <form action={logout}>
+            <button type="submit" className="border-none text-gray-700 hover:text-gray-900">
+              Sign out
+            </button>
+          </form>
         </li>
       )}
     >

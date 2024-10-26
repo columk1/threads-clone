@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { type FunctionComponent, useActionState, useCallback, useRef, useState } from 'react'
 
 import { signup } from '@/app/actions'
@@ -148,11 +149,11 @@ const SignupForm: FunctionComponent = () => {
           <button type="submit" disabled={isPending || !isFormValid} className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text">
             Sign up
           </button>
-          <div className="text-center text-sm text-gray-text ">
+          <div className="text-center text-sm text-gray-text">
             Have an account?&nbsp;
-            <a href="/sign-in" className="text-primary-text hover:underline">
+            <Link href="/login" className="text-primary-text hover:underline">
               Log in
-            </a>
+            </Link>
           </div>
         </div>
       </div>

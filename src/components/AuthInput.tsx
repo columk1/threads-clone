@@ -5,7 +5,7 @@ import { createErrorMessageLookup, debounce, getError } from '@/utils/Helpers'
 type AuthInputProps = {
   type: 'text' | 'password' | 'email' // Add more types as needed
   name: string
-  placeholder: string
+  placeholder?: string
   label: string // Screen reader label
   defaultValue?: string
   autoComplete?: string
