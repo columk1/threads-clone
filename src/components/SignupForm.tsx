@@ -8,6 +8,8 @@ import { signup } from '@/app/actions'
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'
 
+const DELAY = 500
+
 const isEmailUnique = async (email: string): Promise<boolean> => {
   const res = await fetch('/api/validate-email', {
     method: 'POST',
@@ -67,10 +69,15 @@ const SignupForm: FunctionComponent = () => {
   const formRef = useRef<HTMLFormElement>(null)
 
   const handleInput = useCallback(() => {
-    if (formRef.current && !state?.error) {
+    if (formRef.current) {
       setIsFormValid(formRef.current.checkValidity())
+      setTimeout(() => {
+        if (formRef.current) {
+          setIsFormValid(formRef.current.checkValidity())
+        }
+      }, DELAY)
     }
-  }, [state?.error])
+  }, [])
 
   return (
     <form
@@ -106,6 +113,7 @@ const SignupForm: FunctionComponent = () => {
             required
             error={state?.error?.email}
             customValidator={validateEmail}
+            delay={DELAY}
             validateForm={(isValid: boolean) => setIsFormValid(isValid)}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c]"
           />
@@ -142,6 +150,7 @@ const SignupForm: FunctionComponent = () => {
             required
             error={state?.error?.username}
             customValidator={validateUsername}
+            delay={DELAY}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
         </div>

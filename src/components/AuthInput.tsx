@@ -14,6 +14,7 @@ type AuthInputProps = {
   minLength?: number
   error?: string | null
   customValidator?: (value: string) => Promise<{ error: string }>
+  delay?: number
   validateForm?: (isValid: boolean) => void
   className?: string
 }
@@ -30,6 +31,7 @@ const Input = ({
   minLength,
   error = null,
   customValidator,
+  delay = 1000,
   validateForm,
   className = '',
 }: AuthInputProps) => {
@@ -60,7 +62,7 @@ const Input = ({
       setValidationMessage(message)
       setActiveError(true)
     }
-  }, 1000)
+  }, delay)
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     inputRef.current?.setCustomValidity('')
