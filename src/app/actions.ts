@@ -67,6 +67,14 @@ export const isUniqueField = async (field: 'email' | 'username', value: string) 
   return !user.length
 }
 
+// const timeFromNow = (time: Date) => {
+//   const now = new Date()
+//   const diff = time.getTime() - now.getTime()
+//   const minutes = Math.floor(diff / 1000 / 60)
+//   const seconds = Math.floor(diff / 1000) % 60
+//   return `${minutes}m ${seconds}s`
+// }
+
 /*
  * Sign Up
  */
@@ -113,6 +121,10 @@ export async function signup(_: unknown, formData: FormData) {
     .returning()
     .then(s => s[0])
 
+  if (!user) {
+    throw new Error('Failed to create user')
+  }
+
   logger.info(user)
 
   try {
@@ -122,6 +134,10 @@ export async function signup(_: unknown, formData: FormData) {
     cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
       maxAge: 60 * 1000, // 1 minute
     })
+
+    const session = await lucia.createSession(user.id, {})
+    const sessionCookie = lucia.createSessionCookie(session.id)
+    cookieStore.set(sessionCookie)
   } catch (err) {
     console.error(`Signup error while creating Lucia session:`)
     console.error(err)
@@ -211,6 +227,34 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
 }
 
 /*
+ * Resend Verification Email
+ */
+export async function resendVerificationEmail(): Promise<{
+  error?: string
+  success?: boolean
+}> {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+
+  // const lastSent = await db.query.emailVerificationCodeTable.findFirst({
+  //   where: (table, { eq }) => eq(table.userId, user.id),
+  //   columns: { expiresAt: true },
+  // })
+
+  // if (lastSent?.expiresAt && isWithinExpirationDate(new Date(lastSent.expiresAt))) {
+  //   return {
+  //     error: `Please wait ${timeFromNow(new Date(lastSent.expiresAt))} before resending`,
+  //   }
+  // }
+
+  await sendEmailVerificationCode(user.id, user.email)
+
+  return { success: true }
+}
+
+/*
  * Login
  */
 export async function login(_: unknown, formData: FormData) { // first param is prevState
@@ -252,18 +296,21 @@ export async function login(_: unknown, formData: FormData) { // first param is 
     return submission.reply()
   }
 
-  try {
-    sendEmailVerificationCode(submission.value.id, submission.value.email)
-    const cookieStore = await cookies()
-    cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
-      maxAge: 10 * 60 * 1000, // 10 minutes
-    })
-  } catch (err) {
-    console.error(`Login error while creating Lucia session:`)
-    console.error(err)
+  const user = submission.value
+
+  await lucia.invalidateUserSessions(user.id)
+
+  const session = await lucia.createSession(user.id, {})
+  const sessionCookie = lucia.createSessionCookie(session.id)
+  const cookieStore = await cookies()
+  cookieStore.set(sessionCookie)
+
+  if (!user.emailVerified) {
+    await sendEmailVerificationCode(user.id, user.email)
+    return redirect('/verify-email')
   }
 
-  return redirect('/verify-email')
+  return redirect('/')
 }
 
 /*

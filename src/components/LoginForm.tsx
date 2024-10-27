@@ -25,6 +25,8 @@ const LoginForm = () => {
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
           <AuthInput
+            // key forces a re-render if state receives the same error on subsequent submissions
+            key={`${state?.initialValue?.email}${state?.initialValue?.password}`}
             type="password"
             name="password"
             label="Password"

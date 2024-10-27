@@ -18,7 +18,7 @@ export const lucia = new Lucia(adapter, {
       secure: !IS_DEV,
     },
   },
-  sessionExpiresIn: new TimeSpan(1, 'm'), // 1 month
+  sessionExpiresIn: new TimeSpan(1, 'h'), // 1 hour
   // Expose user attributes to the session cookie
   getUserAttributes: (attributes) => {
     return {

@@ -55,7 +55,7 @@ export default antfu({
   ],
   ...playwright.configs['flat/recommended'],
 }, {
-  ignores: ['sandbox/**'],
+  ignores: ['sandbox/**', '.next/**'],
 }, {
   rules: {
     'import/order': 'off', // Avoid conflicts with `simple-import-sort` plugin

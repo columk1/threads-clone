@@ -2,15 +2,40 @@
 
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
+import { useCookies } from 'next-client-cookies'
+import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
+import { toast } from 'sonner'
 
-import { verifyEmail } from '@/app/actions'
+import { resendVerificationEmail, verifyEmail } from '@/app/actions'
 import AuthInput from '@/components/AuthInput'
-import Toast from '@/components/Toast'
+import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
 import { verifyEmailSchema } from '@/models/zod.schema'
 
-const VerifyEmailForm = () => {
+const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
   const [lastResult, action] = useFormState(verifyEmail, undefined)
+  const [resendState, resendAction] = useFormState(resendVerificationEmail, null)
+  const cookies = useCookies()
+
+  useEffect(() => {
+    if (resendState?.success) {
+      // toast("Email sent!");
+      toast(`We sent the confirmation code to your email ${userEmail}.`)
+    }
+    if (resendState?.error) {
+      // toast(resendState.error, {
+      //   icon: <ExclamationTriangleIcon className="h-5 w-5 text-destructive" />,
+      // });
+      toast(resendState.error)
+    }
+  }, [resendState?.error, resendState?.success, userEmail])
+
+  useEffect(() => {
+    const emailSent = cookies.get(VERIFIED_EMAIL_ALERT)
+    if (emailSent) {
+      toast(`We sent the confirmation code to your email ${userEmail}.`)
+    }
+  }, [cookies, userEmail])
 
   const [form, fields] = useForm({
     id: 'verify-email-form',
@@ -20,11 +45,19 @@ const VerifyEmailForm = () => {
         schema: verifyEmailSchema,
       })
     },
-    shouldValidate: 'onBlur',
+    shouldValidate: 'onInput',
   })
 
   return (
     <>
+      <div className="mb-4 text-center text-sm text-gray-text">
+        {`Enter the confirmation code we sent to ${userEmail}. `}
+        <form action={resendAction} className="inline">
+          <button type="submit" className="text-primary-text hover:underline">
+            Resend code.
+          </button>
+        </form>
+      </div>
       <form action={action} {...getFormProps(form)}>
         <div className="flex w-full flex-col gap-2 text-[15px]">
           <div className="flex flex-col gap-2">
@@ -45,7 +78,6 @@ const VerifyEmailForm = () => {
           </div>
         </div>
       </form>
-      <Toast message="Enter 6-digit OTP logged to console." />
     </>
   )
 }

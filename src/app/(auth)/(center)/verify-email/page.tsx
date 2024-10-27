@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import VerifyEmailForm from '@/components/VerifyEmailForm'
@@ -7,8 +6,11 @@ import { validateRequest } from '@/libs/Lucia'
 
 export default async function VerifyEmailPage() {
   const { user } = await validateRequest()
-  const userExists = user && user.emailVerified
-  if (userExists) {
+  if (!user) {
+    return redirect('/login')
+  }
+
+  if (user.emailVerified) {
     return redirect('/')
   }
 
@@ -22,17 +24,10 @@ export default async function VerifyEmailPage() {
   return (
     <div className="w-full px-3 sm:px-0">
       <div className="mb-2 flex justify-center">
-        <Image src="/assets/images/mail-logo.png" alt="Mail Icon with Threads Logo" width={96} height={90} />
+        <Image src="/assets/images/mail-logo.png" alt="Mail Icon with Threads Logo" width={96} height={84} />
       </div>
       <h1 className="mb-4 text-center font-bold">Enter Confirmation Code</h1>
-      <p className="mb-4 text-center text-sm text-gray-text">
-        Enter the confirmation code we sent to
-        {`<email> `}
-        <Link href="/resend-otp" className="text-primary-text hover:underline">
-          Resend Code.
-        </Link>
-      </p>
-      <VerifyEmailForm />
+      <VerifyEmailForm userEmail={user.email} />
     </div>
   )
 }
