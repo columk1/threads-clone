@@ -1,6 +1,8 @@
 import '@/styles/global.css'
 
 import type { Metadata } from 'next'
+import { CookiesProvider } from 'next-client-cookies/server'
+import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
   icons: [
@@ -33,7 +35,10 @@ export default function RootLayout(props: {
       <body className="bg-primary-bg font-system text-primary-text">
         <div className="flex min-h-screen flex-col justify-between">
           <main>
-            {props.children}
+            <CookiesProvider>
+              {props.children}
+              <Toaster />
+            </CookiesProvider>
           </main>
           <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-text">
             © 2024
