@@ -1,0 +1,65 @@
+.spinner {
+  color: currentColor;
+  display: inline-block;
+  position: relative;
+  width: 2.5em;
+  height: 2.5em; /* Adjusted for relative sizing */
+}
+
+.spinner div {
+  transform-origin: 1.25em 1.25em; /* Centers it within 50% of width and height */
+  animation: spinner 1.2s linear infinite;
+}
+
+.spinner div:after {
+  content: ' ';
+  display: block;
+  position: absolute;
+  top: 0.1em; /* Positioned proportionally */
+  left: 1.15em;
+  width: 0.2em;
+  height: 0.6em;
+  border-radius: 20%;
+  background: currentColor;
+}
+.spinner div:nth-child(1) {
+  transform: rotate(0deg);
+  animation-delay: -0.875s;
+}
+.spinner div:nth-child(2) {
+  transform: rotate(45deg);
+  animation-delay: -0.75s;
+}
+.spinner div:nth-child(3) {
+  transform: rotate(90deg);
+  animation-delay: -0.625s;
+}
+.spinner div:nth-child(4) {
+  transform: rotate(135deg);
+  animation-delay: -0.5s;
+}
+.spinner div:nth-child(5) {
+  transform: rotate(180deg);
+  animation-delay: -0.375s;
+}
+.spinner div:nth-child(6) {
+  transform: rotate(225deg);
+  animation-delay: -0.25s;
+}
+.spinner div:nth-child(7) {
+  transform: rotate(270deg);
+  animation-delay: -0.125s;
+}
+.spinner div:nth-child(8) {
+  transform: rotate(315deg);
+  animation-delay: 0s;
+}
+
+@keyframes spinner {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
