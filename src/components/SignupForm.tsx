@@ -8,7 +8,7 @@ import { signup } from '@/app/actions'
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'
 
-const DELAY = 500
+const VALIDATION_DELAY = 750
 
 const isEmailUnique = async (email: string): Promise<boolean> => {
   const res = await fetch('/api/validate-email', {
@@ -71,12 +71,11 @@ const SignupForm: FunctionComponent = () => {
   const handleInput = useCallback(() => {
     if (formRef.current) {
       setIsFormValid(formRef.current.checkValidity())
-      setTimeout(() => {
-        if (formRef.current) {
-          setIsFormValid(formRef.current.checkValidity())
-        }
-      }, DELAY)
     }
+  }, [])
+
+  const setCustomValidity = useCallback((isValid: boolean) => {
+    setIsFormValid(isValid)
   }, [])
 
   return (
@@ -107,21 +106,22 @@ const SignupForm: FunctionComponent = () => {
             name="email"
             type="email"
             label="Email"
-            placeholder="Email"
+            placeholder=""
             defaultValue={state?.data?.email}
             autoCapitalize="none"
             required
             error={state?.error?.email}
             customValidator={validateEmail}
-            delay={DELAY}
-            validateForm={(isValid: boolean) => setIsFormValid(isValid)}
+            delay={VALIDATION_DELAY}
+            validateForm={setCustomValidity}
+
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c]"
           />
           <AuthInput
             name="password"
             type="password"
             label="Password"
-            placeholder="Password"
+            placeholder=""
             defaultValue={state?.data?.password}
             minLength={8}
             autoComplete="new-password"
@@ -134,7 +134,7 @@ const SignupForm: FunctionComponent = () => {
             name="name"
             type="text"
             label="Full Name"
-            placeholder="Full Name"
+            placeholder=""
             defaultValue={state?.data?.name}
             required
             error={state?.error?.name}
@@ -144,13 +144,14 @@ const SignupForm: FunctionComponent = () => {
             name="username"
             type="text"
             label="Username"
-            placeholder="Username"
+            placeholder=""
             defaultValue={state?.data?.username}
             autoComplete="new-username"
             required
             error={state?.error?.username}
             customValidator={validateUsername}
-            delay={DELAY}
+            validateForm={setCustomValidity}
+            delay={VALIDATION_DELAY}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
         </div>

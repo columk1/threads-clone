@@ -1,3 +1,4 @@
+import cx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 
 import { createErrorMessageLookup, debounce, getError } from '@/utils/Helpers'
@@ -61,25 +62,29 @@ const Input = ({
       }
       setValidationMessage(message)
       setActiveError(true)
+      validateForm?.(!message)
     }
   }, delay)
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     inputRef.current?.setCustomValidity('')
     setActiveError(false)
     validate(e.target, customValidator)
   }
   return (
-    <div>
-      <label htmlFor={name} className="sr-only">
-        {label}
-      </label>
+    <div className="relative">
       <input
         ref={inputRef}
         type={type}
         name={name}
         placeholder={placeholder}
-        className={`text-input peer h-12 w-full rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0 ${className} ${activeError && '[&:user-invalid]:border-red-500'} ${error && 'peer-invalid:border-red-500'}`}
+        className={cx(
+          'text-input peer h-12 w-full rounded-xl border border-transparent bg-tertiary-bg font-sans font-light placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0',
+          !placeholder && '[&:not(:placeholder-shown)]:pb-0',
+          `${className}`,
+          activeError && '[&:user-invalid]:border-red-500',
+          error && 'peer-invalid:border-red-500',
+        )}
         id={name}
         defaultValue={defaultValue}
         autoComplete={autoComplete}
@@ -89,6 +94,9 @@ const Input = ({
         minLength={minLength}
         onChange={onChange}
       />
+      <label htmlFor={name} className={placeholder ? 'sr-only' : 'pointer-events-none absolute left-[17px] origin-top-left translate-y-[14px] scale-100 font-light text-placeholder-text transition peer-[:not(:placeholder-shown)]:translate-y-1 peer-[:not(:placeholder-shown)]:scale-75'}>
+        {label}
+      </label>
       {activeError && <p className={`hidden py-1 pl-4 text-sm text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`}>{validationMessage || error}</p>}
     </div>
   )
