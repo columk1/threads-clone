@@ -8,7 +8,7 @@ import { signup } from '@/app/actions'
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'
 
-const VALIDATION_DELAY = 750
+const VALIDATION_DELAY = 300
 
 const isEmailUnique = async (email: string): Promise<boolean> => {
   const res = await fetch('/api/validate-email', {
@@ -127,6 +127,7 @@ const SignupForm: FunctionComponent = () => {
             autoComplete="new-password"
             autoCapitalize="none"
             required
+            delay={VALIDATION_DELAY}
             error={state?.error?.password}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
@@ -137,6 +138,7 @@ const SignupForm: FunctionComponent = () => {
             placeholder=""
             defaultValue={state?.data?.name}
             required
+            delay={VALIDATION_DELAY}
             error={state?.error?.name}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />

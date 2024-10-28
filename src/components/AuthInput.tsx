@@ -1,4 +1,5 @@
 import cx from 'clsx'
+import { CircleCheck, CircleX } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { createErrorMessageLookup, debounce, getError } from '@/utils/Helpers'
@@ -66,11 +67,15 @@ const Input = ({
     }
   }, delay)
 
-  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = () => {
     inputRef.current?.setCustomValidity('')
     setActiveError(false)
+  }
+
+  const onBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
     validate(e.target, customValidator)
   }
+
   return (
     <div className="relative">
       <input
@@ -79,7 +84,7 @@ const Input = ({
         name={name}
         placeholder={placeholder}
         className={cx(
-          'text-input peer h-12 w-full rounded-xl border border-transparent bg-tertiary-bg font-sans font-light placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0',
+          'text-input peer pr-10 h-12 w-full rounded-xl border border-transparent bg-tertiary-bg font-sans font-light placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0',
           !placeholder && '[&:not(:placeholder-shown)]:pb-0',
           `${className}`,
           activeError && '[&:user-invalid]:border-red-500',
@@ -93,10 +98,13 @@ const Input = ({
         required={required}
         minLength={minLength}
         onChange={onChange}
+        onBlur={onBlur}
       />
       <label htmlFor={name} className={placeholder ? 'sr-only' : 'pointer-events-none absolute left-[17px] origin-top-left translate-y-[14px] scale-100 font-light text-placeholder-text transition peer-[:not(:placeholder-shown)]:translate-y-1 peer-[:not(:placeholder-shown)]:scale-75'}>
         {label}
       </label>
+      {activeError && <CircleX className={`absolute right-2 top-[14px] hidden text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`} />}
+      {activeError && !validationMessage && <CircleCheck className="absolute right-2 top-[14px] hidden text-placeholder-text peer-[&:not(:focus-within):user-valid]:block" />}
       {activeError && <p className={`hidden py-1 pl-4 text-sm text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`}>{validationMessage || error}</p>}
     </div>
   )
