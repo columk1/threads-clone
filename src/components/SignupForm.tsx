@@ -113,6 +113,7 @@ const SignupForm: FunctionComponent = () => {
             error={state?.error?.email}
             customValidator={validateEmail}
             delay={VALIDATION_DELAY}
+            icons
             validateForm={setCustomValidity}
 
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c]"
@@ -128,6 +129,7 @@ const SignupForm: FunctionComponent = () => {
             autoCapitalize="none"
             required
             delay={VALIDATION_DELAY}
+            icons
             error={state?.error?.password}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
@@ -139,6 +141,7 @@ const SignupForm: FunctionComponent = () => {
             defaultValue={state?.data?.name}
             required
             delay={VALIDATION_DELAY}
+            icons
             error={state?.error?.name}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
@@ -154,6 +157,7 @@ const SignupForm: FunctionComponent = () => {
             customValidator={validateUsername}
             validateForm={setCustomValidity}
             delay={VALIDATION_DELAY}
+            icons
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
         </div>

@@ -1,17 +1,29 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useCallback, useRef, useState } from 'react'
 
 import { login } from '@/app/actions'
+import Spinner from '@/components/Spinner/Spinner'
 
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'
 
 const LoginForm = () => {
   const [state, formAction, isPending] = useActionState(login, null)
+  const [isValid, setIsValid] = useState(false)
+
+  const formRef = useRef<HTMLFormElement>(null)
+
+  const getValidity = useCallback(() => formRef?.current?.email?.value !== '' && formRef?.current?.password?.value !== '', [])
+
+  const handleInput = useCallback(() => {
+    if (isValid !== getValidity()) {
+      setIsValid(!isValid)
+    }
+  }, [isValid, getValidity])
 
   return (
-    <form action={formAction} autoComplete="off">
+    <form ref={formRef} onInput={handleInput} action={formAction} autoComplete="off">
       <div className="flex w-full flex-col gap-2 text-[15px]">
         <div className="flex flex-col gap-2">
           <AuthInput
@@ -38,8 +50,8 @@ const LoginForm = () => {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <button type="submit" disabled={isPending}className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button">
-            Log in
+          <button type="submit" disabled={!isValid && !isPending} className="flex h-[3.25rem] w-full items-center justify-center rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text">
+            {isPending ? <Spinner /> : 'Log in'}
           </button>
           <div className="text-center">
             <a href="forgot-password" className="text-sm text-gray-text hover:underline">

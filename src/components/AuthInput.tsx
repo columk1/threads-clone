@@ -18,6 +18,7 @@ type AuthInputProps = {
   customValidator?: (value: string) => Promise<{ error: string }>
   delay?: number
   validateForm?: (isValid: boolean) => void
+  icons?: boolean
   className?: string
 }
 
@@ -35,6 +36,7 @@ const Input = ({
   customValidator,
   delay = 1000,
   validateForm,
+  icons = false,
   className = '',
 }: AuthInputProps) => {
   const [validationMessage, setValidationMessage] = useState<string | null>(error)
@@ -103,8 +105,12 @@ const Input = ({
       <label htmlFor={name} className={placeholder ? 'sr-only' : 'pointer-events-none absolute left-[17px] origin-top-left translate-y-[14px] scale-100 font-light text-placeholder-text transition peer-[:not(:placeholder-shown)]:translate-y-1 peer-[:not(:placeholder-shown)]:scale-75'}>
         {label}
       </label>
-      {activeError && <CircleX className={`absolute right-2 top-[14px] hidden text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`} />}
-      {activeError && !validationMessage && <CircleCheck className="absolute right-2 top-[14px] hidden text-placeholder-text peer-[&:not(:focus-within):user-valid]:block" />}
+      {icons && (
+        <>
+          {activeError && <CircleX className={`absolute right-2 top-[14px] hidden text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`} />}
+          {activeError && !validationMessage && <CircleCheck className="absolute right-2 top-[14px] hidden text-placeholder-text peer-[&:not(:focus-within):user-valid]:block" />}
+        </>
+      )}
       {activeError && <p className={`hidden py-1 pl-4 text-sm text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`}>{validationMessage || error}</p>}
     </div>
   )
