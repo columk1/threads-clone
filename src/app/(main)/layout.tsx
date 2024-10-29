@@ -1,6 +1,3 @@
-import Link from 'next/link'
-
-import { logout } from '@/app/actions'
 import { BaseTemplate } from '@/templates/BaseTemplate'
 
 export default async function DashboardLayout(props: { children: React.ReactNode }) {
@@ -9,14 +6,13 @@ export default async function DashboardLayout(props: { children: React.ReactNode
     <BaseTemplate
       leftNav={(
         <>
-          <li>
+          {/* <li>
             <Link
               href="/"
               className="border-none text-gray-700 hover:text-gray-900"
             >
-              Dashboard
             </Link>
-          </li>
+          </li> */}
           {/* <li>
             <Link
               href={`/${user?.username}/`}
@@ -29,11 +25,6 @@ export default async function DashboardLayout(props: { children: React.ReactNode
       )}
       rightNav={(
         <li>
-          <form action={logout}>
-            <button type="submit" className="border-none text-gray-700 hover:text-gray-900">
-              Sign out
-            </button>
-          </form>
         </li>
       )}
     >

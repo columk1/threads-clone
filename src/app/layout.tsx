@@ -34,12 +34,10 @@ export default function RootLayout(props: {
     <html lang="en-US">
       <body className="bg-primary-bg font-system text-primary-text">
         <div className="flex min-h-screen flex-col justify-between">
-          <main>
-            <CookiesProvider>
-              {props.children}
-              <Toaster />
-            </CookiesProvider>
-          </main>
+          <CookiesProvider>
+            {props.children}
+            <Toaster />
+          </CookiesProvider>
           <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-text">
             © 2024
           </footer>
