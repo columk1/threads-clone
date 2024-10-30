@@ -2,6 +2,7 @@ import '@/styles/global.css'
 
 import type { Metadata } from 'next'
 import { CookiesProvider } from 'next-client-cookies/server'
+import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
@@ -33,15 +34,22 @@ export default function RootLayout(props: {
   return (
     <html lang="en-US">
       <body className="bg-primary-bg font-system text-primary-text">
-        <div className="flex min-h-screen flex-col justify-between">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           <CookiesProvider>
-            {props.children}
-            <Toaster />
+            <div className="flex min-h-screen flex-col justify-between">
+              {props.children}
+              <Toaster />
+              <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-1">
+                © 2024
+              </footer>
+            </div>
           </CookiesProvider>
-          <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-1">
-            © 2024
-          </footer>
-        </div>
+        </ThemeProvider>
       </body>
     </html>
   )
