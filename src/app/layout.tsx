@@ -38,7 +38,7 @@ export default function RootLayout(props: {
             {props.children}
             <Toaster />
           </CookiesProvider>
-          <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-text">
+          <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-1">
             © 2024
           </footer>
         </div>

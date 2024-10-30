@@ -96,7 +96,7 @@ const SignupForm: FunctionComponent = () => {
           </div>
         )} */}
         <FacebookAuthButton iconSize="30" className="h-[3.25rem]">Log in with Facebook</FacebookAuthButton>
-        <div className="flex items-center justify-center space-x-4 text-gray-text">
+        <div className="flex items-center justify-center space-x-4 text-gray-6">
           <hr className="w-full border-[0.5px] border-primary-outline" />
           <span className="px-4">or</span>
           <hr className="w-full border-t border-primary-outline" />
@@ -165,7 +165,7 @@ const SignupForm: FunctionComponent = () => {
           <button type="submit" disabled={isPending || !isFormValid} className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text">
             Sign up
           </button>
-          <div className="text-center text-sm text-gray-text">
+          <div className="text-center text-sm text-gray-6">
             Have an account?&nbsp;
             <Link href="/login" className="text-primary-text hover:underline">
               Log in

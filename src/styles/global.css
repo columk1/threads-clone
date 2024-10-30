@@ -8,9 +8,17 @@
     --font-family-system: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
     --primary-bg: rgb(16, 16, 16);
     --tertiary-bg: rgb(30, 30, 30);
+    --active-bg: rgb(23, 23, 23);
     --primary-text: rgb(243, 245, 247);
     --placeholder-text: rgb(138, 141, 145);
-    --gray-text: rgb(119, 119, 119);
+    --gray-0: rgb(10, 10, 10);
+    --gray-1: rgb(16, 16, 16);
+    --gray-2: rgb(24, 24, 24);
+    --gray-3: rgb(30, 30, 30);
+    --gray-4: rgb(57, 57, 57);
+    --gray-5: rgb(77, 77, 77);
+    --gray-6: rgb(119, 119, 119);
+    --gray-7: rgb(126, 126, 126);
     --primary-outline: rgba(243, 245, 247, 0.15);
     --secondary-button: rgb(16, 16, 16);
     --notification: color(display-p3 1 0.18 0.25 / 1);

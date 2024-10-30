@@ -86,7 +86,7 @@ const Input = ({
         name={name}
         placeholder={placeholder}
         className={cx(
-          'text-input peer pr-10 h-12 w-full rounded-xl border border-transparent bg-tertiary-bg font-sans font-light placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0',
+          'text-input p-4 peer pr-10 h-12 w-full rounded-xl border border-transparent bg-tertiary-bg font-sans font-light placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0',
           !placeholder && '[&:not(:placeholder-shown)]:pb-0',
           `${className}`,
           activeError && '[&:user-invalid]:border-red-500',

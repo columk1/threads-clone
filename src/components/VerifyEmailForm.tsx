@@ -50,7 +50,7 @@ const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
 
   return (
     <>
-      <div className="mb-4 text-center text-sm text-gray-text">
+      <div className="mb-4 text-center text-sm text-gray-6">
         {`Enter the confirmation code we sent to ${userEmail}. `}
         <form action={resendAction} className="inline">
           <button type="submit" className="text-primary-text hover:underline">
