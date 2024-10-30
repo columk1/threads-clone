@@ -54,11 +54,11 @@ const LoginForm = () => {
             {isPending ? <Spinner /> : 'Log in'}
           </button>
           <div className="text-center">
-            <a href="forgot-password" className="text-sm text-gray-6 hover:underline">
+            <a href="forgot-password" className="text-sm text-gray-7 hover:underline">
               Forgot password?
             </a>
           </div>
-          <div className="flex items-center justify-center space-x-4 text-gray-6">
+          <div className="flex items-center justify-center space-x-4 text-gray-7">
             <hr className="w-full border-[0.5px] border-primary-outline" />
             <span className="px-4">or</span>
             <hr className="w-full border-t border-primary-outline" />

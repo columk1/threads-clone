@@ -1,6 +1,8 @@
 import type { Config } from 'tailwindcss'
+import tailwindcssAnimate from 'tailwindcss-animate'
 
 export default {
+  darkMode: ['class'],
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     screens: {
@@ -23,11 +25,14 @@ export default {
         'gray-5': 'var(--gray-5)',
         'gray-6': 'var(--gray-6)',
         'gray-7': 'var(--gray-7)',
+        'gray-8': 'var(--gray-8)',
         'primary-bg': 'var(--primary-bg)',
         'tertiary-bg': 'var(--tertiary-bg)',
         'active-bg': 'var(--active-bg)',
+        'hovered-bg': 'var(--hovered-bg)',
         'primary-text': 'var(--primary-text)',
         'placeholder-text': 'var(--placeholder-text)',
+        'error-text': 'var(--error-text)',
         'primary-outline': 'var(--primary-outline)',
         'secondary-button': 'var(--secondary-button)',
         'notification': 'var(--notification)',
@@ -35,7 +40,12 @@ export default {
       scale: {
         85: '.85',
       },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
     },
   },
-  plugins: [],
+  plugins: [tailwindcssAnimate],
 } satisfies Config
