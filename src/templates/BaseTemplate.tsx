@@ -11,12 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/DropdownMenu'
-import CreateIcon from '@/components/icons/Create'
-import HomeIcon from '@/components/icons/Home'
-import MoreIcon from '@/components/icons/More'
-import NotificationsIcon from '@/components/icons/Notifications'
-import ProfileIcon from '@/components/icons/Profile'
-import SearchIcon from '@/components/icons/Search'
+import { CreateIcon, HomeIcon, MoreIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
 import Logo from '@/components/Logo'
 import SidebarDropdown from '@/components/SidebarDropdown'
 
