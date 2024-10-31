@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { logout } from '@/app/actions'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ import NotificationsIcon from '@/components/icons/Notifications'
 import ProfileIcon from '@/components/icons/Profile'
 import SearchIcon from '@/components/icons/Search'
 import Logo from '@/components/Logo'
+import SidebarDropdown from '@/components/SidebarDropdown'
 
 const sidebarLinks = [
   {
@@ -57,39 +59,35 @@ export const BaseTemplate = (props: {
   const pathname = usePathname()
 
   return (
-    <div className="w-full text-gray-6 antialiased">
+    <div className="h-screen w-full text-gray-6 antialiased">
 
       <nav className="fixed top-0 z-10 grid h-[60px] w-full grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] place-items-center md:grid-cols-[1fr_minmax(auto,65%)_1fr]">
         <Link href="/" className="col-start-2 flex max-w-8 items-center gap-4 md:hidden">
           <Logo />
         </Link>
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger className="dark:data-[state=open]:text-primary-text md:hidden">
-            <button type="button" className="ml-auto mr-[13px] flex size-12 items-center justify-center transition duration-200 hover:text-primary-text active:scale-90">
+            <div className="ml-auto mr-[13px] flex size-12 items-center justify-center transition duration-200 hover:text-primary-text active:scale-90">
               <MoreIcon orientation="right" />
-            </button>
+            </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" alignOffset={8} sideOffset={-9} className="w-60 origin-top-right text-[15px]">
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Saved</DropdownMenuItem>
-            <DropdownMenuItem>Liked</DropdownMenuItem>
+          <DropdownMenuContent align="end" alignOffset={8} sideOffset={-9} className="w-60 origin-top-right text-[15px] md:hidden">
+            <DropdownMenuItem className="leading-none">Settings</DropdownMenuItem>
+            <DropdownMenuItem className="leading-none">Saved</DropdownMenuItem>
+            <DropdownMenuItem className="leading-none">Liked</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-error-text dark:focus:text-error-text">Log out</DropdownMenuItem>
+            <form action={logout}>
+              <button type="submit" className="w-full ">
+                <DropdownMenuItem className="leading-none text-error-text dark:focus:text-error-text">
+                  Log out
+                </DropdownMenuItem>
+              </button>
+            </form>
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="col-start-2 hidden items-center justify-center text-[15px] font-semibold text-primary-text md:flex">
           <a href="/">For you</a>
         </div>
-
-        {/* <div className="flex items-center gap-1">
-          <div className="">
-            <form action={logout}>
-              <button type="submit" className="border-none text-placeholder-text hover:text-primary-text">
-                Sign out
-              </button>
-            </form>
-          </div>
-        </div> */}
       </nav>
 
       <aside className="fixed left-0 top-0 z-10 flex h-full w-[76px] flex-col items-center justify-between overflow-x-visible pb-5 max-md:hidden">
@@ -117,20 +115,18 @@ export const BaseTemplate = (props: {
           })}
         </div>
 
-        <button type="button" className="flex size-[54px] items-center justify-center transition hover:text-primary-text active:scale-90">
-          <MoreIcon />
+        <SidebarDropdown />
 
-          {/* <div className="max-lg:hidden">
+        {/* <div className="max-lg:hidden">
                 <form action={logout}>
                   <button type="submit" className="border-none text-gray-700 hover:text-gray-900">
                     Sign out
                   </button>
                 </form>
               </div> */}
-        </button>
       </aside>
-      <div className="mt-[60px] flex items-center justify-center">
-        <main className="w-[540px] max-w-[540px]">{props.children}</main>
+      <div className="flex h-full flex-col items-center justify-center">
+        <main className="mt-[60px] w-full flex-1 md:w-[540px] md:max-w-[540px]">{props.children}</main>
       </div>
     </div>
   )

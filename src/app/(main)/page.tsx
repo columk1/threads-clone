@@ -17,9 +17,7 @@ const Dashboard = async () => {
   }
 
   return (
-    <div className="[&_p]:my-6">
-      <Hello />
-    </div>
+    <Hello />
   )
 }
 

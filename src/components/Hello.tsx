@@ -2,9 +2,9 @@ export const Hello = () => {
   // const user = await currentUser()
 
   return (
-    <p>
+    <div className="size-full p-5 md:rounded-xl md:bg-active-bg">
       {`👋 `}
       {/* {`Hello ${user?.emailAddresses[0]?.emailAddress}`} */}
-    </p>
+    </div>
   )
 }
