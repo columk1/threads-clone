@@ -27,6 +27,7 @@ export default {
         'gray-7': 'var(--gray-7)',
         'gray-8': 'var(--gray-8)',
         'primary-bg': 'var(--primary-bg)',
+        'secondary-bg': 'var(--secondary-bg)',
         'tertiary-bg': 'var(--tertiary-bg)',
         'active-bg': 'var(--active-bg)',
         'hovered-bg': 'var(--hovered-bg)',
