@@ -143,7 +143,7 @@ export const BaseTemplate = (props: {
               <Link
                 href={link.route}
                 key={link.label}
-                className={`relative my-[3px] flex h-[44px] w-[60px] items-center justify-center rounded-lg py-[3px] transition duration-200 hover:bg-active-bg active:scale-85 ${isActive && 'text-primary-text'} ${link?.classNames}`}
+                className={`relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 hover:bg-active-bg active:scale-85 ${isActive && 'text-primary-text'} ${link?.classNames}`}
               >
                 {link.icon && <link.icon />}
               </Link>
