@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/DropdownMenu'
-import { CaretIcon, CheckmarkIcon, CreateIcon, HomeIcon, MoreIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
+import { CaretIcon, CheckmarkIcon, CreateIcon, EditIcon, HomeIcon, MoreIcon, NotificationsFooterIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
 import Logo from '@/components/Logo'
 import SidebarDropdown from '@/components/SidebarDropdown'
 
@@ -44,7 +44,17 @@ const sidebarLinks = [
   },
 ]
 
-const userId = '01JBAFWPVT21GPF3CWVS2ZH7EH'
+const footerLinks = sidebarLinks.map((link) => {
+  if (link.icon === CreateIcon) {
+    return { ...link, icon: EditIcon }
+  }
+  if (link.icon === NotificationsIcon) {
+    return { ...link, icon: NotificationsFooterIcon }
+  }
+  return link
+})
+
+// const userId = '01JBAFWPVT21GPF3CWVS2ZH7EH'
 
 export const BaseTemplate = (props: {
   leftNav: React.ReactNode
@@ -61,8 +71,8 @@ export const BaseTemplate = (props: {
           <Logo />
         </Link>
         <DropdownMenu modal={false}>
-          <DropdownMenuTrigger className="dark:data-[state=open]:text-primary-text md:hidden">
-            <div className="ml-auto mr-[13px] flex size-12 items-center justify-center transition duration-200 hover:text-primary-text active:scale-90">
+          <DropdownMenuTrigger className="ml-auto dark:data-[state=open]:text-primary-text md:hidden">
+            <div className="mr-[13px] flex size-12 items-center justify-center transition duration-200 hover:text-primary-text active:scale-90">
               <MoreIcon orientation="right" />
             </div>
           </DropdownMenuTrigger>
@@ -126,7 +136,7 @@ export const BaseTemplate = (props: {
         </div>
       </nav>
 
-      <aside className="fixed left-0 top-0 z-10 flex h-full w-[76px] flex-col items-center justify-between overflow-x-visible pb-5 max-md:hidden">
+      <aside className="fixed left-0 top-0 z-10 flex h-full w-sidebar-width flex-col items-center justify-between overflow-x-visible pb-5 max-md:hidden">
         <Link href="/" className="flex w-[34px] items-center justify-center gap-4 py-[15px]">
           <Logo />
         </Link>
@@ -135,17 +145,21 @@ export const BaseTemplate = (props: {
             const isActive = pathname === link.route
               || (pathname.includes(link.route) && link.route.length > 1)
 
-            if (link.route === '/profile') {
-              link.route = `${link.route}/${userId}`
-            }
+            // if (link.route === '/profile') {
+            //   link.route = `${link.route}/${userId}`
+            // }
 
             return (
               <Link
                 href={link.route}
                 key={link.label}
-                className={`relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 hover:bg-active-bg active:scale-85 ${isActive && 'text-primary-text'} ${link?.classNames}`}
+                className={`group relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${isActive && 'text-primary-text'} ${link?.classNames}`}
               >
-                {link.icon && <link.icon />}
+                <div className="z-10">
+                  {link.icon && <link.icon isActive={isActive} />}
+                </div>
+                <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg">
+                </div>
               </Link>
             )
           })}
@@ -161,8 +175,35 @@ export const BaseTemplate = (props: {
                 </form>
               </div> */}
       </aside>
-      <div className="flex h-full flex-col items-center justify-center">
-        <main className="mt-[60px] w-full flex-1 md:w-[540px] md:max-w-[540px]">{props.children}</main>
+
+      {/* Mobile footer menu */}
+      <aside className="fixed bottom-0 z-10 flex h-[68px] w-full items-center justify-evenly md:hidden">
+        {footerLinks.map((link) => {
+          const isActive = pathname === link.route
+            || (pathname.includes(link.route) && link.route.length > 1)
+
+          // if (link.route === '/profile') {
+          //   link.route = `${link.route}/${userId}`
+          // }
+
+          return (
+            <Link
+              href={link.route}
+              key={link.label}
+              className={`group relative flex w-full items-center justify-center ${isActive && 'text-primary-text'}`}
+            >
+              <div className="z-10 transition duration-200 group-active:scale-90">
+                {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
+              </div>
+              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
+              </div>
+            </Link>
+          )
+        })}
+      </aside>
+
+      <div className="flex h-full flex-col items-center justify-center px-5">
+        <main className="mt-[60px] w-full flex-1 md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">{props.children}</main>
       </div>
     </div>
   )

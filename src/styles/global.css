@@ -26,7 +26,10 @@
     --primary-outline: rgba(243, 245, 247, 0.15);
     --secondary-button: rgb(16, 16, 16);
     --notification: color(display-p3 1 0.18 0.25 / 1);
+
+    /* Spacing */
     --radius: 0.5rem;
+    --sidebar-width: 76px;
   }
 }
 

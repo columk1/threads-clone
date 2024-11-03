@@ -16,6 +16,9 @@ export default {
       sans: 'Helvetica, Arial, sans-serif',
     },
     extend: {
+      spacing: {
+        'sidebar-width': 'var(--sidebar-width)',
+      },
       colors: {
         'gray-0': 'var(--gray-0)',
         'gray-1': 'var(--gray-1)',
@@ -39,6 +42,7 @@ export default {
         'notification': 'var(--notification)',
       },
       scale: {
+        80: '.8',
         85: '.85',
       },
       borderRadius: {
