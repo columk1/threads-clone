@@ -24,7 +24,7 @@ export const HeaderDropdown: FunctionComponent<HeaderDropdownProps> = ({ pathnam
       </DropdownMenuTrigger>
       <DropdownMenuContent alignOffset={0} sideOffset={6} className="hidden w-60 origin-top text-[15px] md:block">
         <Link href="/">
-          <DropdownMenuItem className="cursor-pointer py-3.5">
+          <DropdownMenuItem className="py-3.5">
             <div className="flex flex-1 items-center justify-between">
               <span>For you</span>
               {pathname === '/' && <CheckmarkIcon />}
@@ -32,7 +32,7 @@ export const HeaderDropdown: FunctionComponent<HeaderDropdownProps> = ({ pathnam
           </DropdownMenuItem>
         </Link>
         <Link href="/following">
-          <DropdownMenuItem className="cursor-pointer py-3.5">
+          <DropdownMenuItem className="py-3.5">
             <div className="flex flex-1 items-center justify-between">
               <span>Following</span>
               {pathname === '/following' && <CheckmarkIcon />}

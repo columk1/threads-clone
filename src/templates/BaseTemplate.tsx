@@ -78,17 +78,15 @@ export const BaseTemplate = (props: {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" alignOffset={8} sideOffset={-9} className="w-60 origin-top-right text-[15px] md:hidden">
-            <DropdownMenuItem className="leading-none">Settings</DropdownMenuItem>
-            <DropdownMenuItem className="leading-none">Saved</DropdownMenuItem>
-            <DropdownMenuItem className="leading-none">Liked</DropdownMenuItem>
+            <DropdownMenuItem asChild className="leading-none"><Link href="/settings">Settings</Link></DropdownMenuItem>
+            <DropdownMenuItem asChild className="leading-none"><Link href="/saved">Saved</Link></DropdownMenuItem>
+            <DropdownMenuItem asChild className="leading-none"><Link href="/liked">Liked</Link></DropdownMenuItem>
             <DropdownMenuSeparator />
-            <form action={logout}>
-              <button type="submit" className="w-full ">
-                <DropdownMenuItem className="leading-none text-error-text dark:focus:text-error-text">
-                  Log out
-                </DropdownMenuItem>
+            <DropdownMenuItem asChild className="leading-none text-error-text dark:focus:text-error-text">
+              <button type="button" onClick={logout} className="w-full text-left">
+                Log out
               </button>
-            </form>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
