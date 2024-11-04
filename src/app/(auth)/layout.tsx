@@ -9,6 +9,9 @@ export default function AuthLayout(props: {
   return (
     <>
       {props.children}
+      <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-1">
+        © 2024
+      </footer>
     </>
   )
 }

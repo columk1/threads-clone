@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
+  title: 'Threads',
   icons: [
     {
       rel: 'apple-touch-icon',
@@ -44,9 +45,6 @@ export default function RootLayout(props: {
             <div className="flex min-h-screen flex-col justify-between">
               {props.children}
               <Toaster />
-              <footer className="flex h-[70px] w-full items-center justify-center text-xs text-gray-1">
-                © 2024
-              </footer>
             </div>
           </CookiesProvider>
         </ThemeProvider>
