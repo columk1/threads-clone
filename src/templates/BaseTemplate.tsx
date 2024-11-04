@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/DropdownMenu'
-import { CaretIcon, CheckmarkIcon, CreateIcon, EditIcon, HomeIcon, MoreIcon, NotificationsFooterIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
+import { CreateIcon, EditIcon, HomeIcon, MoreIcon, NotificationsFooterIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
 import Logo from '@/components/Logo'
 import SidebarDropdown from '@/components/SidebarDropdown'
 
@@ -64,10 +64,11 @@ export const BaseTemplate = (props: {
   const pathname = usePathname()
 
   return (
-    <div className="h-screen w-full bg-secondary-bg text-gray-6 antialiased">
+    <div className="w-full flex-1 bg-secondary-bg text-gray-6 antialiased">
 
-      <nav className="fixed top-0 z-10 grid h-[60px] w-full grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] place-items-center md:grid-cols-[1fr_minmax(auto,65%)_1fr]">
-        <Link href="/" className="col-start-2 flex max-w-8 items-center gap-4 md:hidden">
+      {/* Mobile Header */}
+      <nav className="fixed top-0 z-10 grid h-[60px] w-full grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] place-items-center md:hidden md:grid-cols-[1fr_minmax(auto,65%)_1fr]">
+        <Link href="/" className="col-start-2 flex max-w-8 items-center gap-4">
           <Logo />
         </Link>
         <DropdownMenu modal={false}>
@@ -90,52 +91,9 @@ export const BaseTemplate = (props: {
             </form>
           </DropdownMenuContent>
         </DropdownMenu>
-        <div className="col-start-2 hidden items-center justify-center gap-3 text-[15px] font-semibold text-primary-text md:flex">
-          <a href="/">For you</a>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger className="rounded-full dark:data-[state=open]:text-primary-text">
-              <div className="flex size-[22px] items-center justify-center rounded-full border-[0.5px] border-gray-5 bg-active-bg transition duration-200 hover:scale-110 hover:text-primary-text active:scale-90">
-                <CaretIcon />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent alignOffset={0} sideOffset={6} className="hidden w-60 origin-top text-[15px] md:block">
-              <Link href="/">
-                <DropdownMenuItem className="cursor-pointer py-3.5">
-                  <div className="flex flex-1 items-center justify-between">
-                    <span>For you</span>
-                    {pathname === '/' && <CheckmarkIcon />}
-                  </div>
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/following">
-                <DropdownMenuItem className="cursor-pointer py-3.5">
-                  <div className="flex flex-1 items-center justify-between">
-                    <span>Following</span>
-                    {pathname === '/following' && <CheckmarkIcon />}
-                  </div>
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/liked">
-                <DropdownMenuItem className="py-3.5">
-                  <div className="flex flex-1 items-center justify-between">
-                    <span>Liked</span>
-                    {pathname === '/liked' && <CheckmarkIcon />}
-                  </div>
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/saved">
-                <DropdownMenuItem className="py-3.5">
-                  <div className="flex flex-1 items-center justify-between">
-                    <span>Saved</span>
-                    {pathname === '/saved' && <CheckmarkIcon />}
-                  </div>
-                </DropdownMenuItem>
-              </Link>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       </nav>
 
+      {/* Desktop Sidebar */}
       <aside className="fixed left-0 top-0 z-10 flex h-full w-sidebar-width flex-col items-center justify-between overflow-x-visible pb-5 max-md:hidden">
         <Link href="/" className="flex w-[34px] items-center justify-center gap-4 py-[15px]">
           <Logo />
@@ -202,8 +160,8 @@ export const BaseTemplate = (props: {
         })}
       </aside>
 
-      <div className="flex h-full flex-col items-center justify-center px-5">
-        <main className="mt-[60px] w-full flex-1 md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">{props.children}</main>
+      <div className="flex min-h-screen flex-col items-center justify-center md:px-5">
+        <main className="w-full flex-1 text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">{props.children}</main>
       </div>
     </div>
   )

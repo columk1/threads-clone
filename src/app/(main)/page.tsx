@@ -1,13 +1,9 @@
 import { redirect } from 'next/navigation'
 
-import { Hello } from '@/components/Hello'
+import Header from '@/components/Header'
+import { HeaderDropdown } from '@/components/HeaderDropdown'
+import { MobileHomeFeedNav } from '@/components/MobileHomeFeedNav'
 import { validateRequest } from '@/libs/Lucia'
-
-export async function generateMetadata() {
-  return {
-    title: 'Dashboard',
-  }
-}
 
 const Dashboard = async () => {
   const { user } = await validateRequest()
@@ -17,7 +13,17 @@ const Dashboard = async () => {
   }
 
   return (
-    <Hello />
+    <>
+      <Header title="For you">
+        <HeaderDropdown pathname="/" />
+      </Header>
+      <div className="flex min-h-screen w-full flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg md:p-5">
+        <MobileHomeFeedNav />
+        <div className="p-4">
+          {`👋 `}
+        </div>
+      </div>
+    </>
   )
 }
 

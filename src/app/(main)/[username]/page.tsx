@@ -1,3 +1,4 @@
+import Header from '@/components/Header'
 import { logger } from '@/libs/Logger'
 
 export async function generateMetadata() {
@@ -16,9 +17,13 @@ const UserProfilePage = async ({ params }: { params: { username: string } } | an
   // }
 
   return (
-    <div className="my-6 -ml-16">
+    <>
+      <Header title="Profile" />
+      <div className="flex min-h-screen w-full flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg md:p-5">
+
+      </div>
       {/* <UserProfile path={`/${user.username}`} /> */}
-    </div>
+    </>
   )
 }
 
