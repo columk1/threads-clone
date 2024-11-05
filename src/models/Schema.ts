@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, primaryKey, type SQLiteColumn, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { ulid } from 'ulidx'
 
 // To modify the database schema:
@@ -16,7 +16,7 @@ export const counterSchema = sqliteTable('counter', {
   updatedAt: integer('updated_at').default(sql`(cast(unixepoch() as int))`),
 })
 
-export const userTable = sqliteTable('user', {
+export const userSchema = sqliteTable('users', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => ulid()),
@@ -27,18 +27,18 @@ export const userTable = sqliteTable('user', {
   emailVerified: integer('email_verified').notNull(),
 })
 
-export const sessionTable = sqliteTable('session', {
+export const sessionSchema = sqliteTable('sessions', {
   id: text('id').primaryKey(),
   userId: text('user_id')
     .notNull()
-    .references(() => userTable.id, {
+    .references(() => userSchema.id, {
       onUpdate: 'cascade',
       onDelete: 'cascade',
     }),
   expiresAt: integer('expires_at').notNull(),
 })
 
-export const emailVerificationCodeTable = sqliteTable(
+export const emailVerificationCodeSchema = sqliteTable(
   'email_verification_code',
   {
     id: text('id')
@@ -47,7 +47,7 @@ export const emailVerificationCodeTable = sqliteTable(
     code: text('code'),
     userId: text('user_id')
       .notNull()
-      .references(() => userTable.id, {
+      .references(() => userSchema.id, {
         onUpdate: 'cascade',
         onDelete: 'cascade',
       }),
@@ -55,24 +55,70 @@ export const emailVerificationCodeTable = sqliteTable(
   },
 )
 
-export const userTableRelations = relations(userTable, ({ many }) => ({
-  session: many(sessionTable),
-  emailVerificationCode: many(emailVerificationCodeTable),
+export const postSchema = sqliteTable('posts', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  text: text('text').notNull(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => userSchema.id, {
+      onUpdate: 'cascade',
+      onDelete: 'cascade',
+    }),
+  parentId: text('parent_id').references((): SQLiteColumn => postSchema.id, {
+  }),
+  createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
+})
+
+export const followerSchema = sqliteTable('followers', {
+  userId: text('user_id').notNull().references(() => userSchema.id),
+  followerId: text('follower_id').notNull().references(() => userSchema.id),
+  createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.userId, table.followerId] }),
+  }
+})
+
+export const userRelations = relations(userSchema, ({ many }) => ({
+  session: many(sessionSchema),
+  emailVerificationCode: many(emailVerificationCodeSchema),
+  posts: many(postSchema),
+  followers: many(followerSchema),
 }))
 
-export const sessionTableRelations = relations(sessionTable, ({ one }) => ({
-  user: one(userTable, {
-    fields: [sessionTable.userId],
-    references: [userTable.id],
+export const sessionRelations = relations(sessionSchema, ({ one }) => ({
+  user: one(userSchema, {
+    fields: [sessionSchema.userId],
+    references: [userSchema.id],
   }),
 }))
 
 export const emailVerificationCodeRelations = relations(
-  emailVerificationCodeTable,
+  emailVerificationCodeSchema,
   ({ one }) => ({
-    user: one(userTable, {
-      fields: [emailVerificationCodeTable.userId],
-      references: [userTable.id],
+    user: one(userSchema, {
+      fields: [emailVerificationCodeSchema.userId],
+      references: [userSchema.id],
     }),
   }),
 )
+
+export const followerRelations = relations(followerSchema, ({ one }) => ({
+  follower: one(userSchema, {
+    fields: [followerSchema.followerId],
+    references: [userSchema.id],
+  }),
+}))
+
+export const postRelations = relations(postSchema, ({ one }) => ({
+  user: one(userSchema, {
+    fields: [postSchema.userId],
+    references: [userSchema.id],
+  }),
+  parent: one(postSchema, {
+    fields: [postSchema.parentId],
+    references: [postSchema.id],
+  }),
+}))

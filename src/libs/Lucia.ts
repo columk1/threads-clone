@@ -4,11 +4,11 @@ import { cookies } from 'next/headers'
 import React from 'react'
 
 import { db } from '@/libs/DB'
-import { sessionTable, userTable } from '@/models/Schema'
+import { sessionSchema, userSchema } from '@/models/Schema'
 
 const IS_DEV = process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'
 
-const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable)
+const adapter = new DrizzleSQLiteAdapter(db, sessionSchema, userSchema)
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {

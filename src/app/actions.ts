@@ -13,7 +13,7 @@ import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
 import { db } from '@/libs/DB'
 import { logger } from '@/libs/Logger'
 import { lucia, validateRequest } from '@/libs/Lucia'
-import { emailVerificationCodeTable, userTable } from '@/models/Schema'
+import { emailVerificationCodeSchema, userSchema } from '@/models/Schema'
 import { loginSchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
 import { generateRandomString } from '@/utils/generate-random-string'
 
@@ -24,12 +24,12 @@ export const generateEmailVerificationCode = async (
   userId: string,
 ): Promise<string> => {
   await db
-    .delete(emailVerificationCodeTable)
-    .where(eq(emailVerificationCodeTable.userId, userId))
+    .delete(emailVerificationCodeSchema)
+    .where(eq(emailVerificationCodeSchema.userId, userId))
 
   const code = generateRandomString(6)
 
-  await db.insert(emailVerificationCodeTable).values({
+  await db.insert(emailVerificationCodeSchema).values({
     code,
     expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
     userId,
@@ -49,8 +49,8 @@ export async function sendEmailVerificationCode(userId: string, email: string) {
 // export const isEmailUnique = async (email: string) => {
 //   const user = await db
 //     .select()
-//     .from(userTable)
-//     .where(eq(userTable.email, email))
+//     .from(userSchema)
+//     .where(eq(userSchema.email, email))
 //     .all()
 //   return !user.length
 // }
@@ -61,8 +61,8 @@ export async function sendEmailVerificationCode(userId: string, email: string) {
 export const isUniqueField = async (field: 'email' | 'username', value: string) => {
   const user = await db
     .select()
-    .from(userTable)
-    .where(eq(userTable[field], value))
+    .from(userSchema)
+    .where(eq(userSchema[field], value))
     .all()
   return !user.length
 }
@@ -116,7 +116,7 @@ export async function signup(_: unknown, formData: FormData) {
 
   // await createUser(username, hashedPassword)
   const user = await db
-    .insert(userTable)
+    .insert(userSchema)
     .values({ id: userId, emailVerified: 0, password: hashedPassword, email, name, username })
     .returning()
     .then(s => s[0])
@@ -157,8 +157,8 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
 
       const databaseCode = await db
         .select()
-        .from(emailVerificationCodeTable)
-        .where(eq(emailVerificationCodeTable.code, code))
+        .from(emailVerificationCodeSchema)
+        .where(eq(emailVerificationCodeSchema.code, code))
         .execute()
         .then(s => s[0])
 
@@ -183,8 +183,8 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
       }
 
       await db
-        .delete(emailVerificationCodeTable)
-        .where(eq(emailVerificationCodeTable.id, databaseCode.id))
+        .delete(emailVerificationCodeSchema)
+        .where(eq(emailVerificationCodeSchema.id, databaseCode.id))
 
       return { ...data, ...databaseCode }
     }),
@@ -197,8 +197,8 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
 
   const user = await db
     .select()
-    .from(userTable)
-    .where(eq(userTable.id, submission.value.userId))
+    .from(userSchema)
+    .where(eq(userSchema.id, submission.value.userId))
     .execute()
     .then(s => s[0])
 
@@ -208,9 +208,9 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
 
   await lucia.invalidateUserSessions(user.id)
   await db
-    .update(userTable)
+    .update(userSchema)
     .set({ emailVerified: 1 })
-    .where(eq(userTable.id, user.id))
+    .where(eq(userSchema.id, user.id))
 
   logger.info(`\n😊 ${user.email} has been verified.\n`)
 
@@ -238,8 +238,8 @@ export async function resendVerificationEmail(): Promise<{
     return redirect('/login')
   }
 
-  // const lastSent = await db.query.emailVerificationCodeTable.findFirst({
-  //   where: (table, { eq }) => eq(table.userId, user.id),
+  // const lastSent = await db.query.emailVerificationCodeSchema.findFirst({
+  //   where: (Schema, { eq }) => eq(Schema.userId, user.id),
   //   columns: { expiresAt: true },
   // })
 
@@ -262,8 +262,8 @@ export async function login(_: unknown, formData: FormData) { // first param is 
     schema: loginSchema.transform(async (data, ctx) => {
       const user = await db
         .select()
-        .from(userTable)
-        .where(eq(userTable.email, data.email))
+        .from(userSchema)
+        .where(eq(userSchema.email, data.email))
         .execute()
         .then(s => s[0])
       if (!(user && user.id)) {
