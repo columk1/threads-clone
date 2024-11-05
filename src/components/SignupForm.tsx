@@ -124,7 +124,7 @@ const SignupForm: FunctionComponent = () => {
             label="Password"
             placeholder=""
             defaultValue={state?.data?.password}
-            minLength={8}
+            minLength={6}
             autoComplete="new-password"
             autoCapitalize="none"
             required

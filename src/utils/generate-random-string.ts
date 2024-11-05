@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 
 export const generateRandomString = (length: number): string => {
-  const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_'
+  const characters = '0123456789'
   const charactersLength = characters.length
   let result = ''
   const randomBytesBuffer = randomBytes(length)

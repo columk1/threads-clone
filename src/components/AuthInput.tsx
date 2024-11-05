@@ -118,7 +118,7 @@ const Input = ({
       {icons && (
         <>
           {activeError && <CircleX className={`absolute ${isPassword ? 'right-[40px]' : 'right-2'} top-[14px] hidden text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`} />}
-          {activeError && !validationMessage && <CircleCheck className={`absolute ${isPassword ? 'right-10' : 'right-2'} right-2 top-[14px] hidden text-placeholder-text peer-[&:not(:focus-within):user-valid]:block`} />}
+          {activeError && !validationMessage && <CircleCheck className={`absolute ${isPassword ? 'right-[40px]' : 'right-2'} right-2 top-[14px] hidden text-placeholder-text peer-[&:not(:focus-within):user-valid]:block`} />}
         </>
       )}
       {isPassword && <button type="button" onClick={togglePasswordVisiblity} className="absolute right-2 top-[14px] hidden text-gray-7 peer-[&:not(:placeholder-shown)]:block">{passwordVisible ? <EyeOff className="w-6" /> : <Eye />}</button>}
