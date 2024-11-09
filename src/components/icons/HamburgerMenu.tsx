@@ -1,4 +1,4 @@
-const More = ({ className, orientation = 'left' }: { className?: string, orientation?: 'left' | 'right' }) => {
+const Hamburger = ({ className, orientation = 'left' }: { className?: string, orientation?: 'left' | 'right' }) => {
   return (
     <svg aria-label="More" role="img" viewBox="0 0 24 24" fill="currentColor" height="24px" width="24px" className={className}>
       <title>More</title>
@@ -8,4 +8,4 @@ const More = ({ className, orientation = 'left' }: { className?: string, orienta
   )
 }
 
-export default More
+export default Hamburger
