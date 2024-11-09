@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { type FunctionComponent, useState } from 'react'
 
 import { logout } from '@/app/actions'
-import MoreIcon from '@/components/icons/More'
+import MoreIcon from '@/components/icons/HamburgerMenu'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './DropdownMenu'
 

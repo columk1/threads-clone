@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/DropdownMenu'
-import { CreateIcon, EditIcon, HomeIcon, MoreIcon, NotificationsFooterIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
+import { CreateIcon, EditIcon, HamburgerMenuIcon, HomeIcon, NotificationsFooterIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
 import Logo from '@/components/Logo'
 import SidebarDropdown from '@/components/SidebarDropdown'
 
@@ -74,7 +74,7 @@ export const BaseTemplate = (props: {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger className="ml-auto dark:data-[state=open]:text-primary-text md:hidden">
             <div className="mr-[13px] flex size-12 items-center justify-center transition duration-200 hover:text-primary-text active:scale-90">
-              <MoreIcon orientation="right" />
+              <HamburgerMenuIcon orientation="right" />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" alignOffset={8} sideOffset={-9} className="w-60 origin-top-right text-[15px] md:hidden">
@@ -159,7 +159,7 @@ export const BaseTemplate = (props: {
       </aside>
 
       <div className="flex min-h-screen flex-col items-center justify-center md:px-5">
-        <main className="w-full flex-1 text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">{props.children}</main>
+        <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">{props.children}</main>
       </div>
     </div>
   )
