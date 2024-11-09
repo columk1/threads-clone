@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 import Header from '@/components/Header'
 import { HeaderDropdown } from '@/components/HeaderDropdown'
 import { MobileHomeFeedNav } from '@/components/MobileHomeFeedNav'
+import Threads from '@/components/Threads'
 import { validateRequest } from '@/libs/Lucia'
 
 const Dashboard = async () => {
@@ -17,10 +19,13 @@ const Dashboard = async () => {
       <Header title="For you">
         <HeaderDropdown pathname="/" />
       </Header>
-      <div className="flex min-h-screen w-full flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg md:p-5">
+      <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
         <MobileHomeFeedNav />
-        <div className="p-4">
-          {`👋 `}
+        <div className="">
+          {/* Posts Here */}
+          <Suspense fallback={<p>Loading...</p>}>
+            <Threads />
+          </Suspense>
         </div>
       </div>
     </>

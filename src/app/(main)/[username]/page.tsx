@@ -19,7 +19,7 @@ const UserProfilePage = async ({ params }: { params: { username: string } } | an
   return (
     <>
       <Header title="Profile" />
-      <div className="flex min-h-screen w-full flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg md:p-5">
+      <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
 
       </div>
       {/* <UserProfile path={`/${user.username}`} /> */}
