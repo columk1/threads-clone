@@ -35,6 +35,7 @@ export default {
         'active-bg': 'var(--active-bg)',
         'hovered-bg': 'var(--hovered-bg)',
         'primary-text': 'var(--primary-text)',
+        'secondary-text': 'var(--secondary-text)',
         'placeholder-text': 'var(--placeholder-text)',
         'error-text': 'var(--error-text)',
         'primary-outline': 'var(--primary-outline)',

@@ -2,7 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
-import { eq } from 'drizzle-orm'
+import { eq, isNull } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { isWithinExpirationDate } from 'oslo'
@@ -13,7 +13,7 @@ import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
 import { db } from '@/libs/DB'
 import { logger } from '@/libs/Logger'
 import { lucia, validateRequest } from '@/libs/Lucia'
-import { emailVerificationCodeSchema, userSchema } from '@/models/Schema'
+import { emailVerificationCodeSchema, postSchema, userSchema } from '@/models/Schema'
 import { loginSchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
 import { generateRandomString } from '@/utils/generate-random-string'
 
@@ -339,4 +339,21 @@ export const logout = async () => {
   cookieStore.delete(VERIFIED_EMAIL_ALERT)
 
   return redirect('/login')
+}
+
+/*
+ * GET posts
+ */
+export const getAllPosts = async () => {
+  const posts = await db.select({
+    post: postSchema,
+    user: {
+      username: userSchema.username,
+    },
+  })
+    .from(postSchema)
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .where(isNull(postSchema.parentId))
+    .all()
+  return posts
 }

@@ -1,4 +1,4 @@
-import { relations, sql } from 'drizzle-orm'
+import { type InferSelectModel, relations, sql } from 'drizzle-orm'
 import { integer, primaryKey, type SQLiteColumn, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { ulid } from 'ulidx'
 
@@ -68,8 +68,10 @@ export const postSchema = sqliteTable('posts', {
     }),
   parentId: text('parent_id').references((): SQLiteColumn => postSchema.id, {
   }),
-  createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
+  createdAt: integer('created_at').notNull().default(sql`(cast(unixepoch() as int))`),
 })
+
+export type Post = InferSelectModel<typeof postSchema>
 
 export const followerSchema = sqliteTable('followers', {
   userId: text('user_id').notNull().references(() => userSchema.id),
