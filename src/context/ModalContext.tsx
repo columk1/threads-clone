@@ -7,10 +7,10 @@ type ModalContextType = {
   setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const ModalContext = createContext<ModalContextType>({ isOpen: true, setIsOpen: () => {} })
+const ModalContext = createContext<ModalContextType>({ isOpen: false, setIsOpen: () => {} })
 
 const ModalProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
 
   const value = useMemo(() => ({ isOpen, setIsOpen }), [isOpen])
 

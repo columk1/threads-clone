@@ -18,7 +18,7 @@ const Threads: FunctionComponent = async () => {
     <div key={row.post.id} className="flex flex-col gap-2 border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px]">
       <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
         <div className="col-start-1 row-start-1 row-end-[span_2] pt-1 ">
-          <div className="size-10 rounded-full bg-gray-7"></div>
+          <div className="size-9 rounded-full bg-gray-7"></div>
         </div>
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { Description } from '@radix-ui/react-dialog'
+import { DialogDescription } from '@radix-ui/react-dialog'
 import { type FunctionComponent, use, useCallback, useState } from 'react'
 
 import { ModalContext } from '@/context/ModalContext'
@@ -20,8 +20,10 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <Description>Create a new thread</Description>
-      <DialogContent>
+      <DialogContent className="min-w-[620px] max-md:hidden">
+        <div className="sr-only">
+          <DialogDescription>Create a new thread</DialogDescription>
+        </div>
         <DialogHeader className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)]">
           <DialogClose asChild>
             <div className="flex items-center justify-center">

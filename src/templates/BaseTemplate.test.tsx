@@ -6,15 +6,7 @@ describe('Base template', () => {
   describe('Render method', () => {
     it('should have 3 menu items', () => {
       render(
-        <BaseTemplate
-          leftNav={(
-            <>
-              <li>link 1</li>
-              <li>link 2</li>
-              <li>link 3</li>
-            </>
-          )}
-        >
+        <BaseTemplate>
           {null}
         </BaseTemplate>,
       )
@@ -26,7 +18,10 @@ describe('Base template', () => {
 
     it('should have a link to support creativedesignsguru.com', () => {
       render(
-        <BaseTemplate leftNav={<li>1</li>}>{null}</BaseTemplate>,
+        <BaseTemplate>
+          {null}
+          {/* leftNav={<li>1</li>}> */}
+        </BaseTemplate>,
       )
 
       const copyrightSection = screen.getByText(/© Copyright/)

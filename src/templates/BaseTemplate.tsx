@@ -13,6 +13,7 @@ import {
 } from '@/components/DropdownMenu'
 import { CreateIcon, EditIcon, HamburgerMenuIcon, HomeIcon, NotificationsFooterIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
 import Logo from '@/components/Logo'
+import NewThreadModal from '@/components/NewThreadModal'
 import SidebarDropdown from '@/components/SidebarDropdown'
 
 const sidebarLinks = [
@@ -57,15 +58,12 @@ const footerLinks = sidebarLinks.map((link) => {
 // const userId = '01JBAFWPVT21GPF3CWVS2ZH7EH'
 
 export const BaseTemplate = (props: {
-  leftNav: React.ReactNode
-  rightNav?: React.ReactNode
   children: React.ReactNode
 }) => {
   const pathname = usePathname()
 
   return (
     <div className="w-full flex-1 bg-secondary-bg text-gray-6 antialiased">
-
       {/* Mobile Header */}
       <nav className="fixed top-0 z-10 grid h-[60px] w-full grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] place-items-center md:hidden md:grid-cols-[1fr_minmax(auto,65%)_1fr]">
         <Link href="/" className="col-start-2 flex max-w-8 items-center gap-4">
@@ -159,7 +157,10 @@ export const BaseTemplate = (props: {
       </aside>
 
       <div className="flex min-h-screen flex-col items-center justify-center md:px-5">
-        <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">{props.children}</main>
+        <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">
+          {props.children}
+          <NewThreadModal />
+        </main>
       </div>
     </div>
   )

@@ -5,6 +5,8 @@ import { CookiesProvider } from 'next-client-cookies/server'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
 
+import { ModalProvider } from '@/context/ModalContext'
+
 export const metadata: Metadata = {
   title: 'Threads',
   icons: [
@@ -42,10 +44,12 @@ export default function RootLayout(props: {
           disableTransitionOnChange
         >
           <CookiesProvider>
-            <div className="flex min-h-screen flex-col justify-between">
-              {props.children}
-              <Toaster />
-            </div>
+            <ModalProvider>
+              <div className="flex min-h-screen flex-col justify-between">
+                {props.children}
+                <Toaster />
+              </div>
+            </ModalProvider>
           </CookiesProvider>
         </ThemeProvider>
       </body>

@@ -1,5 +1,3 @@
-'use client'
-
 import type { FunctionComponent } from 'react'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/DropdownMenu'
