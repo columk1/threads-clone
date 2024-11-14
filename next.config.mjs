@@ -14,9 +14,10 @@ const nextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
-  // experimental: {
-  //   serverExternalPackages: ['@libsql/client'],
-  // },
+  experimental: {
+    // dynamicIO: true,
+    // serverExternalPackages: ['@libsql/client'],
+  },
 }
 
 const bundleAnalyzer = withBundleAnalyzer({
