@@ -14,7 +14,7 @@ import { db } from '@/libs/DB'
 import { logger } from '@/libs/Logger'
 import { lucia, validateRequest } from '@/libs/Lucia'
 import { emailVerificationCodeSchema, postSchema, userSchema } from '@/models/Schema'
-import { loginSchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
+import { loginSchema, newPostSchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
 import { generateRandomString } from '@/utils/generate-random-string'
 
 /*
@@ -356,4 +356,34 @@ export const getAllPosts = async () => {
     .where(isNull(postSchema.parentId))
     .all()
   return posts
+}
+
+/*
+ * POST posts
+ */
+export const createPost = async (_: unknown, formData: FormData) => {
+  // const userId = '01JBXMJGX3JABF1GQXSW38MXMN'
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+  const userId = user.id
+  const submission = await parseWithZod(formData, {
+    schema: newPostSchema,
+  })
+  if (submission.status !== 'success') {
+    logger.info('error submitting new thread')
+    // return submission.reply()
+    return { error: 'Something went wrong. Please try again.' }
+  }
+  try {
+    const newPost = await db.insert(postSchema).values({
+      userId,
+      ...submission.value,
+    }).returning()
+    return { data: newPost }
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong. Please try again.' }
+  }
 }
