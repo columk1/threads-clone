@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useContext } from 'react'
 
 import { logout } from '@/app/actions'
 import {
@@ -15,6 +16,7 @@ import { CreateIcon, EditIcon, HamburgerMenuIcon, HomeIcon, NotificationsFooterI
 import Logo from '@/components/Logo'
 import NewThreadModal from '@/components/NewThreadModal'
 import SidebarDropdown from '@/components/SidebarDropdown'
+import { ModalContext } from '@/context/ModalContext'
 
 const sidebarLinks = [
   {
@@ -61,6 +63,7 @@ export const BaseTemplate = (props: {
   children: React.ReactNode
 }) => {
   const pathname = usePathname()
+  const { setIsOpen } = useContext(ModalContext)
 
   return (
     <div className="w-full flex-1 bg-secondary-bg text-gray-6 antialiased">
@@ -102,6 +105,22 @@ export const BaseTemplate = (props: {
             // if (link.route === '/profile') {
             //   link.route = `${link.route}/${userId}`
             // }
+            if (link.route === '/create-thread') {
+              return (
+                <button
+                  type="button"
+                  key={link.label}
+                  className={`my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${link?.classNames}`}
+                  onClick={() => setIsOpen(true)}
+                >
+                  <div className="z-10">
+                    {link.icon && <link.icon />}
+                  </div>
+                  <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg">
+                  </div>
+                </button>
+              )
+            }
 
             return (
               <Link
