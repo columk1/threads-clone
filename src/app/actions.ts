@@ -2,7 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
-import { eq, isNull } from 'drizzle-orm'
+import { and, eq, isNull, sql } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { isWithinExpirationDate } from 'oslo'
@@ -13,7 +13,7 @@ import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
 import { db } from '@/libs/DB'
 import { logger } from '@/libs/Logger'
 import { lucia, validateRequest } from '@/libs/Lucia'
-import { emailVerificationCodeSchema, postSchema, userSchema } from '@/models/Schema'
+import { emailVerificationCodeSchema, followerSchema, postSchema, userSchema } from '@/models/Schema'
 import { loginSchema, newPostSchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
 import { generateRandomString } from '@/utils/generate-random-string'
 
@@ -345,15 +345,62 @@ export const logout = async () => {
  * GET posts
  */
 export const getAllPosts = async () => {
+  const { user } = await validateRequest()
+
+  if (!user) {
+    // const posts = await db
+    //   .select()
+    //   .from(postSchema)
+    //   .where(isNull(postSchema.parentId))
+    //   .all()
+    // return posts
+    return redirect('/login')
+  }
+
   const posts = await db.select({
     post: postSchema,
     user: {
       username: userSchema.username,
+      isFollowed: sql<boolean>`EXISTS (
+        SELECT 1 
+        FROM ${followerSchema} 
+        WHERE ${followerSchema.userId} = ${userSchema.id} 
+          AND ${followerSchema.followerId} = ${user.id}
+      )`.as('isFollowed'),
     },
   })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     .where(isNull(postSchema.parentId))
+    .all()
+  return posts
+}
+
+/*
+ * GET following posts (Where the current user is following the user who made the post)
+ */
+export const getFollowingPosts = async () => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+
+  const posts = await db.select({
+    post: postSchema,
+    user: {
+      username: userSchema.username,
+      isFollowed: sql<boolean>`EXISTS (
+        SELECT 1 
+        FROM ${followerSchema} 
+        WHERE ${followerSchema.userId} = ${userSchema.id} 
+          AND ${followerSchema.followerId} = ${user.id}
+      )`.as('isFollowed'),
+    },
+  })
+    .from(postSchema)
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
+    .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, user.id)))
     .all()
   return posts
 }
@@ -382,6 +429,64 @@ export const createPost = async (_: unknown, formData: FormData) => {
       ...submission.value,
     }).returning()
     return { data: newPost }
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong. Please try again.' }
+  }
+}
+
+/*
+ * POST follow user
+ */
+
+enum FollowStatus {
+  Followed = 'Followed',
+  Unfollowed = 'Unfollowed',
+}
+
+export const followUser = async (_: unknown, formData: FormData) => {
+  logger.info(formData)
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+  const submission = await parseWithZod(formData, {
+    schema: z.object({
+      username: z.string().min(1),
+      actionType: z.enum(['follow', 'unfollow']),
+    }),
+  })
+  if (submission.status !== 'success') {
+    logger.info('error submitting new thread')
+    // return submission.reply()
+    return { error: 'Something went wrong. Please try again.' }
+  }
+  try {
+    const targetUser = await db
+      .select({ id: userSchema.id })
+      .from(userSchema)
+      .where(eq(userSchema.username, submission.value.username))
+      .get()
+
+    if (!targetUser) {
+      throw new Error('User not found')
+    }
+
+    if (submission.value.actionType === 'follow') {
+      await db.insert(followerSchema).values({
+        userId: targetUser.id,
+        followerId: user.id,
+      })
+      return { success: FollowStatus.Followed }
+    } else {
+      await db.delete(followerSchema).where(
+        and(
+          eq(followerSchema.userId, targetUser.id),
+          eq(followerSchema.followerId, user.id),
+        ),
+      )
+    }
+    return { success: FollowStatus.Unfollowed }
   } catch (err) {
     logger.error(err)
     return { error: 'Something went wrong. Please try again.' }

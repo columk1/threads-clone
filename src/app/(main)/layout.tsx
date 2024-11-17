@@ -1,9 +1,12 @@
+import NewThreadModal from '@/components/NewThreadModal'
+import { validateRequest } from '@/libs/Lucia'
 import { BaseTemplate } from '@/templates/BaseTemplate'
 
 export default async function DashboardLayout(props: { children: React.ReactNode }) {
-  // const user = await currentUser()
+  const { user } = await validateRequest()
   return (
     <BaseTemplate>
+      <NewThreadModal username={user?.username} />
       {props.children}
     </BaseTemplate>
   )

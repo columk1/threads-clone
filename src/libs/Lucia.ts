@@ -22,6 +22,7 @@ export const lucia = new Lucia(adapter, {
   // Expose user attributes to the session cookie
   getUserAttributes: (attributes) => {
     return {
+      username: attributes.username,
       emailVerified: attributes.emailVerified,
       email: attributes.email,
     }
@@ -73,6 +74,7 @@ declare module 'lucia' {
   interface Register {
     Lucia: typeof lucia
     DatabaseUserAttributes: {
+      username: string
       email: string
       emailVerified: number
     }

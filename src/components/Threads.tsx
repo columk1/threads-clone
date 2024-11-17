@@ -1,19 +1,21 @@
 import type { FunctionComponent } from 'react'
 
-import { getAllPosts } from '@/app/actions'
+import { getAllPosts, getFollowingPosts } from '@/app/actions'
 
 import { Like, Reply, Repost, Share } from './icons'
+import PostAuthor from './PostAuthor'
 import PostDropDownMenu from './PostDropDownMenu'
 import TimeAgo from './TimeAgo'
 
-// type ThreadsProps = {
-//   posts: Post[]
-// }
+type ThreadsProps = {
+  // posts: Post[]
+  filter?: string
+}
 
 const iconStyle = 'flex h-full items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
 
-const Threads: FunctionComponent = async () => {
-  const rows = await getAllPosts()
+const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
+  const rows = await filter === undefined ? await getAllPosts() : await getFollowingPosts()
   return rows.map(row => (
     <div key={row.post.id} className="flex flex-col gap-2 border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px]">
       <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
@@ -23,7 +25,7 @@ const Threads: FunctionComponent = async () => {
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="font-semibold">
-              { row.user.username }
+              <PostAuthor username={row.user.username} isFollowed={row.user.isFollowed} />
             </div>
             <a href={`/@${row.user.username}/post/${row.post.id}`}>
               <TimeAgo publishedAt={row.post.createdAt} />

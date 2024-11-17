@@ -1,3 +1,5 @@
+'use client'
+
 import { DialogDescription } from '@radix-ui/react-dialog'
 import { useRouter } from 'next/navigation'
 import { type FunctionComponent, use, useActionState, useCallback, useEffect, useState } from 'react'
@@ -11,10 +13,10 @@ import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '.
 import { Drawer, DrawerContent } from './Drawer'
 
 type NewThreadModalProps = {
-  user?: any
+  username?: string
 }
 
-const NewThreadModal: FunctionComponent<NewThreadModalProps> = () => {
+const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username }) => {
   const { isOpen, setIsOpen } = use(ModalContext)
   const [state, formAction, isPending] = useActionState(createPost, null)
   const [isValid, setIsValid] = useState(false)
@@ -70,8 +72,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = () => {
               <div className="flex w-full items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="font-semibold">
-                    {/* { row.user.username } */}
-                    columk1
+                    {username}
                   </div>
                 </div>
               </div>
@@ -116,8 +117,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = () => {
             <div className="flex w-full items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="font-semibold">
-                  {/* { row.user.username } */}
-                  columk1
+                  {username}
                 </div>
               </div>
             </div>

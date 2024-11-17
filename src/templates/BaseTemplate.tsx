@@ -14,7 +14,6 @@ import {
 } from '@/components/DropdownMenu'
 import { CreateIcon, EditIcon, HamburgerMenuIcon, HomeIcon, NotificationsFooterIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
 import Logo from '@/components/Logo'
-import NewThreadModal from '@/components/NewThreadModal'
 import SidebarDropdown from '@/components/SidebarDropdown'
 import { ModalContext } from '@/context/ModalContext'
 
@@ -194,7 +193,6 @@ export const BaseTemplate = (props: {
       <div className="flex min-h-screen flex-col items-center justify-center md:px-5">
         <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">
           {props.children}
-          <NewThreadModal />
         </main>
       </div>
     </div>
