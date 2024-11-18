@@ -341,6 +341,14 @@ export const logout = async () => {
   return redirect('/login')
 }
 
+export type PostUser = {
+  username: string
+  name: string
+  bio: string | null
+  followerCount: number
+  isFollowed: boolean
+}
+
 /*
  * GET posts
  */
@@ -361,6 +369,9 @@ export const getAllPosts = async () => {
     post: postSchema,
     user: {
       username: userSchema.username,
+      name: userSchema.name,
+      bio: userSchema.bio,
+      followerCount: userSchema.followerCount,
       isFollowed: sql<boolean>`EXISTS (
         SELECT 1 
         FROM ${followerSchema} 
@@ -389,6 +400,9 @@ export const getFollowingPosts = async () => {
     post: postSchema,
     user: {
       username: userSchema.username,
+      name: userSchema.name,
+      bio: userSchema.bio,
+      followerCount: userSchema.followerCount,
       isFollowed: sql<boolean>`EXISTS (
         SELECT 1 
         FROM ${followerSchema} 
@@ -463,7 +477,7 @@ export const followUser = async (_: unknown, formData: FormData) => {
   }
   try {
     const targetUser = await db
-      .select({ id: userSchema.id })
+      .select({ id: userSchema.id, followerCount: userSchema.followerCount })
       .from(userSchema)
       .where(eq(userSchema.username, submission.value.username))
       .get()
@@ -472,21 +486,37 @@ export const followUser = async (_: unknown, formData: FormData) => {
       throw new Error('User not found')
     }
 
-    if (submission.value.actionType === 'follow') {
-      await db.insert(followerSchema).values({
-        userId: targetUser.id,
-        followerId: user.id,
-      })
-      return { success: FollowStatus.Followed }
-    } else {
-      await db.delete(followerSchema).where(
-        and(
-          eq(followerSchema.userId, targetUser.id),
-          eq(followerSchema.followerId, user.id),
-        ),
-      )
+    await db.transaction(async (tx) => {
+      if (submission.value.actionType === 'follow') {
+        await tx.insert(followerSchema).values({
+          userId: targetUser.id,
+          followerId: user.id,
+        })
+        // Update follower count
+        await tx
+          .update(userSchema)
+          .set({ followerCount: targetUser.followerCount + 1 })
+          .where(eq(userSchema.id, targetUser.id))
+      } else { // unfollow branch
+        await tx.delete(followerSchema).where(
+          and(
+            eq(followerSchema.userId, targetUser.id),
+            eq(followerSchema.followerId, user.id),
+          ),
+        )
+        // Update follower count
+        await tx
+          .update(userSchema)
+          .set({ followerCount: targetUser.followerCount - 1 })
+          .where(eq(userSchema.id, targetUser.id))
+      }
+    })
+    return {
+      success:
+      submission.value.actionType === 'follow'
+        ? FollowStatus.Followed
+        : FollowStatus.Unfollowed,
     }
-    return { success: FollowStatus.Unfollowed }
   } catch (err) {
     logger.error(err)
     return { error: 'Something went wrong. Please try again.' }
