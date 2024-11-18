@@ -25,6 +25,8 @@ export const userSchema = sqliteTable('users', {
   name: text('name').notNull(),
   username: text('username').notNull(),
   emailVerified: integer('email_verified').notNull(),
+  bio: text('bio'),
+  followerCount: integer('follower_count').notNull().default(0),
 })
 
 export const sessionSchema = sqliteTable('sessions', {
