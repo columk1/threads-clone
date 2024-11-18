@@ -1,6 +1,7 @@
 import type { FunctionComponent } from 'react'
 
 import { getAllPosts, getFollowingPosts } from '@/app/actions'
+import { validateRequest } from '@/libs/Lucia'
 
 import Avatar from './Avatar'
 import { Like, Reply, Repost, Share } from './icons'
@@ -16,6 +17,7 @@ type ThreadsProps = {
 const iconStyle = 'flex h-full items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
 
 const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
+  const { user } = await validateRequest()
   const rows = await filter === undefined ? await getAllPosts() : await getFollowingPosts()
   return rows.map(row => (
     <div key={row.post.id} className="flex flex-col gap-2 border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px]">
@@ -26,14 +28,14 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="font-semibold">
-              <PostAuthor user={row.user} />
+              <PostAuthor user={row.user} isCurrentUser={user ? row.user.username === user.username : false} />
             </div>
             <a href={`/@${row.user.username}/post/${row.post.id}`}>
               <TimeAgo publishedAt={row.post.createdAt} />
             </a>
           </div>
           {/* TODO: Implement followers/following */}
-          <PostDropDownMenu isFollowed />
+          <PostDropDownMenu isFollowed={row.user.isFollowed} />
         </div>
         <div className="col-start-2 mb-[2px]">
           {row.post.text}
