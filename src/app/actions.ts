@@ -522,3 +522,136 @@ export const followUser = async (_: unknown, formData: FormData) => {
     return { error: 'Something went wrong. Please try again.' }
   }
 }
+
+/*
+ * POST: Follow/Unfollow
+ */
+
+export const toggleFollow = async (username: string, action: 'follow' | 'unfollow') => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+
+  try {
+    const targetUser = await db
+      .select({ id: userSchema.id, followerCount: userSchema.followerCount })
+      .from(userSchema)
+      .where(eq(userSchema.username, username))
+      .get()
+
+    if (!targetUser) {
+      throw new Error('User not found')
+    }
+
+    await db.transaction(async (tx) => {
+      if (action === 'follow') {
+        await tx.insert(followerSchema).values({
+          userId: targetUser.id,
+          followerId: user.id,
+        })
+        await tx
+          .update(userSchema)
+          .set({ followerCount: targetUser.followerCount + 1 })
+          .where(eq(userSchema.id, targetUser.id))
+      } else {
+        const deletedFollow = await tx.delete(followerSchema).where(
+          and(
+            eq(followerSchema.userId, targetUser.id),
+            eq(followerSchema.followerId, user.id),
+          ),
+        )
+        if (deletedFollow.rowsAffected !== 1) {
+          throw new Error('Failed to unfollow user')
+        }
+        await tx
+          .update(userSchema)
+          .set({ followerCount: targetUser.followerCount - 1 })
+          .where(eq(userSchema.id, targetUser.id))
+      }
+    })
+
+    return {
+      success: action === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
+    }
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong. Please try again.' }
+  }
+}
+
+/*
+ * GET user follow status
+ */
+export const getUserFollowStatus = async (username: string) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+
+  const result = await db
+    .select({
+      isFollowed: sql<boolean>`EXISTS (
+      SELECT 1 
+      FROM ${followerSchema} 
+      WHERE ${followerSchema.userId} = (
+        SELECT id FROM ${userSchema} WHERE username = ${username}
+      )
+      AND ${followerSchema.followerId} = ${user.id}
+    )`.as('isFollowed'),
+    })
+    .from(userSchema)
+    .where(eq(userSchema.username, username))
+    .get()
+
+  return result?.isFollowed ?? false
+}
+
+/*
+ * GET user info
+ */
+export async function getUserInfo(username: string): Promise<{
+  user?: PostUser
+  error?: string
+}> {
+  try {
+    const { user } = await validateRequest()
+
+    const userInfo = await db
+      .select({
+        id: userSchema.id,
+        username: userSchema.username,
+        name: userSchema.name,
+        bio: userSchema.bio,
+        followerCount: userSchema.followerCount,
+        isFollowed: user
+          ? sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userSchema.id}
+          AND ${followerSchema.followerId} = ${user.id}
+        )`.as('isFollowed')
+          : sql<boolean>`false`.as('isFollowed'),
+      })
+      .from(userSchema)
+      .where(eq(userSchema.username, username))
+      .get()
+
+    if (!userInfo) {
+      return { error: 'User not found' }
+    }
+
+    return {
+      user: {
+        username: userInfo.username,
+        name: userInfo.name,
+        bio: userInfo.bio,
+        followerCount: userInfo.followerCount,
+        isFollowed: userInfo.isFollowed,
+      },
+    }
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Failed to fetch user info' }
+  }
+}
