@@ -35,7 +35,7 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
             </a>
           </div>
           {/* TODO: Implement followers/following */}
-          <PostDropDownMenu isFollowed={row.user.isFollowed} />
+          <PostDropDownMenu username={row.user.username} isFollowed={row.user.isFollowed} />
         </div>
         <div className="col-start-2 mb-[2px]">
           {row.post.text}
