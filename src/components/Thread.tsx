@@ -1,6 +1,6 @@
 'use client'
 
-import { type FunctionComponent, useState } from 'react'
+import { type FunctionComponent, startTransition, useOptimistic, useState } from 'react'
 import { toast } from 'sonner'
 
 import { type PostUser, toggleFollow } from '@/app/actions'
@@ -22,14 +22,50 @@ const iconStyle = 'flex h-full items-center gap-1 rounded-full px-3 hover:bg-gra
 
 const Thread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCurrentUser }) => {
   const [user, setUser] = useState(initialUser)
+  const [optimisticUser, addOptimisticUser] = useOptimistic(
+    user,
+    (state, optimisticValue: { isFollowed: boolean, followerCount: number }) => ({
+      ...state,
+      ...optimisticValue,
+    }),
+  )
 
   const handleFollowToggle = async () => {
-    const result = await toggleFollow(user.username, user.isFollowed ? 'unfollow' : 'follow')
+    const newFollowState = !optimisticUser.isFollowed
+    const newFollowerCount = newFollowState
+      ? optimisticUser.followerCount + 1
+      : optimisticUser.followerCount - 1
+
+    // Optimistically update the UI
+    startTransition(() => {
+      addOptimisticUser({
+        isFollowed: newFollowState,
+        followerCount: newFollowerCount,
+      })
+    })
+
+    const result = await toggleFollow(optimisticUser.username, newFollowState ? 'follow' : 'unfollow')
+
     if (result.error) {
-      toast.error(result.error)
+      // Revert optimistic update on error
+      startTransition(() => {
+        addOptimisticUser({
+          isFollowed: optimisticUser.isFollowed,
+          followerCount: optimisticUser.followerCount,
+        })
+      })
+      toast(result.error) // Centralized error toast
       return { error: result.error }
     }
-    setUser(prev => ({ ...prev, isFollowed: !prev.isFollowed, followerCount: prev.isFollowed ? prev.followerCount - 1 : prev.followerCount + 1 }))
+
+    // If successful, update state
+    setUser(prev => ({
+      ...prev,
+      isFollowed: newFollowState,
+      followerCount: newFollowerCount,
+    }))
+
+    toast(result.success) // Centralized success toast
     return { success: result.success }
   }
 
@@ -43,7 +79,7 @@ const Thread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCur
           <div className="flex items-center gap-2">
             <div className="font-semibold">
               <PostAuthor
-                user={user}
+                user={optimisticUser}
                 isCurrentUser={isCurrentUser}
                 onFollowToggle={handleFollowToggle}
               />
@@ -53,7 +89,6 @@ const Thread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCur
             </a>
           </div>
           <PostDropDownMenu
-            // username={user.username}
             isFollowed={user.isFollowed}
             onFollowToggle={handleFollowToggle}
           />
