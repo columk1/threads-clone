@@ -384,7 +384,15 @@ export const getAllPosts = async () => {
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     .where(isNull(postSchema.parentId))
     .all()
-  return posts
+  const formattedPosts = posts.map(post => ({
+    ...post,
+    user: {
+      ...post.user,
+      isFollowed: !!post.user.isFollowed, // Cast 1/0 to true/false
+    },
+  }))
+
+  return formattedPosts
 }
 
 /*
@@ -416,7 +424,16 @@ export const getFollowingPosts = async () => {
     .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
     .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, user.id)))
     .all()
-  return posts
+
+  const formattedPosts = posts.map(post => ({
+    ...post,
+    user: {
+      ...post.user,
+      isFollowed: !!post.user.isFollowed, // Cast 1/0 to true/false
+    },
+  }))
+
+  return formattedPosts
 }
 
 /*
@@ -647,7 +664,7 @@ export async function getUserInfo(username: string): Promise<{
         name: userInfo.name,
         bio: userInfo.bio,
         followerCount: userInfo.followerCount,
-        isFollowed: userInfo.isFollowed,
+        isFollowed: !!userInfo.isFollowed,
       },
     }
   } catch (err) {
