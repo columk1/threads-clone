@@ -25,3 +25,7 @@ export const newPostSchema = z.object({
   text: z.string({ required_error: 'Text is required' }).trim().min(1, { message: 'Text is required' }),
   parentId: z.string().optional(),
 })
+
+export const usernameParamSchema = z.string()
+  .startsWith('%40', 'Username must start with @')
+  .transform(s => s.slice(3)) // Remove %40 prefix
