@@ -6,6 +6,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { isWithinExpirationDate } from 'oslo'
+import { cache } from 'react'
 import { ulid } from 'ulidx'
 import { z } from 'zod'
 
@@ -349,6 +350,13 @@ export type PostUser = {
   isFollowed: boolean
 }
 
+export type PublicUser = {
+  username: string
+  name: string
+  bio: string | null
+  followerCount: number
+}
+
 /*
  * GET posts
  */
@@ -615,6 +623,7 @@ export const getUserFollowStatus = async (username: string) => {
         SELECT id FROM ${userSchema} WHERE username = ${username}
       )
       AND ${followerSchema.followerId} = ${user.id}
+      LIMIT 1
     )`.as('isFollowed'),
     })
     .from(userSchema)
@@ -627,13 +636,12 @@ export const getUserFollowStatus = async (username: string) => {
 /*
  * GET user info
  */
-export async function getUserInfo(username: string): Promise<{
-  user?: PostUser
-  error?: string
-}> {
+const getUserInfoCached = cache(async (username: string): Promise<
+  | { user: PostUser }
+  | { error: string }
+> => {
   try {
     const { user } = await validateRequest()
-
     const userInfo = await db
       .select({
         id: userSchema.id,
@@ -647,6 +655,7 @@ export async function getUserInfo(username: string): Promise<{
           FROM ${followerSchema} 
           WHERE ${followerSchema.userId} = ${userSchema.id}
           AND ${followerSchema.followerId} = ${user.id}
+          LIMIT 1
         )`.as('isFollowed')
           : sql<boolean>`false`.as('isFollowed'),
       })
@@ -671,4 +680,46 @@ export async function getUserInfo(username: string): Promise<{
     logger.error(err)
     return { error: 'Failed to fetch user info' }
   }
-}
+})
+
+export const getUserInfo = getUserInfoCached
+
+/*
+ * GET public user info
+ */
+
+const getPublicUserInfoCached = cache(async (username: string): Promise<
+  | { user: PublicUser }
+  | { error: string }
+> => {
+  try {
+    const userInfo = await db
+      .select({
+        id: userSchema.id,
+        username: userSchema.username,
+        name: userSchema.name,
+        bio: userSchema.bio,
+        followerCount: userSchema.followerCount,
+      })
+      .from(userSchema)
+      .where(eq(userSchema.username, username))
+      .get()
+
+    if (!userInfo) {
+      return { error: 'User not found' }
+    }
+    return {
+      user: {
+        username: userInfo.username,
+        name: userInfo.name,
+        bio: userInfo.bio,
+        followerCount: userInfo.followerCount,
+      },
+    }
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Failed to fetch user info' }
+  }
+})
+
+export const getPublicUserInfo = getPublicUserInfoCached
