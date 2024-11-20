@@ -9,10 +9,10 @@ import { BookmarkIcon, KebabMenuIcon, LinkIcon, ReportIcon, UnfollowIcon } from 
 type PostDropDownMenuProps = {
   // username: string
   isFollowed: boolean
-  onFollowToggle: () => Promise<{ error?: string, success?: string }>
+  onToggleFollow: () => Promise<void>
 }
 
-const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({ isFollowed, onFollowToggle }) => {
+const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({ isFollowed, onToggleFollow }) => {
   // const handleMouseEnter = () => {
   //   getUserFollowStatus(username).then((status) => {
   //     if (status !== isFollowed) {
@@ -39,7 +39,7 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({ isFollowed
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {isFollowed && (
-          <button onClick={onFollowToggle} type="button" className="flex w-full justify-between leading-none">
+          <button onClick={onToggleFollow} type="button" className="flex w-full justify-between leading-none">
             <DropdownMenuItem className="flex w-full justify-between">
               Unfollow
               <UnfollowIcon />

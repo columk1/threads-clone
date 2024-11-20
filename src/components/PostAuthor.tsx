@@ -1,6 +1,5 @@
 'use client'
 
-import cx from 'clsx'
 import type { FunctionComponent } from 'react'
 
 import type { PostUser } from '@/app/actions'
@@ -12,14 +11,15 @@ import {
 } from '@/components/Tooltip'
 
 import Avatar from './Avatar'
+import FollowButton from './FollowButton'
 
 type PostAuthorProps = {
   user: PostUser
   isCurrentUser: boolean
-  onFollowToggle: () => Promise<{ error?: string, success?: string }>
+  onToggleFollow: () => Promise<void>
 }
 
-const PostAuthor: FunctionComponent<PostAuthorProps> = ({ user, isCurrentUser, onFollowToggle }) => {
+const PostAuthor: FunctionComponent<PostAuthorProps> = ({ user, isCurrentUser, onToggleFollow }) => {
   return (
     <TooltipProvider>
       <Tooltip>
@@ -48,16 +48,10 @@ const PostAuthor: FunctionComponent<PostAuthorProps> = ({ user, isCurrentUser, o
               </div>
             </div>
             {!isCurrentUser && (
-              <button
-                type="button"
-                onClick={onFollowToggle}
-                className={cx(
-                  'w-full h-9 rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30',
-                  !user.isFollowed ? 'bg-white text-black' : 'text-primary-text',
-                )}
-              >
-                {user.isFollowed ? 'Unfollow' : 'Follow'}
-              </button>
+              <FollowButton
+                isFollowed={user.isFollowed}
+                onToggleFollow={onToggleFollow}
+              />
             )}
           </div>
         </TooltipContent>
