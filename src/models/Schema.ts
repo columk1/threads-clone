@@ -1,5 +1,5 @@
 import { type InferSelectModel, relations, sql } from 'drizzle-orm'
-import { integer, primaryKey, type SQLiteColumn, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { check, index, integer, primaryKey, type SQLiteColumn, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { ulid } from 'ulidx'
 
 // To modify the database schema:
@@ -27,7 +27,9 @@ export const userSchema = sqliteTable('users', {
   emailVerified: integer('email_verified').notNull(),
   bio: text('bio'),
   followerCount: integer('follower_count').notNull().default(0),
-})
+}, table => ({
+  usernameIdx: index('username_idx').on(table.username),
+}))
 
 export const sessionSchema = sqliteTable('sessions', {
   id: text('id').primaryKey(),
@@ -82,6 +84,7 @@ export const followerSchema = sqliteTable('followers', {
 }, (table) => {
   return {
     pk: primaryKey({ columns: [table.userId, table.followerId] }),
+    checkConstraint: check('no_self_follow', sql`${table.userId} != ${table.followerId}`),
   }
 })
 
