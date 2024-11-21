@@ -16,6 +16,9 @@ export default {
       sans: 'Helvetica, Arial, sans-serif',
     },
     extend: {
+      fontSize: {
+        '3xl': '2rem',
+      },
       spacing: {
         'sidebar-width': 'var(--sidebar-width)',
       },
