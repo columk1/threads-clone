@@ -2,6 +2,7 @@ import cx from 'clsx'
 import type { User } from 'lucia'
 import Link from 'next/link'
 
+import AuthPromptModal from '@/components/AuthPromptModal'
 import Logo from '@/components/Logo'
 import MobileSidebar from '@/components/MobileSidebar'
 import { MobileSidebarDropdown } from '@/components/MobileSidebarDropdown'
@@ -27,6 +28,8 @@ export const BaseTemplate = ({ user, children }: {
 
       <Sidebar user={user} />
       <MobileSidebar user={user} />
+      {/* { !user && */}
+      <AuthPromptModal />
 
       <div className="flex min-h-screen flex-col items-center justify-center md:px-5">
         <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">

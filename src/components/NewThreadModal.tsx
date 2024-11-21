@@ -91,7 +91,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username }) =>
     )
   }
   return (
-    <Drawer open={isOpen} onOpenChange={handleOpenChange}>
+    <Drawer open={isOpen && modalType === 'new-thread'} onOpenChange={handleOpenChange}>
       <DrawerContent className="h-full min-w-full border-none">
         <div className="sr-only">
           <DialogDescription>Create a new thread</DialogDescription>

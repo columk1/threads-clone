@@ -2,49 +2,62 @@
 
 import { createContext, useMemo, useState } from 'react'
 
-type ModalType = 'new-thread' | 'login'
+import type { GatedAction } from '@/hooks/useModal'
+
+type ModalType = 'new-thread' | 'auth-prompt'
 
 type ModalContextType = {
   isOpen: boolean
   modalType: ModalType | null
-  // loginAction: LoginAction | null
-  openModal: (type: ModalType) => void
+  gatedAction: GatedAction | null
+  openModal: (type: ModalType, action?: GatedAction) => void
   closeModal: () => void
   handleOpenChange: (open: boolean) => void
+}
+
+type ModalState = {
+  isOpen: boolean
+  modalType: ModalType | null
+  gatedAction: GatedAction | null
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined)
 
 const ModalProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [modalType, setModalType] = useState<ModalType | null>(null)
-  // const [loginAction, setLoginAction] = useState<LoginAction | null>(null)
+  const [modalState, setModalState] = useState<ModalState>({
+    isOpen: false,
+    modalType: null,
+    gatedAction: null,
+  })
 
-  const openModal = (type: ModalType) => {
-    setIsOpen(true)
-    setModalType(type)
-    // if (type === 'login' && action) {
-    //   setLoginAction(action)
-    // }
+  const openModal: ModalContextType['openModal'] = (type, action) => {
+    setModalState({
+      isOpen: true,
+      modalType: type,
+      gatedAction: type === 'auth-prompt' && action ? action : null,
+    })
   }
 
   const closeModal = () => {
-    setIsOpen(false)
-    setModalType(null)
-    // setLoginAction(null)
+    setModalState({
+      isOpen: false,
+      modalType: null,
+      gatedAction: null,
+    })
   }
 
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open)
-    if (!open) {
-      setModalType(null)
-      // setLoginAction(null)
-    }
+    setModalState(prev => ({
+      ...prev,
+      isOpen: open,
+      modalType: open ? prev.modalType : null,
+      loginAction: open ? prev.gatedAction : null,
+    }))
   }
 
   const value = useMemo(
-    () => ({ isOpen, modalType, openModal, closeModal, handleOpenChange }),
-    [isOpen, modalType],
+    () => ({ isOpen: modalState.isOpen, modalType: modalState.modalType, gatedAction: modalState.gatedAction, openModal, closeModal, handleOpenChange }),
+    [modalState],
   )
 
   return (
@@ -53,42 +66,5 @@ const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     </ModalContext.Provider>
   )
 }
-
-// type ModalState = {
-//   isOpen: boolean
-//   modalType: ModalType | null
-//   loginAction: LoginAction | null
-// }
-
-// const [modalState, setModalState] = useState<ModalState>({
-//   isOpen: false,
-//   modalType: null,
-//   loginAction: null
-// })
-
-// const openModal = (type: ModalType, action?: LoginAction) => {
-//   setModalState({
-//     isOpen: true,
-//     modalType: type,
-//     loginAction: type === 'login' ? action : null
-//   })
-// }
-
-// const closeModal = () => {
-//   setModalState({
-//     isOpen: false,
-//     modalType: null,
-//     loginAction: null
-//   })
-// }
-
-// const handleOpenChange = (open: boolean) => {
-//   setModalState(prev => ({
-//     ...prev,
-//     isOpen: open,
-//     modalType: open ? prev.modalType : null,
-//     loginAction: open ? prev.loginAction : null
-//   }))
-// }
 
 export { ModalContext, ModalProvider }

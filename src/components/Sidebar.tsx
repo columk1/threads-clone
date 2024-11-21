@@ -38,7 +38,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
                 type="button"
                 key={link.label}
                 className={`my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${link?.classNames}`}
-                onClick={() => openModal('new-thread')}
+                onClick={() => user ? openModal('new-thread') : openModal('auth-prompt', 'post')}
               >
                 <div className="z-10">
                   {link.icon && <link.icon />}
