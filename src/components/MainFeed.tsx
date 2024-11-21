@@ -11,7 +11,7 @@ type Props = {
 }
 
 const MainFeed: FunctionComponent<Props> = ({ user, filter }) => {
-  user = undefined
+  // user = undefined
   return (
     <>
       {user && <MobileHomeFeedFilter />}

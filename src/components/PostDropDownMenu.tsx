@@ -10,9 +10,10 @@ type PostDropDownMenuProps = {
   // username: string
   isFollowed: boolean
   onToggleFollow: () => Promise<void>
+  isAuthenticated?: boolean
 }
 
-const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({ isFollowed, onToggleFollow }) => {
+const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({ isFollowed, onToggleFollow, isAuthenticated }) => {
   // const handleMouseEnter = () => {
   //   getUserFollowStatus(username).then((status) => {
   //     if (status !== isFollowed) {
@@ -31,21 +32,27 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({ isFollowed
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" alignOffset={-18} sideOffset={6} className="w-60 origin-top-right text-[15px] font-semibold">
-        <DropdownMenuItem asChild className="leading-none">
-          <button type="button" className="flex w-full justify-between">
-            Save
-            <BookmarkIcon />
-          </button>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        {isFollowed && (
-          <button onClick={onToggleFollow} type="button" className="flex w-full justify-between leading-none">
-            <DropdownMenuItem className="flex w-full justify-between">
-              Unfollow
-              <UnfollowIcon />
+
+        {isAuthenticated && (
+          <>
+            <DropdownMenuItem asChild className="leading-none">
+              <button type="button" className="flex w-full justify-between">
+                Save
+                <BookmarkIcon />
+              </button>
             </DropdownMenuItem>
-          </button>
+            <DropdownMenuSeparator />
+            {isFollowed && (
+              <button onClick={onToggleFollow} type="button" className="flex w-full justify-between leading-none">
+                <DropdownMenuItem className="flex w-full justify-between">
+                  Unfollow
+                  <UnfollowIcon />
+                </DropdownMenuItem>
+              </button>
+            )}
+          </>
         )}
+
         <DropdownMenuItem asChild className="leading-none text-error-text dark:focus:text-error-text">
           <button type="button" className="flex w-full justify-between text-left">
             Report

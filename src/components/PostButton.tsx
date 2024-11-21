@@ -1,9 +1,9 @@
 'use client'
 
-import { type FunctionComponent, use } from 'react'
+import type { FunctionComponent } from 'react'
 
 import Button from '@/components/Button'
-import { ModalContext } from '@/context/ModalContext'
+import { useModal } from '@/hooks/useModal'
 
 type PostButtonProps = {
   className?: string
@@ -11,10 +11,10 @@ type PostButtonProps = {
 }
 
 const PostButton: FunctionComponent<PostButtonProps> = ({ className, children }) => {
-  const { setIsOpen } = use(ModalContext)
+  const { openModal } = useModal()
 
   return (
-    <Button onClick={() => setIsOpen(true)} className={className}>
+    <Button onClick={() => openModal('new-thread')} className={className}>
       {children}
     </Button>
   )

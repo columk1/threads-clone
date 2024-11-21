@@ -3,10 +3,10 @@
 import type { User } from 'lucia'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { type FunctionComponent, useContext } from 'react'
+import type { FunctionComponent } from 'react'
 
 import { footerLinks } from '@/constants/navigation'
-import { ModalContext } from '@/context/ModalContext'
+import { useModal } from '@/hooks/useModal'
 
 type MobileSidebarProps = {
   user: User | null
@@ -14,7 +14,7 @@ type MobileSidebarProps = {
 
 const MobileSidebar: FunctionComponent<MobileSidebarProps> = () => {
   const pathname = usePathname()
-  const { setIsOpen } = useContext(ModalContext)
+  const { openModal } = useModal()
 
   return (
     <aside className="fixed bottom-0 z-10 flex h-[68px] w-full items-center justify-evenly bg-secondary-bg md:hidden">
@@ -31,7 +31,7 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = () => {
               type="button"
               key={link.label}
               className={`group relative flex w-full items-center justify-center ${isActive && 'text-primary-text'}`}
-              onClick={() => setIsOpen(true)}
+              onClick={() => openModal('new-thread')}
             >
               <div className="z-10 transition duration-200 group-active:scale-90">
                 {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}

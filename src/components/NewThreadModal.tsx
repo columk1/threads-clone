@@ -2,12 +2,12 @@
 
 import { DialogDescription } from '@radix-ui/react-dialog'
 import { useRouter } from 'next/navigation'
-import { type FunctionComponent, use, useActionState, useCallback, useEffect, useState } from 'react'
+import { type FunctionComponent, useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { createPost } from '@/app/actions'
-import { ModalContext } from '@/context/ModalContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useModal } from '@/hooks/useModal'
 
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
@@ -17,7 +17,7 @@ type NewThreadModalProps = {
 }
 
 const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username }) => {
-  const { isOpen, setIsOpen } = use(ModalContext)
+  const { isOpen, modalType, handleOpenChange } = useModal()
   const [state, formAction, isPending] = useActionState(createPost, null)
   const [isValid, setIsValid] = useState(false)
 
@@ -29,8 +29,8 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username }) =>
   }, [])
 
   const closeModal = useCallback(() => {
-    setIsOpen(false)
-  }, [setIsOpen])
+    handleOpenChange(false)
+  }, [handleOpenChange])
 
   useEffect(() => {
     if (state?.error) {
@@ -46,7 +46,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username }) =>
 
   if (isDesktop) {
     return (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen && modalType === 'new-thread'} onOpenChange={handleOpenChange}>
         <DialogContent className="min-w-[620px] max-md:hidden">
           <div className="sr-only">
             <DialogDescription>Create a new thread</DialogDescription>
@@ -91,7 +91,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username }) =>
     )
   }
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+    <Drawer open={isOpen} onOpenChange={handleOpenChange}>
       <DrawerContent className="h-full min-w-full border-none">
         <div className="sr-only">
           <DialogDescription>Create a new thread</DialogDescription>

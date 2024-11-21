@@ -3,10 +3,10 @@
 import type { User } from 'lucia'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { type FunctionComponent, useContext } from 'react'
+import type { FunctionComponent } from 'react'
 
 import { sidebarLinks } from '@/constants/navigation'
-import { ModalContext } from '@/context/ModalContext'
+import { useModal } from '@/hooks/useModal'
 
 import Logo from './Logo'
 import SidebarDropdown from './SidebarDropdown'
@@ -17,7 +17,7 @@ type SidebarProps = {
 
 const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
   const pathname = usePathname()
-  const { setIsOpen } = useContext(ModalContext)
+  const { openModal } = useModal()
 
   return (
     <aside className="fixed left-0 top-0 z-10 flex h-full w-sidebar-width flex-col items-center justify-between overflow-x-visible pb-5 max-md:hidden">
@@ -38,7 +38,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
                 type="button"
                 key={link.label}
                 className={`my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${link?.classNames}`}
-                onClick={() => setIsOpen(true)}
+                onClick={() => openModal('new-thread')}
               >
                 <div className="z-10">
                   {link.icon && <link.icon />}
