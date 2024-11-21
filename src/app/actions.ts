@@ -364,13 +364,28 @@ export const getAllPosts = async () => {
   const { user } = await validateRequest()
 
   if (!user) {
-    // const posts = await db
-    //   .select()
-    //   .from(postSchema)
-    //   .where(isNull(postSchema.parentId))
-    //   .all()
-    // return posts
-    return redirect('/login')
+    const posts = await db.select({
+      post: postSchema,
+      user: {
+        username: userSchema.username,
+        name: userSchema.name,
+        bio: userSchema.bio,
+        followerCount: userSchema.followerCount,
+      },
+    })
+      .from(postSchema)
+      .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+      .where(isNull(postSchema.parentId))
+      .all()
+
+    const formattedPosts = posts.map(post => ({
+      ...post,
+      user: {
+        ...post.user,
+        isFollowed: false,
+      },
+    }))
+    return formattedPosts
   }
 
   const posts = await db.select({

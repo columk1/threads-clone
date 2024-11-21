@@ -5,11 +5,11 @@ import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
 import { validateRequest } from '@/libs/Lucia'
 
-const Dashboard = async () => {
+export default async function Home() {
   const { user } = await validateRequest()
-  const userExists = user && user.emailVerified
-  if (!userExists) {
-    return redirect('/login')
+  // const verified = user && user.emailVerified
+  if (user && !user?.emailVerified) {
+    return redirect('/verify-email')
   }
 
   return (
@@ -17,9 +17,7 @@ const Dashboard = async () => {
       <Header title="For you">
         <HeaderDropdown pathname="/" />
       </Header>
-      <MainFeed />
+      <MainFeed user={user} />
     </>
   )
 }
-
-export default Dashboard

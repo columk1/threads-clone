@@ -22,6 +22,7 @@ type Story = StoryObj<typeof meta>
 
 export const BaseWithReactComponent = {
   args: {
+    user: null,
     children: <div>Children node</div>,
     // leftNav: (
     //   <>
@@ -34,6 +35,7 @@ export const BaseWithReactComponent = {
 
 export const BaseWithString = {
   args: {
+    user: null,
     children: 'String',
     // leftNav: (
     //   <>
@@ -47,6 +49,7 @@ export const BaseWithString = {
 // More on interaction testing: https://storybook.js.org/docs/7.0/react/writing-tests/interaction-testing
 export const BaseWithHomeLink: Story = {
   args: {
+    user: null,
     children: <div>Children node</div>,
     // leftNav: (
     //   <>

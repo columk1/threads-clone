@@ -5,11 +5,11 @@ import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
 import { validateRequest } from '@/libs/Lucia'
 
-const Dashboard = async () => {
+export default async function Following() {
   const { user } = await validateRequest()
   const userExists = user && user.emailVerified
   if (!userExists) {
-    return redirect('/login')
+    return redirect('/')
   }
 
   return (
@@ -17,9 +17,7 @@ const Dashboard = async () => {
       <Header title="For you">
         <HeaderDropdown pathname="/following" />
       </Header>
-      <MainFeed filter="following" />
+      <MainFeed user={user}filter="following" />
     </>
   )
 }
-
-export default Dashboard

@@ -6,7 +6,7 @@ describe('Base template', () => {
   describe('Render method', () => {
     it('should have 3 menu items', () => {
       render(
-        <BaseTemplate>
+        <BaseTemplate user={null}>
           {null}
         </BaseTemplate>,
       )
@@ -18,7 +18,7 @@ describe('Base template', () => {
 
     it('should have a link to support creativedesignsguru.com', () => {
       render(
-        <BaseTemplate>
+        <BaseTemplate user={null}>
           {null}
           {/* leftNav={<li>1</li>}> */}
         </BaseTemplate>,

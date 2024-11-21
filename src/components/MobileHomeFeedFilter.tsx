@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-export const MobileHomeFeedNav = () => {
+export const MobileHomeFeedFilter = () => {
   // const user = await currentUser()
   const pathname = usePathname()
 
