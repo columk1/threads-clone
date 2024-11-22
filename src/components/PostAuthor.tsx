@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/Tooltip'
+import { useModal } from '@/hooks/useModal'
 
 import Avatar from './Avatar'
 import FollowButton from './FollowButton'
@@ -16,10 +17,21 @@ import FollowButton from './FollowButton'
 type PostAuthorProps = {
   user: PostUser
   isCurrentUser: boolean
+  isAuthenticated?: boolean
   onToggleFollow: () => Promise<void>
 }
 
-const PostAuthor: FunctionComponent<PostAuthorProps> = ({ user, isCurrentUser, onToggleFollow }) => {
+const PostAuthor: FunctionComponent<PostAuthorProps> = ({ user, isAuthenticated, isCurrentUser, onToggleFollow }) => {
+  const { openModal } = useModal()
+
+  const handleFollow = async () => {
+    if (!isAuthenticated) {
+      openModal('auth-prompt', 'follow')
+      return
+    }
+    await onToggleFollow()
+  }
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -50,7 +62,7 @@ const PostAuthor: FunctionComponent<PostAuthorProps> = ({ user, isCurrentUser, o
             {!isCurrentUser && (
               <FollowButton
                 isFollowed={user.isFollowed}
-                onToggleFollow={onToggleFollow}
+                onToggleFollow={handleFollow}
               />
             )}
           </div>

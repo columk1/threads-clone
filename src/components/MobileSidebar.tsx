@@ -12,7 +12,7 @@ type MobileSidebarProps = {
   user: User | null
 }
 
-const MobileSidebar: FunctionComponent<MobileSidebarProps> = () => {
+const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
   const pathname = usePathname()
   const { openModal } = useModal()
 
@@ -22,16 +22,13 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = () => {
         const isActive = pathname === link.route
           || (pathname.includes(link.route) && link.route.length > 1)
 
-        // if (link.route === '/profile') {
-        //   link.route = `${link.route}/${userId}`
-        // }
         if (link.route === '/create-thread') {
           return (
             <button
               type="button"
               key={link.label}
               className={`group relative flex w-full items-center justify-center ${isActive && 'text-primary-text'}`}
-              onClick={() => openModal('new-thread')}
+              onClick={() => user ? openModal('new-thread') : openModal('auth-prompt', 'post')}
             >
               <div className="z-10 transition duration-200 group-active:scale-90">
                 {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
@@ -39,6 +36,55 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = () => {
               <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
               </div>
             </button>
+          )
+        }
+
+        if (link.route === '/activity' && !user) {
+          return (
+            <button
+              key={link.label}
+              type="button"
+              onClick={() => openModal('auth-prompt', 'activity')}
+              className={`group relative flex w-full items-center justify-center ${isActive && 'text-primary-text'}`}
+            >
+              <div className="z-10 transition duration-200 group-active:scale-90">
+                {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
+              </div>
+              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
+              </div>
+            </button>
+          )
+        }
+
+        if (link.route === '/profile') {
+          if (!user) {
+            return (
+              <button
+                key={link.label}
+                type="button"
+                onClick={() => openModal('auth-prompt', 'profile')}
+                className={`group relative flex w-full items-center justify-center ${isActive && 'text-primary-text'}`}
+              >
+                <div className="z-10 transition duration-200 group-active:scale-90">
+                  {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
+                </div>
+                <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
+                </div>
+              </button>
+            )
+          }
+          return (
+            <Link
+              key={link.label}
+              href={user ? `/profile/@${user.username}` : link.route}
+              className={`group relative flex w-full items-center justify-center ${isActive && 'text-primary-text'}`}
+            >
+              <div className="z-10 transition duration-200 group-active:scale-90">
+                {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
+              </div>
+              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
+              </div>
+            </Link>
           )
         }
 
