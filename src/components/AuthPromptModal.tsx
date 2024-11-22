@@ -9,16 +9,15 @@ import { getAuthModalContent, useModal } from '@/hooks/useModal'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
 import FacebookAuthButton from './FacebookAuthButton'
-import { CloseIcon, EditColorIcon } from './icons'
+import { CloseIcon } from './icons'
 
 type AuthPromptModalProps = {
   username?: string
 }
 
 const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
-  const { isOpen, modalType, gatedAction, handleOpenChange } = useModal()
-
-  const { title, caption } = getAuthModalContent(gatedAction)
+  const { isOpen, modalType, protectedAction, handleOpenChange } = useModal()
+  const { title, caption, icon: Icon } = getAuthModalContent(protectedAction)
 
   const closeModal = useCallback(() => {
     handleOpenChange(false)
@@ -31,7 +30,7 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
       <Dialog open={isOpen && modalType === 'auth-prompt'} onOpenChange={handleOpenChange}>
         <DialogContent className="flex w-[520px] flex-col items-center justify-center gap-8 border-none px-14 pb-14 pt-12 dark:bg-gray-1 max-md:hidden">
           <div className="flex flex-col items-center gap-1">
-            <EditColorIcon className="mb-2" />
+            {Icon && <Icon className="mb-2" />}
             <DialogTitle className="flex place-self-center text-3xl font-bold">
               {title}
             </DialogTitle>
@@ -42,6 +41,7 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
       </Dialog>
     )
   }
+
   return (
     <Drawer open={isOpen && modalType === 'auth-prompt'} onOpenChange={handleOpenChange}>
       <DrawerContent className="h-[340px] min-w-full p-6 dark:bg-gray-1">
@@ -57,7 +57,7 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
         </DialogHeader>
         <div className="flex flex-col items-center gap-8">
           <div className="flex flex-col items-center gap-2">
-            <EditColorIcon className="mb-1 size-10" />
+            {Icon && <Icon className="mb-1 size-10" />}
             <DialogTitle className="flex place-self-center text-2xl font-bold">
               {title}
             </DialogTitle>

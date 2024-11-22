@@ -2,15 +2,15 @@
 
 import { createContext, useMemo, useState } from 'react'
 
-import type { GatedAction } from '@/hooks/useModal'
+import type { ProtectedAction } from '@/hooks/useModal'
 
 type ModalType = 'new-thread' | 'auth-prompt'
 
 type ModalContextType = {
   isOpen: boolean
   modalType: ModalType | null
-  gatedAction: GatedAction | null
-  openModal: (type: ModalType, action?: GatedAction) => void
+  protectedAction: ProtectedAction | null
+  openModal: (type: ModalType, action?: ProtectedAction) => void
   closeModal: () => void
   handleOpenChange: (open: boolean) => void
 }
@@ -18,7 +18,7 @@ type ModalContextType = {
 type ModalState = {
   isOpen: boolean
   modalType: ModalType | null
-  gatedAction: GatedAction | null
+  protectedAction: ProtectedAction | null
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined)
@@ -27,14 +27,14 @@ const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     modalType: null,
-    gatedAction: null,
+    protectedAction: null,
   })
 
   const openModal: ModalContextType['openModal'] = (type, action) => {
     setModalState({
       isOpen: true,
       modalType: type,
-      gatedAction: type === 'auth-prompt' && action ? action : null,
+      protectedAction: type === 'auth-prompt' && action ? action : null,
     })
   }
 
@@ -42,7 +42,7 @@ const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     setModalState({
       isOpen: false,
       modalType: null,
-      gatedAction: null,
+      protectedAction: null,
     })
   }
 
@@ -51,12 +51,12 @@ const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       ...prev,
       isOpen: open,
       modalType: open ? prev.modalType : null,
-      loginAction: open ? prev.gatedAction : null,
+      loginAction: open ? prev.protectedAction : null,
     }))
   }
 
   const value = useMemo(
-    () => ({ isOpen: modalState.isOpen, modalType: modalState.modalType, gatedAction: modalState.gatedAction, openModal, closeModal, handleOpenChange }),
+    () => ({ isOpen: modalState.isOpen, modalType: modalState.modalType, protectedAction: modalState.protectedAction, openModal, closeModal, handleOpenChange }),
     [modalState],
   )
 

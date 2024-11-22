@@ -29,9 +29,6 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
           const isActive = pathname === link.route
             || (pathname.includes(link.route) && link.route.length > 1)
 
-          if (link.route === '/profile') {
-            link.route = `${link.route}/@${user?.username}`
-          }
           if (link.route === '/create-thread') {
             return (
               <button
@@ -46,6 +43,55 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
                 <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg">
                 </div>
               </button>
+            )
+          }
+
+          if (link.route === '/activity' && !user) {
+            return (
+              <button
+                type="button"
+                key={link.label}
+                className={`my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${link?.classNames}`}
+                onClick={() => openModal('auth-prompt', 'activity')}
+              >
+                <div className="z-10">
+                  {link.icon && <link.icon />}
+                </div>
+                <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg">
+                </div>
+              </button>
+            )
+          }
+
+          if (link.route === '/profile') {
+            if (!user) {
+              return (
+                <button
+                  type="button"
+                  key={link.label}
+                  className={`my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${link?.classNames}`}
+                  onClick={() => openModal('auth-prompt', 'profile')}
+                >
+                  <div className="z-10">
+                    {link.icon && <link.icon />}
+                  </div>
+                  <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg">
+                  </div>
+                </button>
+              )
+            }
+            return (
+              <Link
+                href={`/@${user.username}`}
+                key={link.label}
+                className={`group relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${isActive && 'text-primary-text'} ${link?.classNames}`}
+              >
+                <div className="z-10">
+                  {link.icon && <link.icon isActive={isActive} />}
+                </div>
+                <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg">
+                </div>
+              </Link>
             )
           }
 
