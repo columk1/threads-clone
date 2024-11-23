@@ -21,10 +21,9 @@ export const BaseTemplate = ({ user, children }: {
         <Link href="/" className="col-start-2 flex max-w-8 items-center gap-4">
           <Logo />
         </Link>
-        {user
-          ? <MobileSidebarDropdown />
-          : <Link href="/login" className="ml-auto mr-[19px] flex h-[34px] items-center justify-center rounded-lg border border-gray-5 bg-white px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30">Log in</Link>}
+        {user && <MobileSidebarDropdown />}
       </nav>
+      {!user && <Link href="/login" className="fixed right-5 top-5 flex h-[34px] items-center justify-center rounded-lg border border-gray-5 bg-white px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30">Log in</Link>}
 
       <Sidebar user={user} />
       <MobileSidebar user={user} />
