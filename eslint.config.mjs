@@ -25,6 +25,8 @@ export default antfu({
   ignores: [
     'migrations/**/*',
     'next-env.d.ts',
+    'sandbox/',
+    '.next/',
   ],
 }, ...tailwind.configs['flat/recommended'], jsxA11y.flatConfigs.recommended, {
   plugins: {
@@ -54,8 +56,6 @@ export default antfu({
     '**/*.e2e.ts',
   ],
   ...playwright.configs['flat/recommended'],
-}, {
-  ignores: ['sandbox/**', '.next/**'],
 }, {
   rules: {
     'import/order': 'off', // Avoid conflicts with `simple-import-sort` plugin
