@@ -1,14 +1,28 @@
-import NewThreadModal from '@/components/NewThreadModal'
-import { validateRequest } from '@/libs/Lucia'
-import { BaseTemplate } from '@/templates/BaseTemplate'
+import Link from 'next/link'
 
-export default async function HomeLayout(props: { children: React.ReactNode }) {
+import AuthPromptModal from '@/components/AuthPromptModal'
+import MobileHeader from '@/components/MobileHeader'
+import MobileSidebar from '@/components/MobileSidebar'
+import NewThreadModal from '@/components/NewThreadModal'
+import Sidebar from '@/components/Sidebar'
+import { validateRequest } from '@/libs/Lucia'
+
+export default async function HomeLayout({ children }: { children: React.ReactNode }) {
   const { user } = await validateRequest()
   return (
-    <BaseTemplate user={user}>
-      <NewThreadModal username={user?.username} />
-      {props.children}
-    </BaseTemplate>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-primary-bg text-gray-6 antialiased md:bg-secondary-bg md:px-5">
+      <MobileHeader user={user} />
+      <Sidebar user={user} />
+      <MobileSidebar user={user} />
+      {!user
+      && <Link href="/login" className="fixed right-5 top-5 flex h-[34px] items-center justify-center rounded-lg border border-gray-5 bg-white px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30">Log in</Link>}
+      <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">
+        {children}
+      </main>
+      {user
+        ? <NewThreadModal username={user.username} />
+        : <AuthPromptModal />}
+    </div>
   )
 }
 

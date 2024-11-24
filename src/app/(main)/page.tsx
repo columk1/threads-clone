@@ -14,8 +14,8 @@ export default async function Home() {
 
   return (
     <>
-      <Header title="For you">
-        <HeaderDropdown pathname="/" />
+      <Header title={`${user ? 'For you' : 'Home'}`}>
+        {user && <HeaderDropdown pathname="/" />}
       </Header>
       <MainFeed user={user} />
     </>

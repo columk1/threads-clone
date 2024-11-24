@@ -17,7 +17,8 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
   const { openModal } = useModal()
 
   return (
-    <aside className="fixed bottom-0 z-10 flex h-[68px] w-full items-center justify-evenly bg-secondary-bg md:hidden">
+    // TODO: add background blur
+    <aside className="fixed bottom-0 z-10 flex h-[68px] w-full items-center justify-evenly md:hidden">
       {footerLinks.map((link) => {
         const isActive = pathname === link.route
           || (pathname.includes(link.route) && link.route.length > 1)
