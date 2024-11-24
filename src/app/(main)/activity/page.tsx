@@ -1,10 +1,7 @@
 import Header from '@/components/Header'
 
-export async function generateMetadata() {
-  return {
-    title: 'Activity',
-    description: 'Welcome to my activity page!',
-  }
+export const metadata = {
+  title: 'Activity',
 }
 
 const Activity = () => {

@@ -5,6 +5,10 @@ import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
 import { validateRequest } from '@/libs/Lucia'
 
+export const metadata = {
+  title: 'Home',
+}
+
 export default async function Home() {
   const { user } = await validateRequest()
   // const verified = user && user.emailVerified

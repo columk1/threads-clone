@@ -8,7 +8,10 @@ import { Toaster } from 'sonner'
 import { ModalProvider } from '@/context/ModalContext'
 
 export const metadata: Metadata = {
-  title: 'Threads',
+  title: {
+    default: 'Threads',
+    template: '%s • Threads',
+  },
   icons: [
     {
       rel: 'apple-touch-icon',

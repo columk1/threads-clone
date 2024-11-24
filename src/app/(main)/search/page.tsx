@@ -1,10 +1,7 @@
 import Header from '@/components/Header'
 
-export async function generateMetadata() {
-  return {
-    title: 'Search',
-    description: 'Search page description',
-  }
+export const metadata = {
+  title: 'Search',
 }
 
 const Search = () => {

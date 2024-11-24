@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import AuthPromptModal from '@/components/AuthPromptModal'
@@ -7,10 +8,17 @@ import NewThreadModal from '@/components/NewThreadModal'
 import Sidebar from '@/components/Sidebar'
 import { validateRequest } from '@/libs/Lucia'
 
+export const metadata: Metadata = {
+  title: {
+    default: 'Threads',
+    template: '%s • Threads',
+  },
+}
+
 export default async function HomeLayout({ children }: { children: React.ReactNode }) {
   const { user } = await validateRequest()
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-primary-bg text-gray-6 antialiased md:bg-secondary-bg md:px-5">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-primary-bg text-gray-6 antialiased md:bg-secondary-bg md:px-5">
       <MobileHeader user={user} />
       <Sidebar user={user} />
       <MobileSidebar user={user} />
