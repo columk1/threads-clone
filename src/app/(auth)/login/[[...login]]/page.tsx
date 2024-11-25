@@ -3,7 +3,6 @@ import LoginForm from '@/components/LoginForm'
 export async function generateMetadata() {
   return {
     title: 'Sign in',
-    description: 'Seamlessly sign in to your account with our user-friendly login process.',
   }
 }
 
