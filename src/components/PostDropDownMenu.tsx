@@ -9,7 +9,7 @@ import { BookmarkIcon, KebabMenuIcon, LinkIcon, ReportIcon, UnfollowIcon } from 
 type PostDropDownMenuProps = {
   // username: string
   isFollowed: boolean
-  onToggleFollow: () => Promise<void>
+  onToggleFollow?: () => Promise<void>
   isAuthenticated?: boolean
 }
 

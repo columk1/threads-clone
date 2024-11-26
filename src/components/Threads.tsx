@@ -18,6 +18,7 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
       key={row.post.id}
       post={row.post}
       user={row.user}
+      isAuthenticated={!!user}
       isCurrentUser={user ? row.user.username === user.username : false}
     />
   ))

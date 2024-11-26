@@ -1,10 +1,9 @@
 'use client'
 
-import { redirect } from 'next/navigation'
-import { type FunctionComponent, useState } from 'react'
-import { toast } from 'sonner'
+import type { FunctionComponent } from 'react'
 
-import { type PostUser, toggleFollow } from '@/app/actions'
+import type { PostUser } from '@/app/actions'
+import { useFollow } from '@/hooks/useFollow'
 import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/models/Schema'
 
@@ -18,7 +17,7 @@ type ThreadProps = {
   post: Post
   user: PostUser
   isCurrentUser: boolean
-  isAuthenticated?: boolean
+  isAuthenticated: boolean
 }
 
 type PublicThreadProps = {
@@ -31,8 +30,8 @@ const iconStyle = 'flex h-full items-center gap-1 rounded-full px-3 hover:bg-gra
 type ThreadContentProps = {
   post: Post
   user: PostUser
-  onToggleFollow: () => Promise<void>
-  isCurrentUser: boolean
+  onToggleFollow?: () => Promise<void>
+  isCurrentUser?: boolean
   isAuthenticated?: boolean
 }
 
@@ -40,7 +39,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   post,
   user,
   onToggleFollow,
-  isCurrentUser,
+  isCurrentUser = false,
   isAuthenticated = false,
 }) => {
   const { openModal } = useModal()
@@ -105,51 +104,37 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 }
 
 const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCurrentUser }) => {
-  const [user, setUser] = useState(initialUser)
-
-  const handleToggleFollow = async () => {
-    setUser(prev => ({
-      ...prev,
-      isFollowed: !prev.isFollowed,
-      followerCount: prev.isFollowed ? prev.followerCount - 1 : prev.followerCount + 1,
-    }))
-    const result = await toggleFollow(user.username, user.isFollowed ? 'unfollow' : 'follow')
-    if (result.error) {
-      toast.error(result.error)
-      setUser(user)
-      return
-    }
-    toast(result.success)
+  const { user, handleToggleFollow } = useFollow({ initialUser })
+  // type guard to make sure it's not a PublicUser
+  if (!('isFollowed' in user)) {
+    return null
   }
-
   return (
     <ThreadContent
       post={post}
       user={user}
-      onToggleFollow={handleToggleFollow}
-      isCurrentUser={isCurrentUser}
       isAuthenticated
+      isCurrentUser={isCurrentUser}
+      onToggleFollow={handleToggleFollow}
     />
   )
 }
 
 const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user }) => {
-  const openModal = () => Promise.resolve().then(() => redirect('/login'))
-  const handleLoginPrompt = () => openModal()
+  // const openModal = () => Promise.resolve().then(() => redirect('/login'))
+  // const handleLoginPrompt = () => openModal()
 
   return (
     <ThreadContent
       post={post}
       user={user}
-      onToggleFollow={handleLoginPrompt}
-      isCurrentUser={false}
     />
   )
 }
 
 const Thread: FunctionComponent<ThreadProps> = ({ post, user, isCurrentUser, isAuthenticated }) => {
   if (isAuthenticated) {
-    return <AuthThread post={post} user={user} isCurrentUser={isCurrentUser} />
+    return <AuthThread post={post} user={user} isAuthenticated isCurrentUser={isCurrentUser} />
   }
   return <PublicThread post={post} user={user} />
 }
