@@ -360,23 +360,30 @@ export type PublicUser = {
 /*
  * GET posts
  */
-export const getAllPosts = async () => {
+export const getAllPosts = async (username?: string) => {
   const { user } = await validateRequest()
 
   if (!user) {
-    const posts = await db.select({
-      post: postSchema,
-      user: {
-        username: userSchema.username,
-        name: userSchema.name,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
-      },
-    })
+    const query = db
+      .select({
+        post: postSchema,
+        user: {
+          username: userSchema.username,
+          name: userSchema.name,
+          bio: userSchema.bio,
+          followerCount: userSchema.followerCount,
+        },
+      })
       .from(postSchema)
       .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
       .where(isNull(postSchema.parentId))
-      .all()
+      .$dynamic()
+
+    if (username) {
+      query.where(eq(userSchema.username, username))
+    }
+
+    const posts = await query.all()
 
     const formattedPosts = posts.map(post => ({
       ...post,
@@ -388,25 +395,33 @@ export const getAllPosts = async () => {
     return formattedPosts
   }
 
-  const posts = await db.select({
-    post: postSchema,
-    user: {
-      username: userSchema.username,
-      name: userSchema.name,
-      bio: userSchema.bio,
-      followerCount: userSchema.followerCount,
-      isFollowed: sql<boolean>`EXISTS (
+  const query = db
+    .select({
+      post: postSchema,
+      user: {
+        username: userSchema.username,
+        name: userSchema.name,
+        bio: userSchema.bio,
+        followerCount: userSchema.followerCount,
+        isFollowed: sql<boolean>`EXISTS (
         SELECT 1 
         FROM ${followerSchema} 
         WHERE ${followerSchema.userId} = ${userSchema.id} 
           AND ${followerSchema.followerId} = ${user.id}
       )`.as('isFollowed'),
-    },
-  })
+      },
+    })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     .where(isNull(postSchema.parentId))
-    .all()
+    .$dynamic()
+
+  if (username) {
+    query.where(eq(userSchema.username, username))
+  }
+
+  const posts = await query.all()
+
   const formattedPosts = posts.map(post => ({
     ...post,
     user: {
@@ -738,3 +753,29 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<
 })
 
 export const getPublicUserInfo = getPublicUserInfoCached
+
+/*
+ * GET post by id including author info form user table
+ */
+
+export const getPostById = async (id: string) => {
+  const data = await db
+    .select({
+      post: postSchema,
+      user: {
+        username: userSchema.username,
+        name: userSchema.name,
+        bio: userSchema.bio,
+        followerCount: userSchema.followerCount,
+      },
+    })
+    .from(postSchema)
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .where(eq(postSchema.id, id))
+    .get()
+
+  if (!data) {
+    return null
+  }
+  return { ...data, user: { ...data.user, isFollowed: false } }
+}
