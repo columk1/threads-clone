@@ -4,6 +4,7 @@ import { getPublicUserInfo, getUserInfo } from '@/app/actions'
 import Avatar from '@/components/Avatar'
 import Header from '@/components/Header'
 import ProfileNavigation from '@/components/ProfileNavigation'
+import UserProfile from '@/components/UserProfile'
 import { validateRequest } from '@/libs/Lucia'
 import { usernameParamSchema } from '@/models/zod.schema'
 
@@ -49,59 +50,43 @@ const UserProfileLayout = async ({ params, children }: Props) => {
 
   const user = res.user
   // Branch for public user page
-  if (!currentUser) {
+  if (currentUser?.username !== user.username) {
     return (
-      <>
-        <Header title={`${res.user.username}'s public profile`} />
-        <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
-
-        </div>
-      </>
+      <UserProfile initialUser={user}>
+        {children}
+      </UserProfile>
     )
   }
 
   // Branch for current user's profile
-  if (currentUser.username === user.username) {
-    return (
-      <>
-        <Header title="Profile" />
-        <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
-
-          <div className="flex w-full flex-col items-center justify-center gap-4 px-6 py-5 text-[15px] font-normal">
-            <div className="flex w-full items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-2xl font-semibold">
-                  {user.name}
-                </span>
-                <span>{user.username}</span>
-              </div>
-              <Avatar size="md" />
-            </div>
-            <div className="flex flex-col gap-1.5 self-start">
-              <div>
-                {user.bio}
-              </div>
-              <div className="text-gray-7">
-                {`${Intl.NumberFormat().format(user.followerCount)} follower${user.followerCount !== 1 ? 's' : ''}`}
-              </div>
-            </div>
-            <button type="button" className="h-9 w-full rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30">Edit Profile</button>
-          </div>
-          <ProfileNavigation />
-          {children}
-        </div>
-      </>
-    )
-  }
-
-  // Branch for private user page
   return (
     <>
-      <Header title={`${user.username}'s profile'`} />
+      <Header title="Profile" />
       <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
 
+        <div className="flex w-full flex-col items-center justify-center gap-4 px-6 py-5 text-[15px] font-normal">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-2xl font-semibold">
+                {user.name}
+              </span>
+              <span>{user.username}</span>
+            </div>
+            <Avatar size="md" />
+          </div>
+          <div className="flex flex-col gap-1.5 self-start">
+            <div>
+              {user.bio}
+            </div>
+            <div className="text-gray-7">
+              {`${Intl.NumberFormat().format(user.followerCount)} follower${user.followerCount !== 1 ? 's' : ''}`}
+            </div>
+          </div>
+          <button type="button" className="h-9 w-full rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30">Edit Profile</button>
+        </div>
+        <ProfileNavigation />
+        {children}
       </div>
-      {/* <UserProfile path={`/${user.username}`} /> */}
     </>
   )
 }
