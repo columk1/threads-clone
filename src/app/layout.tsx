@@ -51,7 +51,17 @@ export default function RootLayout(props: {
               <div className="flex min-h-screen flex-1 flex-col items-center justify-center">
                 {/* <div className="flex min-h-screen flex-col justify-between"> */}
                 {props.children}
-                <Toaster position="bottom-center" toastOptions={{ className: 'text-base' }} />
+                <Toaster
+                  position="bottom-center"
+                  className="flex justify-center"
+                  toastOptions={{
+                    classNames: {
+                      toast: 'text-base w-fit py-3 px-5',
+                      icon: 'hidden',
+                    },
+                    duration: 2500,
+                  }}
+                />
               </div>
             </ModalProvider>
           </CookiesProvider>
