@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
-import { getPostById } from '@/app/actions'
+import { getPostById, getSinglePostById } from '@/app/actions'
 import BackButton from '@/components/BackButton'
 import Header from '@/components/Header'
 import Thread from '@/components/Thread'
@@ -34,10 +35,12 @@ export default async function PostPage({ params }: Props) {
     notFound()
   }
 
-  const parentThread = data.shift()
-  if (!parentThread) {
+  const thread = data.shift()
+  if (!thread) {
     notFound()
   }
+
+  const parentThread = thread.post.parentId ? await getSinglePostById(thread.post.parentId) : null
 
   return (
     <>
@@ -46,8 +49,20 @@ export default async function PostPage({ params }: Props) {
         <Header title="Thread" />
       </div>
       <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
-        <Thread user={parentThread.user} post={parentThread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} />
+
+        {parentThread
+          ? (
+              <Suspense fallback={<p>Loading...</p>}>
+                <Thread user={parentThread.user} post={parentThread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isParent />
+                <Thread user={thread.user} post={thread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
+              </Suspense>
+            )
+          : (
+              <Thread user={thread.user} post={thread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
+            )}
         <div className="border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px] font-semibold">Replies</div>
+
+        {/* Replies */}
         {data.map((e) => {
           return (
             <Thread key={e.post.id} user={e.user} post={e.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} />

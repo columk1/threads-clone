@@ -1,5 +1,6 @@
 'use client'
 
+import cx from 'clsx'
 import Link from 'next/link'
 import type { FunctionComponent } from 'react'
 
@@ -20,11 +21,15 @@ type ThreadProps = {
   user: PostUser
   isCurrentUser: boolean
   isAuthenticated: boolean
+  isTarget?: boolean
+  isParent?: boolean
 }
 
 type PublicThreadProps = {
   post: Post
   user: PostUser
+  isTarget: boolean
+  isParent: boolean
 }
 
 const iconStyle = 'flex h-full z-10 items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
@@ -35,14 +40,18 @@ type ThreadContentProps = {
   onToggleFollow?: () => Promise<void>
   isCurrentUser?: boolean
   isAuthenticated?: boolean
+  isTarget: boolean
+  isParent: boolean
 }
 
 const ThreadContent: FunctionComponent<ThreadContentProps> = ({
+  isTarget,
   post,
   user,
   onToggleFollow,
   isCurrentUser = false,
   isAuthenticated = false,
+  isParent,
 }) => {
   const { openModal } = useModal()
 
@@ -69,59 +78,68 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   }
 
   return (
-    // <button type="button" role="link" onClick={() => router.push(`/@${user.username}/post/${post.id}`)}>
-    <div className="relative flex flex-col gap-2 border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px]">
+    <>
+      {/* Some hacky CSS here to get the parent thread linked to the reply in the UI */}
+      <div className={cx(
+        'relative flex flex-col gap-2 px-6 py-3 text-[15px]',
+        isParent && 'after:absolute after:bottom-[calc(-30%)] after:left-10 after:top-[70px] after:w-[2px] after:bg-gray-5 pb-0',
+      )}
+      >
 
-      <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
-        <div className="col-start-1 row-start-1 row-end-[span_2] pt-1">
-          <Avatar />
-        </div>
-        <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <div className="font-semibold">
-              <PostAuthor
-                user={user}
-                isAuthenticated={isAuthenticated}
-                isCurrentUser={isCurrentUser}
-                onToggleFollow={onToggleFollow}
-              />
-            </div>
-            <a href={`/@${user.username}/post/${post.id}`}>
-              <TimeAgo publishedAt={post.createdAt} />
-            </a>
+        {/* Remove grid */}
+        {/* <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]"> */}
+        <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
+          <div className="col-start-1 row-start-1 row-end-[span_2] pt-1">
+            <Avatar />
           </div>
-          <PostDropDownMenu
-            isFollowed={user.isFollowed}
-            onToggleFollow={onToggleFollow}
-            isAuthenticated={isAuthenticated}
-          />
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="z-10 font-semibold">
+                <PostAuthor
+                  user={user}
+                  isAuthenticated={isAuthenticated}
+                  isCurrentUser={isCurrentUser}
+                  onToggleFollow={onToggleFollow}
+                />
+              </div>
+              <a href={`/@${user.username}/post/${post.id}`}>
+                <TimeAgo publishedAt={post.createdAt} />
+              </a>
+            </div>
+            <PostDropDownMenu
+              isFollowed={user.isFollowed}
+              onToggleFollow={onToggleFollow}
+              isAuthenticated={isAuthenticated}
+            />
+          </div>
+          <div className={cx('mb-[2px]', isTarget ? 'col-span-2 pt-[7px]' : 'col-start-2')}>{post.text}</div>
+          <div className={cx('-ml-3 flex h-9 items-center text-[13px] text-secondary-text', isTarget ? 'col-span-2' : 'col-start-2')}>
+            <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
+              <Like />
+              <span>42</span>
+            </button>
+            <button type="button" className={iconStyle} onClick={() => handleInteraction('reply')}>
+              <Reply />
+              <span>42</span>
+            </button>
+            <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
+              <Repost />
+              <span>42</span>
+            </button>
+            <button type="button" className={iconStyle}>
+              <Share />
+              <span>42</span>
+            </button>
+          </div>
         </div>
-        <div className="col-start-2 mb-[2px]">{post.text}</div>
-        <div className="col-start-2 -ml-3 flex h-9 items-center text-[13px] text-secondary-text">
-          <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
-            <Like />
-            <span>42</span>
-          </button>
-          <button type="button" className={iconStyle} onClick={() => handleInteraction('reply')}>
-            <Reply />
-            <span>42</span>
-          </button>
-          <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
-            <Repost />
-            <span>42</span>
-          </button>
-          <button type="button" className={iconStyle}>
-            <Share />
-            <span>42</span>
-          </button>
-        </div>
+        <Link href={`/@${user.username}/post/${post.id}`} className="absolute inset-0"></Link>
       </div>
-      <Link href={`/@${user.username}/post/${post.id}`} className="absolute inset-0"></Link>
-    </div>
+      {!isParent && <div className={cx('h-[0.5px] bg-gray-5', { 'mx-6': isTarget })}></div>}
+    </>
   )
 }
 
-const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCurrentUser }) => {
+const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCurrentUser, isTarget = false, isParent = false }) => {
   // const router = useRouter()
   const { user, handleToggleFollow } = useFollow({ initialUser })
 
@@ -141,13 +159,15 @@ const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, i
         isAuthenticated
         isCurrentUser={isCurrentUser}
         onToggleFollow={handleToggleFollow}
+        isTarget={isTarget}
+        isParent={isParent}
       />
       <ReplyModal username={user.username} post={post} />
     </>
   )
 }
 
-const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user }) => {
+const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user, isTarget, isParent }) => {
   // const openModal = () => Promise.resolve().then(() => redirect('/login'))
   // const handleLoginPrompt = () => openModal()
 
@@ -155,15 +175,17 @@ const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user }) => {
     <ThreadContent
       post={post}
       user={user}
+      isTarget={isTarget}
+      isParent={isParent}
     />
   )
 }
 
-const Thread: FunctionComponent<ThreadProps> = ({ post, user, isCurrentUser, isAuthenticated }) => {
+const Thread: FunctionComponent<ThreadProps> = ({ post, user, isCurrentUser, isAuthenticated, isTarget = false, isParent = false }) => {
   if (isAuthenticated) {
-    return <AuthThread post={post} user={user} isAuthenticated isCurrentUser={isCurrentUser} />
+    return <AuthThread post={post} user={user} isAuthenticated isCurrentUser={isCurrentUser} isTarget={isTarget} isParent={isParent} />
   }
-  return <PublicThread post={post} user={user} />
+  return <PublicThread post={post} user={user} isTarget={isTarget} isParent={isParent} />
 }
 
 export default Thread

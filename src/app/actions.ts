@@ -787,7 +787,7 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<
 export const getPublicUserInfo = getPublicUserInfoCached
 
 /*
- * GET post by id including author info form user table
+ * GET post by id including author info from user table
  */
 
 export const getPostById = async (id: string) => {
@@ -821,6 +821,32 @@ export const getPostById = async (id: string) => {
     ...result,
     user: { ...result.user, isFollowed: false },
   }))
+}
+
+export const getSinglePostById = async (id: string) => {
+  const post = await db
+    .select({
+      post: postSchema,
+      user: {
+        username: userSchema.username,
+        name: userSchema.name,
+        bio: userSchema.bio,
+        followerCount: userSchema.followerCount,
+      },
+    })
+    .from(postSchema)
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .where(eq(postSchema.id, id))
+    .get()
+
+  if (!post) {
+    return null
+  }
+
+  return {
+    ...post,
+    user: { ...post.user, isFollowed: false },
+  }
 }
 
 // export const getPostById = async (id: string) => {
