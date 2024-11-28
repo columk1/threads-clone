@@ -27,7 +27,7 @@ type PublicThreadProps = {
   user: PostUser
 }
 
-const iconStyle = 'flex h-full items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
+const iconStyle = 'flex h-full z-10 items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
 
 type ThreadContentProps = {
   post: Post
@@ -70,54 +70,54 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
   return (
     // <button type="button" role="link" onClick={() => router.push(`/@${user.username}/post/${post.id}`)}>
-    <Link href={`/@${user.username}/post/${post.id}`}>
-      <div className="flex flex-col gap-2 border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px]">
-        <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
-          <div className="col-start-1 row-start-1 row-end-[span_2] pt-1">
-            <Avatar />
-          </div>
-          <div className="flex w-full items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="font-semibold">
-                <PostAuthor
-                  user={user}
-                  isAuthenticated={isAuthenticated}
-                  isCurrentUser={isCurrentUser}
-                  onToggleFollow={onToggleFollow}
-                />
-              </div>
-              <a href={`/@${user.username}/post/${post.id}`}>
-                <TimeAgo publishedAt={post.createdAt} />
-              </a>
+    <div className="relative flex flex-col gap-2 border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px]">
+
+      <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
+        <div className="col-start-1 row-start-1 row-end-[span_2] pt-1">
+          <Avatar />
+        </div>
+        <div className="flex w-full items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="font-semibold">
+              <PostAuthor
+                user={user}
+                isAuthenticated={isAuthenticated}
+                isCurrentUser={isCurrentUser}
+                onToggleFollow={onToggleFollow}
+              />
             </div>
-            <PostDropDownMenu
-              isFollowed={user.isFollowed}
-              onToggleFollow={onToggleFollow}
-              isAuthenticated={isAuthenticated}
-            />
+            <a href={`/@${user.username}/post/${post.id}`}>
+              <TimeAgo publishedAt={post.createdAt} />
+            </a>
           </div>
-          <div className="col-start-2 mb-[2px]">{post.text}</div>
-          <div className="col-start-2 -ml-3 flex h-9 items-center text-[13px] text-secondary-text">
-            <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
-              <Like />
-              <span>42</span>
-            </button>
-            <button type="button" className={iconStyle} onClick={() => handleInteraction('reply')}>
-              <Reply />
-              <span>42</span>
-            </button>
-            <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
-              <Repost />
-              <span>42</span>
-            </button>
-            <button type="button" className={iconStyle}>
-              <Share />
-              <span>42</span>
-            </button>
-          </div>
+          <PostDropDownMenu
+            isFollowed={user.isFollowed}
+            onToggleFollow={onToggleFollow}
+            isAuthenticated={isAuthenticated}
+          />
+        </div>
+        <div className="col-start-2 mb-[2px]">{post.text}</div>
+        <div className="col-start-2 -ml-3 flex h-9 items-center text-[13px] text-secondary-text">
+          <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
+            <Like />
+            <span>42</span>
+          </button>
+          <button type="button" className={iconStyle} onClick={() => handleInteraction('reply')}>
+            <Reply />
+            <span>42</span>
+          </button>
+          <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
+            <Repost />
+            <span>42</span>
+          </button>
+          <button type="button" className={iconStyle}>
+            <Share />
+            <span>42</span>
+          </button>
         </div>
       </div>
-    </Link>
+      <Link href={`/@${user.username}/post/${post.id}`} className="absolute inset-0"></Link>
+    </div>
   )
 }
 
