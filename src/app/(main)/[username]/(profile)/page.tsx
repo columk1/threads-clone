@@ -1,5 +1,3 @@
-// 'use client'
-
 import { notFound } from 'next/navigation'
 
 import { getAllPosts } from '@/app/actions'
@@ -10,7 +8,7 @@ import { usernameParamSchema } from '@/models/zod.schema'
 // import Link from 'next/link'
 // import { usePathname } from 'next/navigation'
 
-export default async function UserProfilePage({ params }: { params: { username: string } }) {
+export default async function UserProfilePage(params: Promise<{ username: string }>) {
   const { user } = await validateRequest()
 
   const profileParams = await params
