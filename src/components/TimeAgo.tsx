@@ -1,6 +1,5 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import type { FunctionComponent } from 'react'
 
 import { formatDate, getRelativeTime } from '@/utils/dateUtils'
@@ -23,8 +22,8 @@ const TimeAgo: FunctionComponent<TimeAgoProps> = ({ publishedAt }) => {
   )
 }
 
-const DynamicTimeAgo = dynamic(() => Promise.resolve(TimeAgo), {
-  ssr: false,
-})
+// const DynamicTimeAgo = dynamic(() => Promise.resolve(TimeAgo), {
+//   ssr: false,
+// })
 
-export default DynamicTimeAgo
+export default TimeAgo
