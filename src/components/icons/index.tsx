@@ -1,3 +1,4 @@
+import BackIcon from './Back'
 import BookmarkIcon from './Bookmark'
 import CaretIcon from './Caret'
 import CheckmarkIcon from './Checkmark'
@@ -22,4 +23,4 @@ import SearchIcon from './Search'
 import Share from './Share'
 import UnfollowIcon from './Unfollow'
 
-export { BookmarkIcon, CaretIcon, CheckmarkIcon, CloseIcon, CreateIcon, EditColorIcon, EditIcon, FollowColorIcon, HamburgerMenuIcon, HomeIcon, KebabMenuIcon, Like, LinkIcon, NotificationsFooterIcon, NotificationsIcon, PinIcon, ProfileIcon, Reply, ReportIcon, Repost, SearchIcon, Share, UnfollowIcon }
+export { BackIcon, BookmarkIcon, CaretIcon, CheckmarkIcon, CloseIcon, CreateIcon, EditColorIcon, EditIcon, FollowColorIcon, HamburgerMenuIcon, HomeIcon, KebabMenuIcon, Like, LinkIcon, NotificationsFooterIcon, NotificationsIcon, PinIcon, ProfileIcon, Reply, ReportIcon, Repost, SearchIcon, Share, UnfollowIcon }
