@@ -8,7 +8,7 @@ import { usernameParamSchema } from '@/models/zod.schema'
 // import Link from 'next/link'
 // import { usePathname } from 'next/navigation'
 
-export default async function UserProfilePage(params: Promise<{ username: string }>) {
+export default async function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { user } = await validateRequest()
 
   const profileParams = await params
