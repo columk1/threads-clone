@@ -15,8 +15,8 @@ export default function ProfileNavigation() {
     <>
       <div className="flex h-12 font-semibold text-gray-7">
         <Link href={`/${profile}`} className={`flex w-1/2 items-center justify-center border-b ${subpath === profile ? 'border-primary-text text-primary-text' : 'border-gray-4'}`}>Threads</Link>
-        <Link href="replies" className={`flex w-1/2 items-center justify-center border-b ${subpath === 'replies' ? 'border-primary-text' : 'border-gray-4'}`}>Replies</Link>
-        <Link href="reposts" className={`flex w-1/2 items-center justify-center border-b ${subpath === 'reposts' ? 'border-primary-text' : 'border-gray-4'}`}>Reposts</Link>
+        <Link href={`/${profile}/replies`} className={`flex w-1/2 items-center justify-center border-b ${subpath === 'replies' ? 'border-primary-text' : 'border-gray-4'}`}>Replies</Link>
+        <Link href={`/${profile}/reposts`} className={`flex w-1/2 items-center justify-center border-b ${subpath === 'reposts' ? 'border-primary-text' : 'border-gray-4'}`}>Reposts</Link>
       </div>
       <div className="h-[0.5px] w-full bg-gray-4 md:hidden"></div>
     </>
