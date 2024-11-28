@@ -23,7 +23,11 @@ export const loginSchema = z.object({
 export const newPostSchema = z.object({
   // TODO: Make text optional and add image field, use refine to check for one or the other
   text: z.string({ required_error: 'Text is required' }).trim().min(1, { message: 'Text is required' }),
-  parentId: z.string().optional(),
+})
+
+export const replySchema = z.object({
+  text: z.string({ required_error: 'Text is required' }).trim().min(1, { message: 'Text is required' }),
+  parentId: z.string({ required_error: 'Parent ID is required' }),
 })
 
 export const usernameParamSchema = z.string()

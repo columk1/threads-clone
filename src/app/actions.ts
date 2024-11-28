@@ -2,7 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
-import { and, eq, isNull, sql } from 'drizzle-orm'
+import { and, eq, isNull, or, sql } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { isWithinExpirationDate } from 'oslo'
@@ -15,7 +15,7 @@ import { db } from '@/libs/DB'
 import { logger } from '@/libs/Logger'
 import { lucia, validateRequest } from '@/libs/Lucia'
 import { emailVerificationCodeSchema, followerSchema, postSchema, userSchema } from '@/models/Schema'
-import { loginSchema, newPostSchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
+import { loginSchema, newPostSchema, replySchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
 import { generateRandomString } from '@/utils/generate-random-string'
 
 /*
@@ -505,6 +505,38 @@ export const createPost = async (_: unknown, formData: FormData) => {
 }
 
 /*
+ * Create Reply
+ */
+export async function createReply(_: unknown, formData: FormData) {
+  const { user } = await validateRequest()
+  if (!user) {
+    redirect('/login')
+  }
+
+  const submission = parseWithZod(formData, {
+    schema: replySchema,
+  })
+
+  if (submission.status !== 'success') {
+    logger.info('error submitting reply')
+    return { error: 'Something went wrong. Please try again.' }
+  }
+
+  try {
+    const reply = await db.insert(postSchema).values({
+      text: submission.value.text,
+      userId: user.id,
+      parentId: submission.value.parentId,
+    }).returning()
+
+    return { data: reply }
+  } catch (error) {
+    logger.error('Error creating reply:', error)
+    return { error: 'Something went wrong. Please try again.' }
+  }
+}
+
+/*
  * POST follow user
  */
 
@@ -759,7 +791,7 @@ export const getPublicUserInfo = getPublicUserInfoCached
  */
 
 export const getPostById = async (id: string) => {
-  const data = await db
+  const results = await db
     .select({
       post: postSchema,
       user: {
@@ -771,11 +803,66 @@ export const getPostById = async (id: string) => {
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(eq(postSchema.id, id))
-    .get()
+    .where(
+      or(
+        eq(postSchema.id, id),
+        eq(postSchema.parentId, id),
+      ),
+    )
+    // .orderBy(sql`CASE WHEN ${postSchema.id} = ${id} THEN 0 ELSE 1 END, ${postSchema.createdAt}`)
+    .orderBy(postSchema.createdAt)
+    .all()
 
-  if (!data) {
+  if (!results.length) {
     return null
   }
-  return { ...data, user: { ...data.user, isFollowed: false } }
+
+  return results.map(result => ({
+    ...result,
+    user: { ...result.user, isFollowed: false },
+  }))
 }
+
+// export const getPostById = async (id: string) => {
+//   const results = await db
+//     .select({
+//       post: postSchema,
+//       user: {
+//         username: userSchema.username,
+//         name: userSchema.name,
+//         bio: userSchema.bio,
+//         followerCount: userSchema.followerCount,
+//       },
+//       isMainPost: sql`CASE WHEN ${postSchema.id} = ${id} THEN true ELSE false END`,
+//     })
+//     .from(postSchema)
+//     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+//     .where(
+//       or(
+//         eq(postSchema.id, id),
+//         eq(postSchema.parentId, id),
+//       ),
+//     )
+//     .orderBy(postSchema.createdAt)
+//     .all()
+
+//   if (!results.length) {
+//     return null
+//   }
+
+//   const mainPost = results.find(r => r.isMainPost)
+//   if (!mainPost) {
+//     return null
+//   }
+
+//   return {
+//     ...mainPost,
+//     user: { ...mainPost.user, isFollowed: false },
+//     replies: results
+//       .filter(r => !r.isMainPost)
+//       .map(reply => ({
+//         post: reply.post,
+//         user: { ...reply.user, isFollowed: false },
+//       })),
+//   }
+// }
