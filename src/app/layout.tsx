@@ -39,7 +39,7 @@ export default function RootLayout(props: {
 }) {
   return (
     <html lang="en-US" suppressHydrationWarning>
-      <body suppressHydrationWarning className="bg-primary-bg font-system text-primary-text">
+      <body suppressHydrationWarning className="overflow-y-scroll bg-primary-bg font-system text-primary-text">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
