@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { getPostById, getSinglePostById } from '@/app/actions'
-import BackButton from '@/components/BackButton'
 import Header from '@/components/Header'
 import Thread from '@/components/Thread'
 import { validateRequest } from '@/libs/Lucia'
@@ -44,11 +43,8 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <>
-      <div className="flex items-center justify-center">
-        <BackButton />
-        <Header title="Thread" />
-      </div>
-      <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+      <Header title="Thread" showBackButton />
+      <div className="flex min-h-[120vh] w-full flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
 
         {parentThread
           ? (
