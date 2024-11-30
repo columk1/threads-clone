@@ -14,7 +14,7 @@ import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
 import { db } from '@/libs/DB'
 import { logger } from '@/libs/Logger'
 import { lucia, validateRequest } from '@/libs/Lucia'
-import { emailVerificationCodeSchema, followerSchema, postSchema, userSchema } from '@/models/Schema'
+import { emailVerificationCodeSchema, followerSchema, likeSchema, postSchema, userSchema } from '@/models/Schema'
 import { loginSchema, newPostSchema, replySchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
 import { generateRandomString } from '@/utils/generate-random-string'
 
@@ -410,6 +410,12 @@ export const getAllPosts = async (username?: string) => {
           AND ${followerSchema.followerId} = ${user.id}
       )`.as('isFollowed'),
       },
+      isLiked: sql<boolean>`EXISTS (
+        SELECT 1 
+        FROM ${likeSchema} 
+        WHERE ${likeSchema.userId} = ${user.id} 
+          AND ${likeSchema.postId} = ${postSchema.id}
+      )`.as('isLiked'),
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -424,6 +430,10 @@ export const getAllPosts = async (username?: string) => {
 
   const formattedPosts = posts.map(post => ({
     ...post,
+    post: {
+      ...post.post,
+      isLiked: !!post.isLiked,
+    },
     user: {
       ...post.user,
       isFollowed: !!post.user.isFollowed, // Cast 1/0 to true/false
@@ -847,6 +857,67 @@ export const getSinglePostById = async (id: string) => {
     ...post,
     user: { ...post.user, isFollowed: false },
   }
+}
+
+/*
+ * POST: Like
+ */
+
+export const likePost = async (postId: string) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+  const userId = user.id
+
+  try {
+    await db.transaction(async (trx) => {
+    // Add a like
+      await trx.insert(likeSchema).values({ userId, postId })
+
+      // Increment the like count
+      await trx.update(postSchema)
+        .set({ likeCount: sql`${postSchema.likeCount} + 1` })
+        .where(eq(postSchema.id, postId))
+    })
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong. Please try again.', success: false }
+  }
+  return { success: true }
+}
+
+/*
+ * POST: Unlike
+ */
+
+export const unlikePost = async (postId: string) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+  const userId = user.id
+
+  try {
+    await db.transaction(async (trx) => {
+      // Remove a like
+      await trx.delete(likeSchema).where(
+        and(
+          eq(likeSchema.userId, userId),
+          eq(likeSchema.postId, postId),
+        ),
+      )
+
+      // Decrement the like count
+      await trx.update(postSchema)
+        .set({ likeCount: sql`${postSchema.likeCount} - 1` })
+        .where(eq(postSchema.id, postId))
+    })
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong. Please try again.', success: false }
+  }
+  return { success: true }
 }
 
 // export const getPostById = async (id: string) => {
