@@ -72,6 +72,7 @@ export const postSchema = sqliteTable('posts', {
     }),
   parentId: text('parent_id').references((): SQLiteColumn => postSchema.id, {
   }),
+  likeCount: integer('like_count').notNull().default(0),
   createdAt: integer('created_at').notNull().default(sql`(cast(unixepoch() as int))`),
 })
 
@@ -88,11 +89,22 @@ export const followerSchema = sqliteTable('followers', {
   }
 })
 
+export const likeSchema = sqliteTable('likes', {
+  userId: text('user_id').notNull().references(() => userSchema.id),
+  postId: text('post_id').notNull().references(() => postSchema.id),
+  createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.userId, table.postId] }),
+  }
+})
+
 export const userRelations = relations(userSchema, ({ many }) => ({
   session: many(sessionSchema),
   emailVerificationCode: many(emailVerificationCodeSchema),
   posts: many(postSchema),
   followers: many(followerSchema),
+  likes: many(likeSchema),
 }))
 
 export const sessionRelations = relations(sessionSchema, ({ one }) => ({
@@ -119,13 +131,25 @@ export const followerRelations = relations(followerSchema, ({ one }) => ({
   }),
 }))
 
-export const postRelations = relations(postSchema, ({ one }) => ({
+export const postRelations = relations(postSchema, ({ one, many }) => ({
   user: one(userSchema, {
     fields: [postSchema.userId],
     references: [userSchema.id],
   }),
   parent: one(postSchema, {
     fields: [postSchema.parentId],
+    references: [postSchema.id],
+  }),
+  likes: many(likeSchema),
+}))
+
+export const likeRelations = relations(likeSchema, ({ one }) => ({
+  user: one(userSchema, {
+    fields: [likeSchema.userId],
+    references: [userSchema.id],
+  }),
+  post: one(postSchema, {
+    fields: [likeSchema.postId],
     references: [postSchema.id],
   }),
 }))
