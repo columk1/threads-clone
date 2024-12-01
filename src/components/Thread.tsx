@@ -40,6 +40,7 @@ type ThreadContentProps = {
   post: Post & { isLiked?: boolean }
   user: PostUser
   onToggleFollow?: () => Promise<void>
+  validateFollowStatus?: () => Promise<void>
   isCurrentUser?: boolean
   isAuthenticated?: boolean
   isTarget: boolean
@@ -56,6 +57,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   post,
   user,
   onToggleFollow,
+  validateFollowStatus,
   isCurrentUser = false,
   isAuthenticated = false,
   isParent,
@@ -64,7 +66,9 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
     isLiked: post.isLiked || false,
     count: post.likeCount,
   })
+  // console.log('isLiked', post.isLiked)
 
+  // const router = useRouter()
   const { openModal } = useModal()
 
   const toggleLike = async () => {
@@ -76,6 +80,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
         isLiked: !prev.isLiked,
         count: prev.count + (prev.isLiked ? -1 : 1),
       }))
+      // router.refresh()
     }
   }
 
@@ -121,7 +126,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
           </div>
           <div className="flex w-full items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="font-semibold">
+              <div className="font-semibold" onMouseEnter={() => validateFollowStatus?.()}>
                 <PostAuthor
                   user={user}
                   isAuthenticated={isAuthenticated}
@@ -168,7 +173,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
 const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCurrentUser, isTarget = false, isParent = false }) => {
   // const router = useRouter()
-  const { user, handleToggleFollow } = useFollow({ initialUser })
+  const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser })
 
   // useEffect(() => {
   //   router.prefetch(`/@${user.username}/post/${post.id}`)
@@ -186,6 +191,7 @@ const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, i
         isAuthenticated
         isCurrentUser={isCurrentUser}
         onToggleFollow={handleToggleFollow}
+        validateFollowStatus={validateFollowStatus}
         isTarget={isTarget}
         isParent={isParent}
       />
