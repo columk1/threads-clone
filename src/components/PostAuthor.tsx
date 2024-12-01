@@ -25,7 +25,7 @@ const PostAuthor: FunctionComponent<PostAuthorProps> = ({ user, isAuthenticated 
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <a href={`/@${user.username}`} className="hover:underline">
+          <a href={`/@${user.username}`} className="relative z-10 hover:underline">
             {user.username}
           </a>
         </TooltipTrigger>

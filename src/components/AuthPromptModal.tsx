@@ -44,7 +44,7 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
 
   return (
     <Drawer open={isOpen && modalType === 'auth-prompt'} onOpenChange={handleOpenChange}>
-      <DrawerContent className="h-[340px] min-w-full p-6 dark:bg-gray-1">
+      <DrawerContent className="h-[560px] min-w-full p-6 dark:bg-gray-1">
         <DialogHeader className="grid h-9 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)]">
           <DialogClose asChild>
             <div className="flex">

@@ -2,12 +2,14 @@
 
 import cx from 'clsx'
 import Link from 'next/link'
-import type { FunctionComponent } from 'react'
+import { type FunctionComponent, useState } from 'react'
+import { toast } from 'sonner'
 
-import type { PostUser } from '@/app/actions'
+import { likePost, type PostUser, unlikePost } from '@/app/actions'
 import { useFollow } from '@/hooks/useFollow'
 import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/models/Schema'
+import { formatCount } from '@/utils/formatCount'
 
 import Avatar from './Avatar'
 import { Like, Reply, Repost, Share } from './icons'
@@ -35,13 +37,18 @@ type PublicThreadProps = {
 const iconStyle = 'flex h-full z-10 items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
 
 type ThreadContentProps = {
-  post: Post
+  post: Post & { isLiked?: boolean }
   user: PostUser
   onToggleFollow?: () => Promise<void>
   isCurrentUser?: boolean
   isAuthenticated?: boolean
   isTarget: boolean
   isParent: boolean
+}
+
+type LikeState = {
+  isLiked: boolean
+  count: number
 }
 
 const ThreadContent: FunctionComponent<ThreadContentProps> = ({
@@ -53,12 +60,29 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   isAuthenticated = false,
   isParent,
 }) => {
+  const [likeState, setLikeState] = useState<LikeState>({
+    isLiked: post.isLiked || false,
+    count: post.likeCount,
+  })
+
   const { openModal } = useModal()
+
+  const toggleLike = async () => {
+    const result = await (likeState.isLiked ? unlikePost(post.id) : likePost(post.id))
+    if (result.error) {
+      toast(result.error)
+    } else {
+      setLikeState(prev => ({
+        isLiked: !prev.isLiked,
+        count: prev.count + (prev.isLiked ? -1 : 1),
+      }))
+    }
+  }
 
   const handleInteraction = (action: 'like' | 'reply' | 'repost') => {
     if (!isAuthenticated) {
       openModal('auth-prompt', action)
-      // return
+      return
     }
     // Handle the actual action here
     // TODO: Implement like, reply, repost functionality
@@ -66,8 +90,11 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
       case 'like':
         // eslint-disable-next-line no-console
         console.log('clicked like')
+        toggleLike()
         break
       case 'reply':
+        // eslint-disable-next-line no-console
+        console.log('clicked reply')
         openModal('reply')
         break
       case 'repost':
@@ -94,7 +121,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
           </div>
           <div className="flex w-full items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="z-10 font-semibold">
+              <div className="font-semibold">
                 <PostAuthor
                   user={user}
                   isAuthenticated={isAuthenticated}
@@ -115,8 +142,8 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
           <div className={cx('mb-[2px]', isTarget ? 'col-span-2 pt-[7px]' : 'col-start-2')}>{post.text}</div>
           <div className={cx('-ml-3 flex h-9 items-center text-[13px] text-secondary-text', isTarget ? 'col-span-2' : 'col-start-2')}>
             <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
-              <Like />
-              <span>42</span>
+              <Like className={likeState.isLiked ? 'fill-notification stroke-notification' : ''} />
+              <span className={cx('tabular-nums', likeState.isLiked && 'text-notification')}>{formatCount(likeState.count)}</span>
             </button>
             <button type="button" className={iconStyle} onClick={() => handleInteraction('reply')}>
               <Reply />
