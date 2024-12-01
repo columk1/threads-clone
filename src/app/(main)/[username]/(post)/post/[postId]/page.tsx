@@ -49,12 +49,12 @@ export default async function PostPage({ params }: Props) {
         {parentThread
           ? (
               <Suspense fallback={<p>Loading...</p>}>
-                <Thread user={parentThread.user} post={parentThread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isParent />
-                <Thread user={thread.user} post={thread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
+                <Thread key={parentThread.post.id} user={parentThread.user} post={parentThread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isParent />
+                <Thread key={thread.post.id} user={thread.user} post={thread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
               </Suspense>
             )
           : (
-              <Thread user={thread.user} post={thread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
+              <Thread key={thread.post.id} user={thread.user} post={thread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
             )}
         <div className="border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px] font-semibold">Replies</div>
 
