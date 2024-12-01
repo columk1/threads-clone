@@ -466,6 +466,12 @@ export const getFollowingPosts = async () => {
           AND ${followerSchema.followerId} = ${user.id}
       )`.as('isFollowed'),
     },
+    isLiked: sql<boolean>`EXISTS (
+      SELECT 1 
+      FROM ${likeSchema} 
+      WHERE ${likeSchema.userId} = ${user.id} 
+        AND ${likeSchema.postId} = ${postSchema.id}
+    )`.as('isLiked'),
   })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -475,6 +481,10 @@ export const getFollowingPosts = async () => {
 
   const formattedPosts = posts.map(post => ({
     ...post,
+    post: {
+      ...post.post,
+      isLiked: !!post.isLiked,
+    },
     user: {
       ...post.user,
       isFollowed: !!post.user.isFollowed, // Cast 1/0 to true/false
@@ -667,7 +677,6 @@ export const toggleFollow = async (username: string, action: 'follow' | 'unfollo
           .where(eq(userSchema.id, targetUser.id))
       }
     })
-
     return {
       success: action === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
     }
@@ -685,10 +694,10 @@ export const getUserFollowStatus = async (username: string) => {
   if (!user) {
     return redirect('/login')
   }
-
-  const result = await db
-    .select({
-      isFollowed: sql<boolean>`EXISTS (
+  try {
+    const result = await db
+      .select({
+        isFollowed: sql<boolean>`EXISTS (
       SELECT 1 
       FROM ${followerSchema} 
       WHERE ${followerSchema.userId} = (
@@ -697,12 +706,16 @@ export const getUserFollowStatus = async (username: string) => {
       AND ${followerSchema.followerId} = ${user.id}
       LIMIT 1
     )`.as('isFollowed'),
-    })
-    .from(userSchema)
-    .where(eq(userSchema.username, username))
-    .get()
+      })
+      .from(userSchema)
+      .where(eq(userSchema.username, username))
+      .get()
 
-  return result?.isFollowed ?? false
+    return !!result?.isFollowed
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong. Please try again.' }
+  }
 }
 
 /*
@@ -801,15 +814,68 @@ export const getPublicUserInfo = getPublicUserInfoCached
  */
 
 export const getPostById = async (id: string) => {
+  const { user } = await validateRequest()
+
+  // Base query that works for both authenticated and public users
+  const baseSelect = {
+    post: postSchema,
+    user: {
+      username: userSchema.username,
+      name: userSchema.name,
+      bio: userSchema.bio,
+      followerCount: userSchema.followerCount,
+    },
+  }
+
+  if (!user) {
+    const results = await db
+      .select(baseSelect)
+      .from(postSchema)
+      .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+      .where(
+        or(
+          eq(postSchema.id, id),
+          eq(postSchema.parentId, id),
+        ),
+      )
+      .orderBy(postSchema.createdAt)
+      .all()
+
+    if (!results.length) {
+      return null
+    }
+
+    return results.map(result => ({
+      ...result,
+      post: {
+        ...result.post,
+        isLiked: false,
+      },
+      user: {
+        ...result.user,
+        isFollowed: false,
+      },
+    }))
+  }
+
   const results = await db
     .select({
-      post: postSchema,
+      ...baseSelect,
       user: {
-        username: userSchema.username,
-        name: userSchema.name,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
+        ...baseSelect.user,
+        isFollowed: sql<boolean>`EXISTS (
+            SELECT 1 
+            FROM ${followerSchema} 
+            WHERE ${followerSchema.userId} = ${userSchema.id}
+              AND ${followerSchema.followerId} = ${user.id}
+          )`.as('isFollowed'),
       },
+      isLiked: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${likeSchema} 
+          WHERE ${likeSchema.userId} = ${user.id} 
+            AND ${likeSchema.postId} = ${postSchema.id}
+        )`.as('isLiked'),
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -819,7 +885,6 @@ export const getPostById = async (id: string) => {
         eq(postSchema.parentId, id),
       ),
     )
-    // .orderBy(sql`CASE WHEN ${postSchema.id} = ${id} THEN 0 ELSE 1 END, ${postSchema.createdAt}`)
     .orderBy(postSchema.createdAt)
     .all()
 
@@ -829,9 +894,42 @@ export const getPostById = async (id: string) => {
 
   return results.map(result => ({
     ...result,
-    user: { ...result.user, isFollowed: false },
+    post: {
+      ...result.post,
+      isLiked: !!result.isLiked,
+    },
+    user: {
+      ...result.user,
+      isFollowed: !!result.user.isFollowed,
+    },
   }))
 }
+
+// const results = await db
+//   .select({
+//     post: postSchema,
+//     user: {
+//       username: userSchema.username,
+//       name: userSchema.name,
+//       bio: userSchema.bio,
+//       followerCount: userSchema.followerCount,
+//     },
+//   })
+//   .from(postSchema)
+//   .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+//   .where(
+//     or(
+//       eq(postSchema.id, id),
+//       eq(postSchema.parentId, id),
+//     ),
+//   )
+//   // .orderBy(sql`CASE WHEN ${postSchema.id} = ${id} THEN 0 ELSE 1 END, ${postSchema.createdAt}`)
+//   .orderBy(postSchema.createdAt)
+//   .all()
+
+/*
+ * // ? GET single post by id including author info from user table
+ */
 
 export const getSinglePostById = async (id: string) => {
   const post = await db
