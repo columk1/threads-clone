@@ -6,6 +6,7 @@ import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
 
 import { likePost, type PostUser, unlikePost } from '@/app/actions'
+import { useAppStore } from '@/hooks/useAppStore'
 import { useFollow } from '@/hooks/useFollow'
 import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/models/Schema'
@@ -62,26 +63,50 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   isAuthenticated = false,
   isParent,
 }) => {
+  // const cachedPost = useAppStore(state => state.posts[post.id])
+  // const [likeState, setLikeState] = useState<LikeState>({
+  //   isLiked: post.isLiked || false,
+  //   count: post.likeCount,
+  // })
+
+  // const cachedPost = useSyncExternalStore(
+  //   useAppStore.subscribe, // Subscribe function for Zustand
+  //   () => useAppStore.getState().posts[post.id], // Selector for the current post
+  //   () => undefined, // Server-side fallback, optional if SSR is needed
+  // )
+  const cachedPost = useAppStore(state => state.posts[post.id])
+
   const [likeState, setLikeState] = useState<LikeState>({
-    isLiked: post.isLiked || false,
-    count: post.likeCount,
+    isLiked: cachedPost?.isLiked ?? post.isLiked ?? false,
+    count: cachedPost?.likeCount ?? post.likeCount,
   })
-  // console.log('isLiked', post.isLiked)
 
   // const router = useRouter()
   const { openModal } = useModal()
+  const updatePost = useAppStore(state => state.updatePost)
 
-  const toggleLike = async () => {
+  const toggleLike = () => {
+    setLikeState(prev => ({
+      isLiked: !prev.isLiked,
+      count: prev.count + (prev.isLiked ? -1 : 1),
+    }))
+    if (cachedPost) {
+      updatePost(post.id, {
+        isLiked: !likeState.isLiked,
+        likeCount: likeState.count + (likeState.isLiked ? -1 : 1),
+      })
+    }
+  }
+
+  const handleToggleLike = async () => {
+    toggleLike()
     const result = await (likeState.isLiked ? unlikePost(post.id) : likePost(post.id))
     if (result.error) {
+      // revert optimistic update
+      toggleLike()
       toast(result.error)
-    } else {
-      setLikeState(prev => ({
-        isLiked: !prev.isLiked,
-        count: prev.count + (prev.isLiked ? -1 : 1),
-      }))
-      // router.refresh()
     }
+    // router.refresh()
   }
 
   const handleInteraction = (action: 'like' | 'reply' | 'repost') => {
@@ -95,7 +120,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
       case 'like':
         // eslint-disable-next-line no-console
         console.log('clicked like')
-        toggleLike()
+        handleToggleLike()
         break
       case 'reply':
         // eslint-disable-next-line no-console
