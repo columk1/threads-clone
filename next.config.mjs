@@ -14,6 +14,7 @@ const nextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
+  serverExternalPackages: ['pino', 'pino-pretty'],
   experimental: {
     // dynamicIO: true,
     // serverExternalPackages: ['@libsql/client'],
