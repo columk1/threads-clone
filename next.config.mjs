@@ -16,6 +16,7 @@ const nextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ['pino', 'pino-pretty'],
   experimental: {
+    // DynamicIO doesn't work with Sentry https://github.com/getsentry/sentry-javascript/issues/14118
     // dynamicIO: true,
     // serverExternalPackages: ['@libsql/client'],
   },
