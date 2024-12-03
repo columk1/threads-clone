@@ -21,8 +21,10 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
   const username = result.data
 
   const rows: PostsResponse
-    = await fetch(`${BASE_URL}/api/posts?user=${user?.id}&username=${username}`, { cache: 'force-cache', next: { revalidate: 60, tags: ['profile'] } })
+    = await fetch(`${BASE_URL}/api/posts?user=${user?.id}&username=${username}`, { next: { revalidate: 60, tags: ['profile'] } })
+    // = await fetch(`${BASE_URL}/api/posts?user=${user?.id}&username=${username}`)
       .then(res => res.json())
+
   // const rows = await getAllPosts(username)
 
   return rows.map(row => (

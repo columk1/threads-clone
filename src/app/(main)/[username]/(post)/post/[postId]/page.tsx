@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
-import { getPostById, getSinglePostById } from '@/app/actions'
+import type { ResponseData } from '@/app/api/posts/[postId]/route'
 import Header from '@/components/Header'
 import Thread from '@/components/Thread'
+import { BASE_URL } from '@/constants/baseURL'
 import { validateRequest } from '@/libs/Lucia'
 import { usernameParamSchema } from '@/models/zod.schema'
 
@@ -29,7 +30,18 @@ export default async function PostPage({ params }: Props) {
   const isAuthenticated = !!currentUser
   const isCurrentUser = currentUser?.username === username
 
-  const data = await getPostById(postId)
+  const data: ResponseData = await fetch(`${BASE_URL}/api/posts/${postId}?user=${currentUser?.id}&replies=true`, { cache: 'force-cache', next: { revalidate: 60 } })
+    .then(res => res.json())
+
+  if ('error' in data) {
+    notFound()
+  }
+
+  if (!Array.isArray(data)) {
+    notFound()
+  }
+
+  // const data = await getPostById(postId)
   if (!data || data[0]?.user?.username !== username) {
     notFound()
   }
@@ -39,7 +51,11 @@ export default async function PostPage({ params }: Props) {
     notFound()
   }
 
-  const parentThread = thread.post.parentId ? await getSinglePostById(thread.post.parentId) : null
+  // const parentThread = thread.post.parentId ? await getSinglePostById(thread.post.parentId) : null
+  const parentThread = thread.post.parentId
+    ? await fetch(`${BASE_URL}/api/posts/${thread.post.parentId}?user=${currentUser?.id}`, { cache: 'force-cache', next: { revalidate: 60 } })
+      .then(res => res.json())
+    : null
 
   return (
     <>
