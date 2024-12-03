@@ -14,7 +14,7 @@ export default async function Following() {
 
   return (
     <>
-      <Header title="For you">
+      <Header title="Following">
         <HeaderDropdown pathname="/following" />
       </Header>
       <MainFeed user={user}filter="following" />
