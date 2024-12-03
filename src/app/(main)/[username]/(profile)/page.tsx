@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation'
 
-import { getAllPosts } from '@/app/actions'
+import type { PostsResponse } from '@/app/api/posts/route'
 import Thread from '@/components/Thread'
+import { BASE_URL } from '@/constants/baseURL'
 import { validateRequest } from '@/libs/Lucia'
 import { usernameParamSchema } from '@/models/zod.schema'
 
@@ -19,7 +20,10 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
   }
   const username = result.data
 
-  const rows = await getAllPosts(username)
+  const rows: PostsResponse
+    = await fetch(`${BASE_URL}/api/posts?user=${user?.id}&username=${username}`, { cache: 'force-cache', next: { revalidate: 60, tags: ['profile'] } })
+      .then(res => res.json())
+  // const rows = await getAllPosts(username)
 
   return rows.map(row => (
     <Thread

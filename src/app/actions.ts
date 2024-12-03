@@ -480,7 +480,6 @@ export const getFollowingPosts = async () => {
     .all()
 
   const formattedPosts = posts.map(post => ({
-    ...post,
     post: {
       ...post.post,
       isLiked: !!post.isLiked,
