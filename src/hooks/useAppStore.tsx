@@ -28,11 +28,12 @@ export const useAppStore = create<AppState>(set => ({
   addPosts: posts =>
     set(state => ({
       posts: {
-        ...state.posts,
         ...Object.fromEntries(posts.map(({ post }) => [
           post.id,
           { isLiked: post.isLiked ?? false, likeCount: post.likeCount ?? 0 },
         ])),
+        // Overwrite latest posts from fetch, they could be older, cached requests
+        ...state.posts,
       },
     })),
   updatePost: (postId, updates) =>
