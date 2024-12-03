@@ -13,9 +13,8 @@ type ThreadsProps = {
 
 const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
   const { user } = await validateRequest()
-  // const rows = filter === undefined ? await getAllPosts() : await getFollowingPosts()
   const rows: PostsResponse
-    = await fetch(`${BASE_URL}/api/posts?user=${user?.id}${filter ? `&filter=${filter}` : ''}`, { cache: 'force-cache', next: { revalidate: 60, tags: ['profile'] } })
+    = await fetch(`${BASE_URL}/api/posts?user=${user?.id}${filter ? `&filter=${filter}` : ''}`, { next: { revalidate: 60, tags: ['posts'] } })
       .then(res => res.json())
 
   return (

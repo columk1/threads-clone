@@ -7,14 +7,15 @@ import { followerSchema, likeSchema, postSchema, userSchema } from '@/models/Sch
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
   const { postId: id } = await params
-  const { searchParams } = new URL(request.url)
-  const replies = searchParams.get('replies') === 'true' // Check if replies=true is passed
-  // const { user } = await validateRequest()
-  const userId = searchParams.get('user') // Todo: replace this with auth check
-
   if (!id) {
     return NextResponse.json({ error: 'Post ID is required' }, { status: 400 })
   }
+
+  const { searchParams } = new URL(request.url)
+  const replies = searchParams.get('replies') === 'true' // Check if replies=true is passed
+
+  // const { user } = await validateRequest() // not necessary in this case since data is public
+  const userId = searchParams.get('user')
 
   // Base query for fetching post and author info
   const baseSelect = {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     },
   }
 
-  // If the user is not authenticated (public route)
+  // If no user id is provided, default to false for likes/followed
   if (!userId) {
     const results = await db
       .select(baseSelect)
