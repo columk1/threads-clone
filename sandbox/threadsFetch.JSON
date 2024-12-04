@@ -1,0 +1,51 @@
+User profile request response:
+
+{
+    "data": {
+        "user": {
+            "pk": "26005047138",
+            "text_post_app_is_private": false,
+            "friendship_status": {
+                "followed_by": false,
+                "following": false,
+                "outgoing_request": false
+            },
+            "profile_pic_url": "https://instagram.fyvr1-1.fna.fbcdn.net/v/t51.2885-19/437768880_1553649085208729_5389013127536927037_n.jpg?stp=dst-jpg_s150x150\u0026_nc_ht=instagram.fyvr1-1.fna.fbcdn.net\u0026_nc_cat=1\u0026_nc_ohc=MZHYY8_F2UIQ7kNvgH7uHiB\u0026_nc_gid=f31a9da4289744e1a945041806dd2abe\u0026edm=AEWJp9QBAAAA\u0026ccb=7-5\u0026oh=00_AYC-QYnRXwkZ26fi_J-LFOW68PfzTJQozxDCUhwZ-YE84w\u0026oe=6740CF60\u0026_nc_sid=ed23b7",
+            "username": "gzaycee",
+            "biography": "🙇🏾‍♂️✊🏾♓️ 23\nShift your paradigm and enter a new timeline💭\nFrom the Crossroads🇺🇸",
+            "text_app_biography": {
+                "text_fragments": {
+                    "fragments": [
+                        {
+                            "fragment_type": "plaintext",
+                            "link_fragment": null,
+                            "mention_fragment": null,
+                            "plaintext": "🙇🏾‍♂️✊🏾♓️ 23\nShift your paradigm and enter a new timeline💭\nFrom the Crossroads🇺🇸",
+                            "tag_fragment": null
+                        }
+                    ]
+                }
+            },
+            "account_badges": [],
+            "follower_count": 30,
+            "profile_context_facepile_users": [],
+            "text_post_app_has_fediverse_enabled": null,
+            "full_name": "Gen Z AyCee",
+            "is_verified": false,
+            "hd_profile_pic_versions": [
+                {
+                    "height": 320,
+                    "url": "https://instagram.fyvr1-1.fna.fbcdn.net/v/t51.2885-19/437768880_1553649085208729_5389013127536927037_n.jpg?stp=dst-jpg_s320x320\u0026_nc_ht=instagram.fyvr1-1.fna.fbcdn.net\u0026_nc_cat=1\u0026_nc_ohc=MZHYY8_F2UIQ7kNvgH7uHiB\u0026_nc_gid=f31a9da4289744e1a945041806dd2abe\u0026edm=AEWJp9QBAAAA\u0026ccb=7-5\u0026oh=00_AYAKg_FMcwF_cYuxw9a8luvsbR1eSvFVl2IYZgq3-58tow\u0026oe=6740CF60\u0026_nc_sid=ed23b7",
+                    "width": 320
+                }
+            ],
+            "eligible_for_text_app_activation_badge": null,
+            "hide_text_app_activation_badge_on_text_app": false,
+            "id": "26005047138"
+        }
+    },
+    "extensions": {
+        "is_final": true
+    },
+    "status": "ok"
+}
