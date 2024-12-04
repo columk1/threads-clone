@@ -82,7 +82,6 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
     count: cachedPost?.likeCount ?? post.likeCount,
   })
 
-  // const router = useRouter()
   const { openModal } = useModal()
   const updatePost = useAppStore(state => state.updatePost)
 
@@ -107,7 +106,6 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
       toggleLike()
       toast(result.error)
     }
-    // router.refresh()
   }
 
   const handleInteraction = (action: 'like' | 'reply' | 'repost') => {
@@ -126,7 +124,6 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
       case 'reply':
         // eslint-disable-next-line no-console
         console.log('clicked reply')
-        openModal('reply')
         break
       case 'repost':
         // eslint-disable-next-line no-console
@@ -135,11 +132,16 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
     }
   }
 
-  // const handleOpenUserModal = (e: React.MouseEvent<HTMLButtonElement>) => {
-  //   // fix for an accessibility issue where the focus remains on the button
-  //   (e.target as HTMLButtonElement).blur()
-  //   openModal('user')
-  // }
+  const replyButton = (
+    <button
+      type="button"
+      className={iconStyle}
+      onClick={!isAuthenticated ? () => handleInteraction('reply') : undefined}
+    >
+      <Reply />
+      <span>42</span>
+    </button>
+  )
 
   return (
     <>
@@ -202,10 +204,18 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
               <Like className={likeState.isLiked ? 'fill-notification stroke-notification' : ''} />
               <span className={cx('tabular-nums', likeState.isLiked && 'text-notification')}>{formatCount(likeState.count)}</span>
             </button>
-            <button type="button" className={iconStyle} onClick={() => handleInteraction('reply')}>
-              <Reply />
-              <span>42</span>
-            </button>
+            {isAuthenticated
+              ? (
+                  <ReplyModal
+                    username={user.username}
+                    post={post}
+                    trigger={(
+                      replyButton
+                    )}
+                  />
+                )
+              : replyButton}
+
             <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
               <Repost />
               <span>42</span>
@@ -236,19 +246,16 @@ const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, i
     return null
   }
   return (
-    <>
-      <ThreadContent
-        post={post}
-        user={user}
-        isAuthenticated
-        isCurrentUser={isCurrentUser}
-        onToggleFollow={handleToggleFollow}
-        validateFollowStatus={validateFollowStatus}
-        isTarget={isTarget}
-        isParent={isParent}
-      />
-      <ReplyModal username={user.username} post={post} />
-    </>
+    <ThreadContent
+      post={post}
+      user={user}
+      isAuthenticated
+      isCurrentUser={isCurrentUser}
+      onToggleFollow={handleToggleFollow}
+      validateFollowStatus={validateFollowStatus}
+      isTarget={isTarget}
+      isParent={isParent}
+    />
   )
 }
 

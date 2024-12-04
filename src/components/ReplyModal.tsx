@@ -7,19 +7,19 @@ import { toast } from 'sonner'
 
 import { createReply } from '@/app/actions'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/models/Schema'
 
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
 
 type ReplyModalProps = {
   username: string
   post: Post
+  trigger: React.ReactNode
 }
 
-const ReplyModal: FunctionComponent<ReplyModalProps> = ({ username, post }) => {
-  const { isOpen, modalType, handleOpenChange } = useModal()
+const ReplyModal: FunctionComponent<ReplyModalProps> = ({ username, post, trigger }) => {
+  const [open, setOpen] = useState(false)
   const [state, formAction, isPending] = useActionState(createReply, null)
   const [isValid, setIsValid] = useState(false)
 
@@ -31,8 +31,8 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ username, post }) => {
   }, [])
 
   const closeModal = useCallback(() => {
-    handleOpenChange(false)
-  }, [handleOpenChange])
+    setOpen(false)
+  }, [setOpen])
 
   useEffect(() => {
     if (state?.error) {
@@ -48,7 +48,10 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ username, post }) => {
 
   if (isDesktop) {
     return (
-      <Dialog open={isOpen && modalType === 'reply'} onOpenChange={handleOpenChange}>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          {trigger}
+        </DialogTrigger>
         <DialogContent onOpenAutoFocus={e => e.preventDefault()} className="min-w-[620px] max-md:hidden">
           <div className="sr-only">
             <DialogDescription>Reply to a thread</DialogDescription>
@@ -94,7 +97,10 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ username, post }) => {
     )
   }
   return (
-    <Drawer open={isOpen && modalType === 'reply'} onOpenChange={handleOpenChange}>
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger}
+      </DialogTrigger>
       <DrawerContent onOpenAutoFocus={e => e.preventDefault()} className="h-full min-w-full border-none">
         <div className="sr-only">
           <DialogDescription>Reply to a thread</DialogDescription>
