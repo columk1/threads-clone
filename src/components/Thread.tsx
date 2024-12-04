@@ -18,6 +18,7 @@ import PostAuthor from './PostAuthor'
 import PostDropDownMenu from './PostDropDownMenu'
 import ReplyModal from './ReplyModal'
 import TimeAgo from './TimeAgo'
+import UserModal from './UserModal'
 
 type ThreadProps = {
   post: Post
@@ -134,6 +135,12 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
     }
   }
 
+  const handleOpenUserModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // fix for an accessibility issue where the focus remains on the button
+    (e.target as HTMLButtonElement).blur()
+    openModal('user')
+  }
+
   return (
     <>
       {/* Some hacky CSS here to get the parent thread linked to the reply in the UI */}
@@ -147,7 +154,9 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
         {/* <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]"> */}
         <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
           <div className="col-start-1 row-start-1 row-end-[span_2] pt-1">
-            <Avatar />
+            <button type="button" onClick={handleOpenUserModal} className="relative z-10">
+              <Avatar isFollowed={isAuthenticated && user.isFollowed} />
+            </button>
           </div>
           <div className="flex w-full items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -221,6 +230,7 @@ const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, i
         isParent={isParent}
       />
       <ReplyModal username={user.username} post={post} />
+      <UserModal user={user} isAuthenticated isCurrentUser={isCurrentUser} onToggleFollow={handleToggleFollow} />
     </>
   )
 }
@@ -230,12 +240,15 @@ const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user, isTarg
   // const handleLoginPrompt = () => openModal()
 
   return (
-    <ThreadContent
-      post={post}
-      user={user}
-      isTarget={isTarget}
-      isParent={isParent}
-    />
+    <>
+      <ThreadContent
+        post={post}
+        user={user}
+        isTarget={isTarget}
+        isParent={isParent}
+      />
+      <UserModal user={user} />
+    </>
   )
 }
 
