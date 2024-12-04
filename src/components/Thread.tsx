@@ -135,11 +135,11 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
     }
   }
 
-  const handleOpenUserModal = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // fix for an accessibility issue where the focus remains on the button
-    (e.target as HTMLButtonElement).blur()
-    openModal('user')
-  }
+  // const handleOpenUserModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   // fix for an accessibility issue where the focus remains on the button
+  //   (e.target as HTMLButtonElement).blur()
+  //   openModal('user')
+  // }
 
   return (
     <>
@@ -154,9 +154,27 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
         {/* <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]"> */}
         <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
           <div className="col-start-1 row-start-1 row-end-[span_2] pt-1">
-            <button type="button" onClick={handleOpenUserModal} className="relative z-10">
-              <Avatar isFollowed={isAuthenticated && user.isFollowed} />
-            </button>
+            <div className="relative z-10">
+              {isAuthenticated
+                ? (
+                    <UserModal
+                      user={user}
+                      isAuthenticated
+                      isCurrentUser={isCurrentUser}
+                      onToggleFollow={onToggleFollow}
+                      trigger={(
+                        <button type="button">
+                          <Avatar isFollowed={isAuthenticated && user.isFollowed} />
+                        </button>
+                      )}
+                    />
+                  )
+                : (
+                    <Link href={`/@${user.username}`}>
+                      <Avatar />
+                    </Link>
+                  )}
+            </div>
           </div>
           <div className="flex w-full items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -206,8 +224,8 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 }
 
 const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCurrentUser, isTarget = false, isParent = false }) => {
-  // const router = useRouter()
   const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser })
+  // const router = useRouter()
 
   // useEffect(() => {
   //   router.prefetch(`/@${user.username}/post/${post.id}`)
@@ -230,25 +248,18 @@ const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, i
         isParent={isParent}
       />
       <ReplyModal username={user.username} post={post} />
-      <UserModal user={user} isAuthenticated isCurrentUser={isCurrentUser} onToggleFollow={handleToggleFollow} />
     </>
   )
 }
 
 const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user, isTarget, isParent }) => {
-  // const openModal = () => Promise.resolve().then(() => redirect('/login'))
-  // const handleLoginPrompt = () => openModal()
-
   return (
-    <>
-      <ThreadContent
-        post={post}
-        user={user}
-        isTarget={isTarget}
-        isParent={isParent}
-      />
-      <UserModal user={user} />
-    </>
+    <ThreadContent
+      post={post}
+      user={user}
+      isTarget={isTarget}
+      isParent={isParent}
+    />
   )
 }
 

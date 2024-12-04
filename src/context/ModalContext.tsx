@@ -4,7 +4,7 @@ import { createContext, useMemo, useState } from 'react'
 
 import type { ProtectedAction } from '@/hooks/useModal'
 
-type ModalType = 'new-thread' | 'auth-prompt' | 'reply' | 'user'
+type ModalType = 'new-thread' | 'auth-prompt' | 'reply'
 
 type ModalContextType = {
   isOpen: boolean

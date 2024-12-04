@@ -1,8 +1,7 @@
-import type { FunctionComponent } from 'react'
+import { type FunctionComponent, useState } from 'react'
 
 import type { PostUser } from '@/app/actions'
-import { Dialog, DialogContent, DialogTitle } from '@/components/Dialog'
-import { useModal } from '@/hooks/useModal'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/Dialog'
 
 import UserCard from './UserCard'
 
@@ -11,13 +10,17 @@ type UserModalProps = {
   isAuthenticated?: boolean
   isCurrentUser?: boolean
   onToggleFollow?: () => Promise<void>
+  trigger: React.ReactNode
 }
 
-const UserModal: FunctionComponent<UserModalProps> = ({ user, isAuthenticated = false, isCurrentUser = false, onToggleFollow }) => {
-  const { isOpen, modalType, handleOpenChange } = useModal()
+const UserModal: FunctionComponent<UserModalProps> = ({ user, isAuthenticated = false, isCurrentUser = false, onToggleFollow, trigger }) => {
+  const [open, setOpen] = useState(false)
 
   return (
-    <Dialog open={isOpen && modalType === 'user'} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger}
+      </DialogTrigger>
       <DialogContent className="flex w-[380px] flex-col items-center justify-center p-6 dark:bg-gray-1">
         <DialogTitle className="sr-only">
           {user.username}
