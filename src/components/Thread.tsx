@@ -166,7 +166,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
                       onToggleFollow={onToggleFollow}
                       trigger={(
                         <button type="button">
-                          <Avatar isFollowed={isAuthenticated && user.isFollowed} />
+                          <Avatar isFollowed={!isCurrentUser ? user.isFollowed : undefined} />
                         </button>
                       )}
                     />
