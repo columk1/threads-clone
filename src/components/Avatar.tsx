@@ -6,7 +6,7 @@ import { FollowIcon } from './icons'
 
 type AvatarProps = {
   url?: string
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'md' | 'lg'
   imageUrl?: string
   isFollowed?: boolean
   className?: string
@@ -14,12 +14,14 @@ type AvatarProps = {
 
 const sizeClass = {
   sm: 'size-9',
-  md: 'size-16',
+  md: 'size-[52px]',
+  lg: 'size-16',
 }
 
 const sizePx = {
   sm: 36,
-  md: 64,
+  md: 52,
+  lg: 64,
 }
 
 const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', imageUrl, isFollowed, className }) => {

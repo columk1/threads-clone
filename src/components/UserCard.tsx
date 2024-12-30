@@ -22,7 +22,7 @@ const UserCard: FunctionComponent<UserCardProps> = ({ user, isAuthenticated = fa
           </span>
           <span>{user.username}</span>
         </div>
-        <Avatar size="md" />
+        <Avatar size="lg" />
       </div>
       <div className="flex flex-col gap-1.5 self-start">
         <div>
