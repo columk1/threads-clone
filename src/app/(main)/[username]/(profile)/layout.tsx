@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 
-import { getPublicUserInfo, getUserInfo } from '@/app/actions'
+import { getPublicUserInfo, getUserInfo, type PostUser, type PublicUser } from '@/app/actions'
 import Avatar from '@/components/Avatar'
 import Header from '@/components/Header'
+import ProfileModal from '@/components/ProfileModal'
 import ProfileNavigation from '@/components/ProfileNavigation'
 import UserProfile from '@/components/UserProfile'
 import { validateRequest } from '@/libs/Lucia'
@@ -13,8 +14,20 @@ type Props = {
   children: React.ReactNode
 }
 
-const fetchUserInfo = async (isCurrentUser: boolean, username: string) => {
-  return await (isCurrentUser ? getUserInfo(username) : getPublicUserInfo(username))
+type UserInfo =
+  | { user: PostUser }
+  | { user: PublicUser }
+  | { error: string }
+
+const fetchUserInfo = async (
+  isCurrentUser: boolean,
+  username: string,
+): Promise<UserInfo> => {
+  if (isCurrentUser) {
+    return await getUserInfo(username)
+  } else {
+    return await getPublicUserInfo(username)
+  }
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -58,6 +71,10 @@ const UserProfileLayout = async ({ params, children }: Props) => {
     )
   }
 
+  if (!('isFollowed' in user)) {
+    notFound()
+  }
+
   // Branch for current user's profile
   return (
     <>
@@ -72,7 +89,7 @@ const UserProfileLayout = async ({ params, children }: Props) => {
               </span>
               <span>{user.username}</span>
             </div>
-            <Avatar size="md" />
+            <Avatar size="lg" />
           </div>
           <div className="flex flex-col gap-1.5 self-start">
             <div>
@@ -82,7 +99,12 @@ const UserProfileLayout = async ({ params, children }: Props) => {
               {`${Intl.NumberFormat().format(user.followerCount)} follower${user.followerCount !== 1 ? 's' : ''}`}
             </div>
           </div>
-          <button type="button" className="h-9 w-full rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30">Edit Profile</button>
+          <ProfileModal
+            user={user}
+            trigger={(
+              <button type="button" className="h-9 w-full rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30">Edit Profile</button>
+            )}
+          />
         </div>
         <ProfileNavigation />
         {children}
