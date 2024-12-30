@@ -444,6 +444,53 @@ export const getAllPosts = async (username?: string) => {
 }
 
 /*
+ * GET following posts (Where the current user is following the user who made the post)
+ */
+export const getFollowingPosts = async () => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+  const posts = await db.select({
+    post: postSchema,
+    user: {
+      username: userSchema.username,
+      name: userSchema.name,
+      bio: userSchema.bio,
+      followerCount: userSchema.followerCount,
+      isFollowed: sql<boolean>`EXISTS (
+        SELECT 1 
+        FROM ${followerSchema} 
+        WHERE ${followerSchema.userId} = ${userSchema.id} 
+          AND ${followerSchema.followerId} = ${user.id}
+      )`.as('isFollowed'),
+    },
+    isLiked: sql<boolean>`EXISTS (
+      SELECT 1 
+      FROM ${likeSchema} 
+      WHERE ${likeSchema.userId} = ${user.id} 
+        AND ${likeSchema.postId} = ${postSchema.id}
+    )`.as('isLiked'),
+  })
+    .from(postSchema)
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
+    .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, user.id)))
+    .all()
+  const formattedPosts = posts.map(post => ({
+    post: {
+      ...post.post,
+      isLiked: !!post.isLiked,
+    },
+    user: {
+      ...post.user,
+      isFollowed: !!post.user.isFollowed, // Cast 1/0 to true/false
+    },
+  }))
+  return formattedPosts
+}
+
+/*
  * POST posts
  */
 export const createPost = async (_: unknown, formData: FormData) => {

@@ -1,10 +1,9 @@
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
-import type { ResponseData } from '@/app/api/posts/[postId]/route'
+import { getPostById, getSinglePostById } from '@/app/actions'
 import Header from '@/components/Header'
 import Thread from '@/components/Thread'
-import { BASE_URL } from '@/constants/baseURL'
 import { validateRequest } from '@/libs/Lucia'
 import { usernameParamSchema } from '@/models/zod.schema'
 
@@ -30,12 +29,14 @@ export default async function PostPage({ params }: Props) {
   const isAuthenticated = !!currentUser
   const isCurrentUser = currentUser?.username === username
 
-  const data: ResponseData = await fetch(`${BASE_URL}/api/posts/${postId}?user=${currentUser?.id}&replies=true`, { next: { revalidate: 60 } })
-    .then(res => res.json())
+  // const data: ResponseData = await fetch(`${BASE_URL}/api/posts/${postId}?user=${currentUser?.id}&replies=true`, { next: { revalidate: 60 } })
+  //   .then(res => res.json())
 
-  if ('error' in data) {
-    notFound()
-  }
+  const data = await getPostById(postId)
+
+  // if ('error' in data) {
+  //   notFound()
+  // }
 
   if (!Array.isArray(data)) {
     notFound()
@@ -50,9 +51,12 @@ export default async function PostPage({ params }: Props) {
     notFound()
   }
 
+  // const parentThread = thread.post.parentId
+  //   ? await fetch(`${BASE_URL}/api/posts/${thread.post.parentId}?user=${currentUser?.id}`, { cache: 'force-cache', next: { revalidate: 60 } })
+  //     .then(res => res.json())
+  //   : null
   const parentThread = thread.post.parentId
-    ? await fetch(`${BASE_URL}/api/posts/${thread.post.parentId}?user=${currentUser?.id}`, { cache: 'force-cache', next: { revalidate: 60 } })
-      .then(res => res.json())
+    ? await getSinglePostById(thread.post.parentId)
     : null
 
   return (
@@ -63,7 +67,7 @@ export default async function PostPage({ params }: Props) {
         {parentThread
           ? (
               <Suspense fallback={<p>Loading...</p>}>
-                <Thread key={parentThread.post.id} user={parentThread.user} post={parentThread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isParent />
+                <Thread key={parentThread.post.id} user={parentThread.user} post={parentThread.post} isCurrentUser={parentThread.user.username === currentUser?.username} isAuthenticated={isAuthenticated} isParent />
                 <Thread key={thread.post.id} user={thread.user} post={thread.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
               </Suspense>
             )
@@ -75,7 +79,7 @@ export default async function PostPage({ params }: Props) {
         {/* Replies */}
         {data.map((e) => {
           return (
-            <Thread key={e.post.id} user={e.user} post={e.post} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} />
+            <Thread key={e.post.id} user={e.user} post={e.post} isCurrentUser={e.user.username === currentUser?.username} isAuthenticated={isAuthenticated} />
           )
         })}
       </div>
