@@ -9,6 +9,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTrigger } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
+import ProfileImageDropDown from './ProfileImageDropDown'
 
 type ProfileModalProps = {
   user: PostUser
@@ -45,9 +46,9 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                 </div>
                 <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
               </div>
-              <div className="">
-                <Avatar size="md" />
-              </div>
+              {/* <ProfileImageDropDown trigger={<Avatar size="md" />}> */}
+              <ProfileImageDropDown />
+              {/* </ProfileImageDropDown> */}
             </div>
 
             <div className="flex gap-4">
