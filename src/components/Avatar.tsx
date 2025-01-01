@@ -5,9 +5,8 @@ import type { FunctionComponent } from 'react'
 import { FollowIcon } from './icons'
 
 type AvatarProps = {
-  url?: string
-  size?: 'sm' | 'md' | 'lg'
-  imageUrl?: string
+  url: string | null
+  size?: 'sm' | 'md' | 'lg' | 'xl'
   isFollowed?: boolean
   className?: string
 }
@@ -16,22 +15,30 @@ const sizeClass = {
   sm: 'size-9',
   md: 'size-[52px]',
   lg: 'size-16',
+  xl: 'size-[84px]',
 }
 
-const sizePx = {
-  sm: 36,
-  md: 52,
-  lg: 64,
-}
+// Used for dynamic Image component sizing (likely better to have one size for all images)
+// const sizePx = {
+//   sm: 36,
+//   md: 52,
+//   lg: 64,
+//   xl: 84,
+// }
 
-const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', imageUrl, isFollowed, className }) => {
+const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, className }) => {
   return (
-    <div className={cx(`relative bg-gray-1 rounded-full outline outline-[0.5px] outline-offset-[0.5px] outline-primary-outline border-white/20 ${className}`, sizeClass[size])}>
+    <div className={cx(
+      `relative size-bg-gray-1 rounded-full outline outline-[0.5px] outline-offset-[0.5px] outline-primary-outline border-white/20 ${className}`,
+      sizeClass[size],
+      { 'lg:size-[84px]': size === 'lg' }, // Scale lg up to xl on large screens
+    )}
+    >
       <div className="inline-block overflow-hidden rounded-full">
         <Image
-          src={imageUrl || '/assets/images/placeholder.svg'}
-          width={sizePx[size]}
-          height={sizePx[size]}
+          src={url || '/assets/images/placeholder.svg'}
+          width={84}
+          height={84}
           alt="Avatar"
           className="aspect-square object-cover text-xs"
         />

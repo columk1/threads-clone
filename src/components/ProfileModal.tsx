@@ -46,9 +46,7 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                 </div>
                 <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
               </div>
-              {/* <ProfileImageDropDown trigger={<Avatar size="md" />}> */}
-              <ProfileImageDropDown />
-              {/* </ProfileImageDropDown> */}
+              <ProfileImageDropDown avatarUrl={user.avatar} />
             </div>
 
             <div className="flex gap-4">
@@ -113,7 +111,7 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                   <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
                 </div>
                 <div className="">
-                  <Avatar size="md" />
+                  <Avatar size="md" url={user.avatar} />
                 </div>
               </div>
 

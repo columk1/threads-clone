@@ -9,6 +9,11 @@ export const useFollow = ({ initialUser }: { initialUser: PostUser | PublicUser 
   const [user, setUser] = useState(initialUser)
   const { openModal } = useModal()
 
+  // Reset client user state if the avatar changes
+  if (initialUser.avatar !== user.avatar) {
+    setUser(initialUser)
+  }
+
   const validateFollowStatus = async () => {
     if ('isFollowed' in user) {
       const result = await getUserFollowStatus(user.username)

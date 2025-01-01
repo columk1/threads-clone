@@ -166,14 +166,14 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
                       onToggleFollow={onToggleFollow}
                       trigger={(
                         <button type="button">
-                          <Avatar isFollowed={!isCurrentUser ? user.isFollowed : undefined} />
+                          <Avatar url={user.avatar} isFollowed={!isCurrentUser ? user.isFollowed : undefined} />
                         </button>
                       )}
                     />
                   )
                 : (
                     <Link href={`/@${user.username}`}>
-                      <Avatar />
+                      <Avatar url={user.avatar} />
                     </Link>
                   )}
             </div>

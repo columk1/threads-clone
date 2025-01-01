@@ -89,7 +89,7 @@ const UserProfileLayout = async ({ params, children }: Props) => {
               </span>
               <span>{user.username}</span>
             </div>
-            <Avatar size="lg" />
+            <Avatar size="lg" url={user.avatar} />
           </div>
           <div className="flex flex-col gap-1.5 self-start">
             <div>
