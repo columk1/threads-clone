@@ -3,6 +3,7 @@
 import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
 import { and, eq, isNull, or, sql } from 'drizzle-orm'
+import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { isWithinExpirationDate } from 'oslo'
@@ -345,6 +346,7 @@ export const logout = async () => {
 export type PostUser = {
   username: string
   name: string
+  avatar: string | null
   bio: string | null
   followerCount: number
   isFollowed: boolean
@@ -353,6 +355,7 @@ export type PostUser = {
 export type PublicUser = {
   username: string
   name: string
+  avatar: string | null
   bio: string | null
   followerCount: number
 }
@@ -370,6 +373,7 @@ export const getAllPosts = async (username?: string) => {
         user: {
           username: userSchema.username,
           name: userSchema.name,
+          avatar: userSchema.avatar,
           bio: userSchema.bio,
           followerCount: userSchema.followerCount,
         },
@@ -401,6 +405,7 @@ export const getAllPosts = async (username?: string) => {
       user: {
         username: userSchema.username,
         name: userSchema.name,
+        avatar: userSchema.avatar,
         bio: userSchema.bio,
         followerCount: userSchema.followerCount,
         isFollowed: sql<boolean>`EXISTS (
@@ -456,6 +461,7 @@ export const getFollowingPosts = async () => {
     user: {
       username: userSchema.username,
       name: userSchema.name,
+      avatar: userSchema.avatar,
       bio: userSchema.bio,
       followerCount: userSchema.followerCount,
       isFollowed: sql<boolean>`EXISTS (
@@ -728,6 +734,7 @@ const getUserInfoCached = cache(async (username: string): Promise<
         id: userSchema.id,
         username: userSchema.username,
         name: userSchema.name,
+        avatar: userSchema.avatar,
         bio: userSchema.bio,
         followerCount: userSchema.followerCount,
         isFollowed: user
@@ -752,6 +759,7 @@ const getUserInfoCached = cache(async (username: string): Promise<
       user: {
         username: userInfo.username,
         name: userInfo.name,
+        avatar: userInfo.avatar,
         bio: userInfo.bio,
         followerCount: userInfo.followerCount,
         isFollowed: !!userInfo.isFollowed,
@@ -779,6 +787,7 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<
         id: userSchema.id,
         username: userSchema.username,
         name: userSchema.name,
+        avatar: userSchema.avatar,
         bio: userSchema.bio,
         followerCount: userSchema.followerCount,
       })
@@ -793,6 +802,7 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<
       user: {
         username: userInfo.username,
         name: userInfo.name,
+        avatar: userInfo.avatar,
         bio: userInfo.bio,
         followerCount: userInfo.followerCount,
       },
@@ -818,6 +828,7 @@ export const getPostById = async (id: string) => {
     user: {
       username: userSchema.username,
       name: userSchema.name,
+      avatar: userSchema.avatar,
       bio: userSchema.bio,
       followerCount: userSchema.followerCount,
     },
@@ -912,6 +923,7 @@ export const getSinglePostById = async (id: string) => {
       user: {
         username: userSchema.username,
         name: userSchema.name,
+        avatar: userSchema.avatar,
         bio: userSchema.bio,
         followerCount: userSchema.followerCount,
       },
@@ -1017,14 +1029,15 @@ export const updateAvatar = async (url: string) => {
     //   }).end(buffer)
     // })
     // console.log(result)
-    logger.info('Avatar URL:', url)
-    logger.info('User ID:', userId)
-    // await db
-    //   .update(userSchema)
-    //   .set({ avatar: result.secure_url })
-    //   .where(eq(userSchema.id, userId))
+
+    await db
+      .update(userSchema)
+      .set({ avatar: url })
+      .where(eq(userSchema.id, userId))
+
+    revalidatePath('/', 'page') // Refetch the user's posts, (profile is a dynamic segment on '/')
+
     return { success: true }
-    // return { success: true, imageUrl: result.secure_url }
   } catch (err) {
     logger.error('Error uploading profile image:', err)
     return { success: false, error: 'Failed to upload image' }
