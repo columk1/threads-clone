@@ -9,6 +9,14 @@ const jiti = createJiti(fileURLToPath(import.meta.url))
 jiti('./src/libs/Env')
 
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
+  },
   eslint: {
     dirs: ['.'],
   },
