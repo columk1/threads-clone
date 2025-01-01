@@ -1,44 +1,46 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { updateAvatar } from '@/app/actions'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/DropdownMenu'
 
 import Avatar from './Avatar'
 
-const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`
+const uploadUrl = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`
 
-const ProfileImageDropdown = () => {
+const ProfileImageDropdown = ({ avatarUrl }: { avatarUrl: string | null }) => {
+  const [avatar, setAvatar] = useState(avatarUrl)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
+  // const clearPosts = useAppStore(s => s.clearPosts)
 
   const handleUploadButtonClick = () => {
     fileInputRef?.current?.click()
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // e.target.blur()
     const file = e.target.files?.[0]
     if (file) {
+      const optimisticUrl = URL.createObjectURL(file)
+      setAvatar(optimisticUrl)
       const formData = new FormData()
       formData.append('file', file)
       formData.append('upload_preset', 'threads_preset')
 
-      const res = await fetch(url, {
+      const res = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
       })
-      // console.log('res:', res)
       const data = await res.json()
 
+      // clearPosts()
       const result = await updateAvatar(data.secure_url)
-      // const result = { success: true, error: null }
 
-      if (result.success) {
-        router.refresh()
-      } else {
-        console.error(result.error)
+      if (result.error) {
+        setAvatar(avatarUrl)
+        toast(result.error)
       }
     }
   }
@@ -48,7 +50,7 @@ const ProfileImageDropdown = () => {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger className="mb-2">
           {/* {trigger} */}
-          <Avatar size="md" />
+          <Avatar size="md" url={avatar} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" alignOffset={0} sideOffset={2} className="w-60 origin-top-right text-[15px] dark:bg-gray-2">
           <DropdownMenuItem asChild className="w-full leading-none">
