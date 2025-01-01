@@ -992,6 +992,45 @@ export const unlikePost = async (postId: string) => {
   return { success: true }
 }
 
+/*
+ * Update Avatar
+ */
+export const updateAvatar = async (url: string) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+  const userId = user.id
+  try {
+    // const arrayBuffer = await file.arrayBuffer()
+    // const buffer = new Uint8Array(arrayBuffer)
+    // const result = await new Promise((resolve, reject) => {
+    //   cloudinary.uploader.upload_stream({
+    //     folder: 'profile_images',
+    //     public_id: userId,
+    //     overwrite: true,
+    //   }, (error, result) => {
+    //     if (error) {
+    //       return reject(error)
+    //     }
+    //     resolve(result)
+    //   }).end(buffer)
+    // })
+    // console.log(result)
+    logger.info('Avatar URL:', url)
+    logger.info('User ID:', userId)
+    // await db
+    //   .update(userSchema)
+    //   .set({ avatar: result.secure_url })
+    //   .where(eq(userSchema.id, userId))
+    return { success: true }
+    // return { success: true, imageUrl: result.secure_url }
+  } catch (err) {
+    logger.error('Error uploading profile image:', err)
+    return { success: false, error: 'Failed to upload image' }
+  }
+}
+
 // export const getPostById = async (id: string) => {
 //   const results = await db
 //     .select({
