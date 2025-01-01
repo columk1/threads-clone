@@ -12,6 +12,7 @@ type AppState = {
   setPosts: (posts: Array<{ post: { id: string, isLiked?: boolean, likeCount?: number } }>) => void
   addPosts: (posts: Array<{ post: { id: string, isLiked?: boolean, likeCount?: number } }>) => void
   updatePost: (postId: string, updates: { isLiked: boolean, likeCount: number }) => void
+  clearPosts: () => void
 }
 
 export const useAppStore = create<AppState>(set => ({
@@ -50,4 +51,8 @@ export const useAppStore = create<AppState>(set => ({
         },
       }
     }),
+  clearPosts: () =>
+    set(() => ({
+      posts: {},
+    })),
 }))
