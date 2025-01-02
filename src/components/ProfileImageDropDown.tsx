@@ -7,6 +7,7 @@ import { updateAvatar } from '@/app/actions'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/DropdownMenu'
 import { IMG_UPLOAD_URL } from '@/constants/cloudinaryURL'
 import { signUploadForm } from '@/lib/data'
+import { stringToSafePublicId } from '@/utils/stringToSafePublicId'
 
 import Avatar from './Avatar'
 
@@ -26,24 +27,18 @@ const ProfileImageDropdown = ({ username, avatarUrl }: { username: string, avata
       const optimisticUrl = URL.createObjectURL(file)
       setAvatar(optimisticUrl)
 
-      const options = { eager: 'c_fit,h_250,w_250', folder: 'threads-clone/avatars', public_id: username }
+      const options = { eager: 'c_fit,h_250,w_250', folder: 'threads-clone/avatars', public_id: stringToSafePublicId(username), overwrite: 'true' }
 
       const signData = await signUploadForm(options)
 
       const formData = new FormData()
       formData.append('file', file)
-      // Object.entries(signData).forEach(([key, value]) => {
-      //   formData.append(key, value)
-      // })
       formData.append('api_key', signData.apiKey)
       formData.append('timestamp', signData.timestamp)
       formData.append('signature', signData.signature)
       Object.entries(options).forEach(([key, value]) => {
         formData.append(key, value)
       })
-      // formData.append('eager', 'c_fit,h_250,w_250')
-      // formData.append('folder', 'threads-clone/avatars')
-      // formData.append('public_id', username)
 
       const res = await fetch(IMG_UPLOAD_URL, {
         method: 'POST',
