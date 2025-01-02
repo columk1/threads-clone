@@ -5,10 +5,10 @@ import { toast } from 'sonner'
 
 import { updateAvatar } from '@/app/actions'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/DropdownMenu'
+import { IMG_UPLOAD_URL } from '@/constants/cloudinaryURL'
+import { signUploadForm } from '@/lib/data'
 
 import Avatar from './Avatar'
-
-const uploadUrl = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`
 
 const ProfileImageDropdown = ({ avatarUrl }: { avatarUrl: string | null }) => {
   const [avatar, setAvatar] = useState(avatarUrl)
@@ -25,11 +25,19 @@ const ProfileImageDropdown = ({ avatarUrl }: { avatarUrl: string | null }) => {
     if (file) {
       const optimisticUrl = URL.createObjectURL(file)
       setAvatar(optimisticUrl)
+
+      const signData = await signUploadForm()
+
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('upload_preset', 'threads_preset')
+      // formData.append('upload_preset', 'threads_preset')
+      formData.append('api_key', signData.apiKey)
+      formData.append('timestamp', signData.timestamp)
+      formData.append('signature', signData.signature)
+      formData.append('eager', 'c_fit,h_250,w_250')
+      formData.append('folder', 'threads-clone/avatars')
 
-      const res = await fetch(uploadUrl, {
+      const res = await fetch(IMG_UPLOAD_URL, {
         method: 'POST',
         body: formData,
       })
