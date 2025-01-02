@@ -10,7 +10,7 @@ import { signUploadForm } from '@/lib/data'
 
 import Avatar from './Avatar'
 
-const ProfileImageDropdown = ({ avatarUrl }: { avatarUrl: string | null }) => {
+const ProfileImageDropdown = ({ username, avatarUrl }: { username: string, avatarUrl: string | null }) => {
   const [avatar, setAvatar] = useState(avatarUrl)
   const fileInputRef = useRef<HTMLInputElement>(null)
   // const clearPosts = useAppStore(s => s.clearPosts)
@@ -26,16 +26,24 @@ const ProfileImageDropdown = ({ avatarUrl }: { avatarUrl: string | null }) => {
       const optimisticUrl = URL.createObjectURL(file)
       setAvatar(optimisticUrl)
 
-      const signData = await signUploadForm()
+      const options = { eager: 'c_fit,h_250,w_250', folder: 'threads-clone/avatars', public_id: username }
+
+      const signData = await signUploadForm(options)
 
       const formData = new FormData()
       formData.append('file', file)
-      // formData.append('upload_preset', 'threads_preset')
+      // Object.entries(signData).forEach(([key, value]) => {
+      //   formData.append(key, value)
+      // })
       formData.append('api_key', signData.apiKey)
       formData.append('timestamp', signData.timestamp)
       formData.append('signature', signData.signature)
-      formData.append('eager', 'c_fit,h_250,w_250')
-      formData.append('folder', 'threads-clone/avatars')
+      Object.entries(options).forEach(([key, value]) => {
+        formData.append(key, value)
+      })
+      // formData.append('eager', 'c_fit,h_250,w_250')
+      // formData.append('folder', 'threads-clone/avatars')
+      // formData.append('public_id', username)
 
       const res = await fetch(IMG_UPLOAD_URL, {
         method: 'POST',
