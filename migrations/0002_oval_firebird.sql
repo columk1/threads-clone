@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `follower_count` integer DEFAULT 0;
