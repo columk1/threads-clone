@@ -21,8 +21,11 @@ export const loginSchema = z.object({
 })
 
 export const newPostSchema = z.object({
-  // TODO: Make text optional and add image field, use refine to check for one or the other
-  text: z.string({ required_error: 'Text is required' }).trim().min(1, { message: 'Text is required' }),
+  text: z.string().trim().optional(),
+  image: z.string().url({ message: 'Invalid URL' }).optional(),
+}).refine(data => data.text || data.image, {
+  message: 'Either text or image is required',
+  path: ['text'],
 })
 
 export const replySchema = z.object({
