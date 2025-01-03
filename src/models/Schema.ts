@@ -28,9 +28,9 @@ export const userSchema = sqliteTable('users', {
   avatar: text('avatar'),
   bio: text('bio'),
   followerCount: integer('follower_count').notNull().default(0),
-}, table => ({
-  usernameIdx: index('username_idx').on(table.username),
-}))
+}, table => ([
+  index('username_idx').on(table.username),
+]))
 
 export const sessionSchema = sqliteTable('sessions', {
   id: text('id').primaryKey(),
@@ -84,10 +84,10 @@ export const followerSchema = sqliteTable('followers', {
   followerId: text('follower_id').notNull().references(() => userSchema.id),
   createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
 }, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.userId, table.followerId] }),
-    checkConstraint: check('no_self_follow', sql`${table.userId} != ${table.followerId}`),
-  }
+  return [
+    primaryKey({ columns: [table.userId, table.followerId] }),
+    check('no_self_follow', sql`${table.userId} != ${table.followerId}`),
+  ]
 })
 
 export const likeSchema = sqliteTable('likes', {
@@ -95,9 +95,9 @@ export const likeSchema = sqliteTable('likes', {
   postId: text('post_id').notNull().references(() => postSchema.id),
   createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
 }, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.userId, table.postId] }),
-  }
+  return [
+    primaryKey({ columns: [table.userId, table.postId] }),
+  ]
 })
 
 export const userRelations = relations(userSchema, ({ many }) => ({
