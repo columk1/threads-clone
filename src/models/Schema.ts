@@ -9,13 +9,6 @@ import { ulid } from 'ulidx'
 // The migration is automatically applied during the next database interaction,
 // so there's no need to run it manually or restart the Next.js server.
 
-export const counterSchema = sqliteTable('counter', {
-  id: integer('id').primaryKey(),
-  count: integer('count').default(0),
-  createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
-  updatedAt: integer('updated_at').default(sql`(cast(unixepoch() as int))`),
-})
-
 export const userSchema = sqliteTable('users', {
   id: text('id')
     .primaryKey()
@@ -64,7 +57,8 @@ export const postSchema = sqliteTable('posts', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => ulid()),
-  text: text('text').notNull(),
+  text: text('text'),
+  image: text('image'),
   userId: text('user_id')
     .notNull()
     .references(() => userSchema.id, {
@@ -75,6 +69,11 @@ export const postSchema = sqliteTable('posts', {
   }),
   likeCount: integer('like_count').notNull().default(0),
   createdAt: integer('created_at').notNull().default(sql`(cast(unixepoch() as int))`),
+}, (table) => {
+  return {
+    checkConstraint: check('text_or_image', sql`(${table.text} IS NOT NULL AND TRIM(${table.text}) <> '') 
+    OR (${table.image} IS NOT NULL AND TRIM(${table.image}) <> '')`),
+  }
 })
 
 export type Post = InferSelectModel<typeof postSchema>
