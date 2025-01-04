@@ -147,6 +147,8 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
     </button>
   )
 
+  const canFollow = !isCurrentUser && !user.isFollowed
+
   return (
     <>
       {/* Some hacky CSS here to get the parent thread linked to the reply in the UI */}
@@ -161,7 +163,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
         <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
           <div className="col-start-1 row-start-1 row-end-[span_2] pt-1">
             <div className="relative z-10">
-              {isAuthenticated
+              {isAuthenticated && canFollow
                 ? (
                     <UserModal
                       user={user}
@@ -170,7 +172,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
                       onToggleFollow={onToggleFollow}
                       trigger={(
                         <button type="button">
-                          <Avatar url={user.avatar} isFollowed={!isCurrentUser ? user.isFollowed : undefined} />
+                          <Avatar url={user.avatar} isFollowed={canFollow && user.isFollowed} />
                         </button>
                       )}
                     />
