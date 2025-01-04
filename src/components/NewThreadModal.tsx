@@ -1,6 +1,7 @@
 'use client'
 
 import { DialogDescription } from '@radix-ui/react-dialog'
+import cx from 'clsx'
 import { useRouter } from 'next/navigation'
 import { type FunctionComponent, useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -17,18 +18,19 @@ import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '.
 import { Drawer, DrawerContent } from './Drawer'
 import { ImageIcon } from './icons'
 
-type NewThreadModalProps = {
-  username: string
+type ModalContentProps = {
+  isDrawer?: boolean
   avatar: string | null
+  username: string
+  image: string | null
+  closeModal: () => void
+  handleUploadButtonClick: () => void
+  children?: React.ReactNode
 }
 
-const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar }) => {
-  const { isOpen, modalType, handleOpenChange } = useModal()
-  const [image, setImage] = useState<string | null>(null)
+const ModalContent: React.FC<ModalContentProps> = ({ isDrawer, avatar, username, image, closeModal, handleUploadButtonClick, children }) => {
   const [state, formAction, isPending] = useActionState(createPost, null)
   const [isValid, setIsValid] = useState(false)
-
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const router = useRouter()
 
@@ -44,13 +46,92 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     }
   }, [])
 
-  const closeModal = useCallback(() => {
-    handleOpenChange(false)
-  }, [handleOpenChange])
+  useEffect(() => {
+    if (state?.error) {
+      toast(state.error)
+    } else {
+      if (state?.data) {
+        router.refresh()
+      }
+    }
+  }, [state, router])
+  return (
+    <form action={formAction} className={cx('flex flex-col justify-between', isDrawer && 'h-[calc(100%-56px)]')}>
+      <div className={cx('overflow-y-auto', !isDrawer && `max-h-[calc(100vh-200px)]`)}>
+        <div className={cx(`pt-2`, !isDrawer && `px-6 pb-1 pt-2`)}>
+          <div className="relative">
+            <div className="grid grid-cols-[48px_minmax(0,1fr)] text-[15px] leading-[21px]">
+              <div className="col-start-1 row-start-1 row-end-[span_2] pt-1 ">
+                <Avatar size="sm" url={avatar} />
+              </div>
+              <div className="flex w-full items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="font-semibold">{username}</div>
+                </div>
+              </div>
+              {/* Multi-line Input */}
+              <textarea
+                autoComplete="off"
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+                onChange={handleChange}
+                placeholder="What's new?"
+                minLength={1}
+                className="col-start-2 mb-[2px] w-full resize-none bg-transparent placeholder:text-gray-7 focus:outline-none focus:ring-0"
+                rows={1}
+                onInput={handleInput}
+              />
+              {children}
+            </div>
+            {/* Media Section */}
+            <div className="flex pl-12 text-gray-7">
+              <div className="flex-1">
+                {image && (
+                  <div className="mb-1 mt-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={image}
+                      alt="preview"
+                      className="max-h-[430px] rounded-lg bg-white object-contain"
+                    />
+                  </div>
+                )}
+                <button type="button" onClick={handleUploadButtonClick} className="mt-2 flex h-9 items-center justify-start transition active:scale-85">
+                  <ImageIcon />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className={cx(`flex items-center justify-between text-[15px] text-gray-7`, !isDrawer && `p-6`)}>
+        Anyone can reply & quote
+        <button type="submit" onClick={closeModal} disabled={!isValid || isPending} className="ml-auto h-9 rounded-lg border border-gray-5 px-4 font-semibold text-primary-text transition active:scale-95 disabled:opacity-30">
+          Post
+        </button>
+      </div>
+    </form>
+  )
+}
+
+type NewThreadModalProps = {
+  username: string
+  avatar: string | null
+}
+
+const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar }) => {
+  const { isOpen, modalType, handleOpenChange } = useModal()
+  const [image, setImage] = useState<string | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleUploadButtonClick = () => {
     fileInputRef?.current?.click()
   }
+
+  const closeModal = useCallback(() => {
+    handleOpenChange(false)
+  }, [handleOpenChange])
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -87,16 +168,6 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     }
   }
 
-  useEffect(() => {
-    if (state?.error) {
-      toast(state.error)
-    } else {
-      if (state?.data) {
-        router.refresh()
-      }
-    }
-  }, [state, router])
-
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
   if (isDesktop) {
@@ -123,73 +194,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
               </div>
               <div className="h-[0.25px] bg-gray-6"></div>
             </DialogHeader>
-            <form action={formAction}>
-              <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
-                <div className="px-6 pb-1 pt-2">
-                  <div className="relative">
-                    {/* Vertical Line - uncomment for multiple replies in thread feature */}
-                    {/* <div className="absolute bottom-1.5 left-[17px] top-[50px] w-[2px] bg-gray-5"></div> */}
-                    <div className="grid grid-cols-[48px_minmax(0,1fr)] text-[15px] leading-[21px]">
-                      <div className="col-start-1 row-start-1 row-end-[span_2] pt-1 ">
-                        <Avatar size="sm" url={avatar} />
-                      </div>
-                      <div className="flex w-full items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <div className="font-semibold">
-                            {username}
-                          </div>
-                        </div>
-                      </div>
-                      {/* Multi-line Input */}
-                      <textarea
-                        autoComplete="off"
-                        // eslint-disable-next-line jsx-a11y/no-autofocus
-                        autoFocus
-                        onChange={handleChange}
-                        name="text"
-                        placeholder="What's new?"
-                        minLength={1}
-                        className="col-start-2 mb-[2px] w-full resize-none bg-transparent placeholder:text-gray-7 focus:outline-none focus:ring-0"
-                        rows={1} // Starts with 1 line
-                        onInput={handleInput}
-                      >
-                      </textarea>
-                    </div>
-
-                    {/* Media Section */}
-                    <div className="flex pl-12 text-gray-7">
-                      {/* Image and Add Media Button */}
-                      <div className="flex-1">
-                        {image && (
-                          <div className="mb-1 mt-2">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={image}
-                              alt="preview"
-                              className="max-h-[430px] rounded-lg bg-white object-contain"
-                            />
-                          </div>
-                        )}
-                        <button
-                          type="button"
-                          onClick={handleUploadButtonClick}
-                          className="mt-2 flex h-9 items-center justify-start transition active:scale-85"
-                        >
-                          <ImageIcon />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-6 text-[15px] text-gray-7">
-                Anyone can reply & quote
-                <button type="submit" onClick={closeModal} disabled={!isValid || isPending} className="ml-auto h-9 rounded-lg border border-gray-5 px-4 font-semibold text-primary-text transition active:scale-95 disabled:opacity-30">
-                  Post
-                </button>
-              </div>
-            </form>
+            <ModalContent avatar={avatar} username={username} image={image} closeModal={closeModal} handleUploadButtonClick={handleUploadButtonClick} />
           </DialogContent>
         </Dialog>
         <form>
@@ -217,70 +222,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
             New thread
           </DialogTitle>
         </DialogHeader>
-        <form action={formAction} className="flex h-[calc(100%-56px)] w-full flex-col justify-between pt-3">
-          <div className="overflow-y-auto">
-            <div className="relative">
-              {/* Vertical Line - uncomment for multiple replies in thread feature */}
-              {/* <div className="absolute bottom-1.5 left-[17px] top-[50px] w-[2px] bg-gray-5"></div> */}
-              <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px] text-[15px]">
-                <div className="col-start-1 row-start-1 row-end-[span_2] pt-1 ">
-                  <Avatar size="sm" url={avatar} />
-                </div>
-                <div className="flex w-full items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="font-semibold">
-                      {username}
-                    </div>
-                  </div>
-                </div>
-                {/* Multi-line Input */}
-                <textarea
-                  autoComplete="off"
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus
-                  onChange={handleChange}
-                  name="text"
-                  placeholder="What's new?"
-                  minLength={1}
-                  className="col-start-2 mb-[2px] w-full resize-none bg-transparent placeholder:text-gray-7 focus:outline-none focus:ring-0"
-                  rows={1} // Starts with 1 line
-                  onInput={handleInput}
-                >
-                </textarea>
-              </div>
-
-              {/* Media Section */}
-              <div className="flex pl-12 text-gray-7">
-                {/* Image and Add Media Button */}
-                <div className="flex-1">
-                  {image && (
-                    <div className="mb-1 mt-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={image}
-                        alt="preview"
-                        className="max-h-[430px] rounded-lg bg-white object-contain"
-                      />
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={handleUploadButtonClick}
-                    className="mt-2 flex h-9 items-center justify-start transition active:scale-85"
-                  >
-                    <ImageIcon />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-between gap-4 text-[15px] text-gray-7">
-            Anyone can reply & quote
-            <button type="submit" onClick={closeModal} disabled={!isValid || isPending} className="ml-auto h-9 rounded-2xl bg-primary-text px-4 font-semibold text-gray-0 transition active:scale-95 disabled:opacity-30">
-              Post
-            </button>
-          </div>
-        </form>
+        <ModalContent isDrawer avatar={avatar} username={username} image={image} closeModal={closeModal} handleUploadButtonClick={handleUploadButtonClick} />
       </DrawerContent>
     </Drawer>
   )
