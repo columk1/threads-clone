@@ -10,6 +10,7 @@ import FollowIcon from './Follow'
 import FollowColorIcon from './FollowColor'
 import HamburgerMenuIcon from './HamburgerMenu'
 import HomeIcon from './Home'
+import ImageIcon from './Image'
 import KebabMenuIcon from './KebabMenu'
 import Like from './Like'
 import LinkIcon from './Link'
@@ -24,4 +25,4 @@ import SearchIcon from './Search'
 import Share from './Share'
 import UnfollowIcon from './Unfollow'
 
-export { BackIcon, BookmarkIcon, CaretIcon, CheckmarkIcon, CloseIcon, CreateIcon, EditColorIcon, EditIcon, FollowColorIcon, FollowIcon, HamburgerMenuIcon, HomeIcon, KebabMenuIcon, Like, LinkIcon, NotificationsFooterIcon, NotificationsIcon, PinIcon, ProfileIcon, Reply, ReportIcon, Repost, SearchIcon, Share, UnfollowIcon }
+export { BackIcon, BookmarkIcon, CaretIcon, CheckmarkIcon, CloseIcon, CreateIcon, EditColorIcon, EditIcon, FollowColorIcon, FollowIcon, HamburgerMenuIcon, HomeIcon, ImageIcon, KebabMenuIcon, Like, LinkIcon, NotificationsFooterIcon, NotificationsIcon, PinIcon, ProfileIcon, Reply, ReportIcon, Repost, SearchIcon, Share, UnfollowIcon }
