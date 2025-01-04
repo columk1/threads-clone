@@ -1,6 +1,7 @@
 'use client'
 
 import cx from 'clsx'
+import type { User } from 'lucia'
 import Link from 'next/link'
 import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
@@ -23,6 +24,7 @@ import UserModal from './UserModal'
 type ThreadProps = {
   post: Post
   user: PostUser
+  currentUser: User | null
   isCurrentUser: boolean
   isAuthenticated: boolean
   isTarget?: boolean
@@ -43,6 +45,7 @@ type ThreadContentProps = {
   user: PostUser
   onToggleFollow?: () => Promise<void>
   validateFollowStatus?: () => Promise<void>
+  currentUser: User | null
   isCurrentUser?: boolean
   isAuthenticated?: boolean
   isTarget: boolean
@@ -58,6 +61,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   isTarget,
   post,
   user,
+  currentUser,
   onToggleFollow,
   validateFollowStatus,
   isCurrentUser = false,
@@ -204,11 +208,12 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
               <Like className={likeState.isLiked ? 'fill-notification stroke-notification' : ''} />
               <span className={cx('tabular-nums', likeState.isLiked && 'text-notification')}>{formatCount(likeState.count)}</span>
             </button>
-            {isAuthenticated
+            {isAuthenticated && currentUser
               ? (
                   <ReplyModal
-                    username={user.username}
+                    author={user}
                     post={post}
+                    user={currentUser}
                     trigger={(
                       replyButton
                     )}
@@ -233,7 +238,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   )
 }
 
-const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCurrentUser, isTarget = false, isParent = false }) => {
+const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, isCurrentUser, currentUser, isTarget = false, isParent = false }) => {
   const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser })
   // const router = useRouter()
 
@@ -251,6 +256,7 @@ const AuthThread: FunctionComponent<ThreadProps> = ({ post, user: initialUser, i
       user={user}
       isAuthenticated
       isCurrentUser={isCurrentUser}
+      currentUser={currentUser}
       onToggleFollow={handleToggleFollow}
       validateFollowStatus={validateFollowStatus}
       isTarget={isTarget}
@@ -264,15 +270,16 @@ const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user, isTarg
     <ThreadContent
       post={post}
       user={user}
+      currentUser={null}
       isTarget={isTarget}
       isParent={isParent}
     />
   )
 }
 
-const Thread: FunctionComponent<ThreadProps> = ({ post, user, isCurrentUser, isAuthenticated, isTarget = false, isParent = false }) => {
+const Thread: FunctionComponent<ThreadProps> = ({ post, user, currentUser, isCurrentUser, isAuthenticated, isTarget = false, isParent = false }) => {
   if (isAuthenticated) {
-    return <AuthThread post={post} user={user} isAuthenticated isCurrentUser={isCurrentUser} isTarget={isTarget} isParent={isParent} />
+    return <AuthThread post={post} user={user} isAuthenticated currentUser={currentUser} isCurrentUser={isCurrentUser} isTarget={isTarget} isParent={isParent} />
   }
   return <PublicThread post={post} user={user} isTarget={isTarget} isParent={isParent} />
 }

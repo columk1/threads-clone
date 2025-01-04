@@ -31,6 +31,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
       key={row.post.id}
       post={row.post}
       user={row.user}
+      currentUser={user}
       isAuthenticated={!!user}
       isCurrentUser={user ? row.user.username === user.username : false}
     />

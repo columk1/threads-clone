@@ -28,7 +28,7 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
         {children}
       </main>
       {user
-        ? <NewThreadModal username={user.username} />
+        ? <NewThreadModal username={user.username} avatar={user.avatar} />
         : <AuthPromptModal />}
     </div>
   )
