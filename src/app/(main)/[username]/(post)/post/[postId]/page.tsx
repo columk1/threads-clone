@@ -62,7 +62,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <>
       <Header title="Thread" showBackButton />
-      <div className="flex min-h-[120vh] w-full flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+      <div className="flex min-h-[120vh] w-full flex-col pt-4 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
 
         {parentThread
           ? (

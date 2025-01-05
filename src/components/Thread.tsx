@@ -153,15 +153,15 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
     <>
       {/* Some hacky CSS here to get the parent thread linked to the reply in the UI */}
       <div className={cx(
-        'relative flex flex-col gap-2 px-6 py-3 text-[15px]',
-        isParent && 'after:absolute after:bottom-[calc(-30%)] after:left-10 after:top-[70px] after:w-[2px] after:bg-gray-5 pb-0',
+        'relative flex flex-col gap-2 px-6 py-1 text-[15px]',
+        isParent && 'pb-0',
       )}
       >
 
         {/* Remove grid */}
         {/* <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]"> */}
-        <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]">
-          <div className="col-start-1 row-start-1 row-end-[span_2] pt-1">
+        <div className="grid grid-cols-[48px_minmax(0,1fr)]">
+          <div className={cx('col-start-1 pt-1', isTarget ? 'row-span-1' : 'row-span-2')}>
             <div className="relative z-10">
               {isAuthenticated && canFollow
                 ? (
@@ -204,8 +204,32 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
               isAuthenticated={isAuthenticated}
             />
           </div>
-          <div className={cx('mb-[2px]', isTarget ? 'col-span-2 pt-[7px]' : 'col-start-2')}>{post.text}</div>
-          <div className={cx('-ml-3 flex h-9 items-center text-[13px] text-secondary-text', isTarget ? 'col-span-2' : 'col-start-2')}>
+          <div className={cx(
+            'row-start-2',
+            isParent || !isTarget ? 'col-start-2' : 'col-span-2',
+            isTarget && 'mt-[7px]',
+          )}
+          >
+            {post.text}
+          </div>
+
+          {/* Media Section */}
+          {post.image && (
+            <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
+              {/* Image */}
+
+              <div className="mb-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={post.image}
+                  alt="preview"
+                  className="block max-h-[430px] rounded-lg bg-white object-contain"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className={cx('-ml-3 mt-1 flex h-9 items-center text-[13px] text-secondary-text', isTarget ? 'col-span-2' : 'col-start-2')}>
             <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
               <Like className={likeState.isLiked ? 'fill-notification stroke-notification' : ''} />
               <span className={cx('tabular-nums', likeState.isLiked && 'text-notification')}>{formatCount(likeState.count)}</span>
