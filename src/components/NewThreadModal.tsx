@@ -3,15 +3,14 @@
 import { DialogDescription } from '@radix-ui/react-dialog'
 import cx from 'clsx'
 import { useRouter } from 'next/navigation'
-import { type FunctionComponent, useActionState, useCallback, useEffect, useRef, useState } from 'react'
+import { type FunctionComponent, startTransition, useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { createPost, updateAvatar } from '@/app/actions'
+import { createPost } from '@/app/actions'
 import { IMG_UPLOAD_URL } from '@/constants/cloudinaryURL'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
 import { signUploadForm } from '@/lib/data'
-import { stringToSafePublicId } from '@/utils/stringToSafePublicId'
 
 import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
@@ -21,7 +20,6 @@ import { ImageIcon } from './icons'
 type ModalActions = {
   closeModal: () => void
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
-  handleTextChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   handleTextInput: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   handleUploadButtonClick: () => void
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>
@@ -46,7 +44,7 @@ type ModalContentProps = {
 
 const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children }) => {
   const { isDrawer, avatar, username, image, text, isValid, isPending, fileInputRef } = state
-  const { handleTextChange, handleTextInput, handleUploadButtonClick, handleFileChange, closeModal } = actions
+  const { handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit } = actions
 
   const textInputRef = useCallback((node: HTMLTextAreaElement | null) => {
     if (node) {
@@ -56,7 +54,7 @@ const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children })
   }, [])
 
   return (
-    <form onSubmit={actions.handleSubmit} className={cx('flex flex-col justify-between', isDrawer && 'h-[calc(100%-56px)]')}>
+    <form onSubmit={handleSubmit} className={cx('flex flex-col justify-between', isDrawer && 'h-[calc(100%-56px)]')}>
       <div className={cx('overflow-y-auto', !isDrawer && `max-h-[calc(100vh-200px)]`)}>
         <div className={cx(`pt-2`, !isDrawer && `px-6 pb-1 pt-2`)}>
           <div className="relative">
@@ -75,14 +73,12 @@ const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children })
                 autoComplete="off"
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
-                onChange={handleTextChange}
                 placeholder="What's new?"
                 minLength={1}
                 className="col-start-2 mb-[2px] w-full resize-none bg-transparent placeholder:text-gray-7 focus:outline-none focus:ring-0"
                 rows={1}
                 value={text}
                 onInput={handleTextInput}
-                // onFocus={handleTextAreaFocus}
               />
               {children}
             </div>
@@ -109,7 +105,7 @@ const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children })
       </div>
       <div className={cx(`flex items-center justify-between text-[15px] text-gray-7`, !isDrawer && `p-6`)}>
         Anyone can reply & quote
-        <button type="submit" onClick={closeModal} disabled={!isValid || isPending} className="ml-auto h-9 rounded-lg border border-gray-5 px-4 font-semibold text-primary-text transition active:scale-95 disabled:opacity-30">
+        <button type="submit" disabled={!isValid || isPending} className="ml-auto h-9 rounded-lg border border-gray-5 px-4 font-semibold text-primary-text transition active:scale-95 disabled:opacity-30">
           Post
         </button>
       </div>
@@ -126,7 +122,6 @@ type NewThreadModalProps = {
 const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar }) => {
   const { isOpen, modalType, handleOpenChange } = useModal()
   const [state, formAction, isPending] = useActionState(createPost, null)
-  const [isValid, setIsValid] = useState(false)
   const [image, setImage] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [text, setText] = useState('')
@@ -135,10 +130,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
 
   const router = useRouter()
 
-  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const noValue = e.target.value.trim() === ''
-    setIsValid(!noValue)
-  }, [])
+  const isValid = text.trim() !== '' || imageUrl !== null
 
   const handleTextInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const t = e.target
@@ -149,23 +141,17 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     setText(t.value)
   }, [])
 
-  useEffect(() => {
-    if (state?.error) {
-      toast(state.error)
-    } else {
-      if (state?.data) {
-        router.refresh()
-      }
-    }
-  }, [state, router])
+  const closeModal = useCallback(() => {
+    // TODO: Make this modal uncontrolled using trigger wherever it is used
+    handleOpenChange(false)
+    setImage(null)
+    setImageUrl(null)
+    setText('')
+  }, [handleOpenChange])
 
   const handleUploadButtonClick = () => {
     fileInputRef?.current?.click()
   }
-
-  const closeModal = useCallback(() => {
-    handleOpenChange(false)
-  }, [handleOpenChange])
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -173,7 +159,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
       const optimisticUrl = URL.createObjectURL(file)
       setImage(optimisticUrl)
 
-      const options = { eager: 'c_fit,h_250,w_250', folder: 'threads-clone/avatars', public_id: stringToSafePublicId(username), overwrite: 'true' }
+      const options = { eager: 'c_fit,h_430,w_508', folder: 'threads-clone/content' }
 
       const signData = await signUploadForm(options)
 
@@ -186,33 +172,43 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
         formData.append(key, value)
       })
 
-      const res = await fetch(IMG_UPLOAD_URL, {
-        method: 'POST',
-        body: formData,
-      })
-      const data = await res.json()
-
-      // clearPosts()
-      const result = await updateAvatar(data.secure_url)
-
-      if (result.error) {
+      try {
+        const res = await fetch(IMG_UPLOAD_URL, {
+          method: 'POST',
+          body: formData,
+        })
+        const data = await res.json()
+        setImageUrl(data.secure_url)
+      } catch (err) {
+        toast('Oops! Something went wrong. Please try again.')
         setImage(null)
-        toast(result.error)
+        // eslint-disable-next-line no-console
+        console.log(err)
       }
-
-      setImageUrl(data.secure_url)
     }
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault() // Prevent default form submission
-    const formData = new FormData()
-    formData.append('text', text) // Add text
-    if (imageUrl) {
-      formData.append('image', imageUrl)
-    } // Add image URL if it exists
-    formAction(formData) // Call formAction with the FormData object
+    e.preventDefault()
+    startTransition(() => {
+      const formData = new FormData()
+      formData.append('text', text)
+      if (imageUrl) {
+        formData.append('image', imageUrl)
+      }
+      formAction(formData)
+    })
   }
+
+  useEffect(() => {
+    if (state?.error) {
+      toast(state.error)
+    } else {
+      if (state?.data) {
+        router.refresh()
+      }
+    }
+  }, [state, router])
 
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
@@ -241,7 +237,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
           </DialogHeader>
           <ModalContent
             state={{ avatar, username, image, text, isValid, isPending, fileInputRef }}
-            actions={{ closeModal, handleUploadButtonClick, handleFileChange, handleTextChange, handleTextInput, handleSubmit }}
+            actions={{ closeModal, handleUploadButtonClick, handleFileChange, handleTextInput, handleSubmit }}
           />
         </DialogContent>
       </Dialog>
@@ -268,7 +264,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
         </DialogHeader>
         <ModalContent
           state={{ isDrawer: true, avatar, text, username, image, fileInputRef, isValid, isPending }}
-          actions={{ closeModal, handleUploadButtonClick, handleFileChange, handleTextChange, handleTextInput, handleSubmit }}
+          actions={{ closeModal, handleUploadButtonClick, handleFileChange, handleTextInput, handleSubmit }}
         />
       </DrawerContent>
     </Drawer>
