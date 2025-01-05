@@ -160,101 +160,107 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
         {/* Remove grid */}
         {/* <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]"> */}
-        <div className="grid grid-cols-[48px_minmax(0,1fr)]">
-          <div className={cx('col-start-1 pt-1', isTarget ? 'row-span-1' : 'row-span-2')}>
-            <div className="relative z-10">
-              {isAuthenticated && canFollow
+
+        <div className="relative">
+          {/* Vertical Line */}
+          {isParent && <div className="absolute bottom-0 left-[17px] top-[50px] w-[2px] bg-gray-5"></div>}
+
+          <div className="grid grid-cols-[48px_minmax(0,1fr)]">
+            <div className={cx('col-start-1 pt-1', isTarget ? 'row-span-1' : 'row-span-2')}>
+              <div className="relative z-10">
+                {isAuthenticated && canFollow
+                  ? (
+                      <UserModal
+                        user={user}
+                        isAuthenticated
+                        isCurrentUser={isCurrentUser}
+                        onToggleFollow={onToggleFollow}
+                        trigger={(
+                          <button type="button">
+                            <Avatar url={user.avatar} isFollowed={canFollow && user.isFollowed} />
+                          </button>
+                        )}
+                      />
+                    )
+                  : (
+                      <Link href={`/@${user.username}`}>
+                        <Avatar url={user.avatar} />
+                      </Link>
+                    )}
+              </div>
+            </div>
+            <div className="flex w-full items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="font-semibold" onMouseEnter={() => validateFollowStatus?.()}>
+                  <PostAuthor
+                    user={user}
+                    isAuthenticated={isAuthenticated}
+                    isCurrentUser={isCurrentUser}
+                    onToggleFollow={onToggleFollow}
+                  />
+                </div>
+                <a href={`/@${user.username}/post/${post.id}`}>
+                  <TimeAgo publishedAt={post.createdAt} />
+                </a>
+              </div>
+              <PostDropDownMenu
+                isFollowed={user.isFollowed}
+                onToggleFollow={onToggleFollow}
+                isAuthenticated={isAuthenticated}
+              />
+            </div>
+            <div className={cx(
+              'row-start-2',
+              isParent || !isTarget ? 'col-start-2' : 'col-span-2',
+              isTarget && 'mt-[7px]',
+            )}
+            >
+              {post.text}
+            </div>
+
+            {/* Media Section */}
+            {post.image && (
+              <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
+                {/* Image */}
+
+                <div className="mb-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={post.image}
+                    alt="preview"
+                    className="block max-h-[430px] rounded-lg bg-white object-contain"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className={cx('-ml-3 mt-1 flex h-9 items-center text-[13px] text-secondary-text', isTarget ? 'col-span-2' : 'col-start-2')}>
+              <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
+                <Like className={likeState.isLiked ? 'fill-notification stroke-notification' : ''} />
+                <span className={cx('tabular-nums', likeState.isLiked && 'text-notification')}>{formatCount(likeState.count)}</span>
+              </button>
+              {isAuthenticated && currentUser
                 ? (
-                    <UserModal
-                      user={user}
-                      isAuthenticated
-                      isCurrentUser={isCurrentUser}
-                      onToggleFollow={onToggleFollow}
+                    <ReplyModal
+                      author={user}
+                      post={post}
+                      user={currentUser}
                       trigger={(
-                        <button type="button">
-                          <Avatar url={user.avatar} isFollowed={canFollow && user.isFollowed} />
-                        </button>
+                        replyButton
                       )}
                     />
                   )
-                : (
-                    <Link href={`/@${user.username}`}>
-                      <Avatar url={user.avatar} />
-                    </Link>
-                  )}
+                : replyButton}
+
+              <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
+                <Repost />
+                <span>42</span>
+              </button>
+              <button type="button" className={iconStyle}>
+                <Share />
+                <span>42</span>
+              </button>
             </div>
-          </div>
-          <div className="flex w-full items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="font-semibold" onMouseEnter={() => validateFollowStatus?.()}>
-                <PostAuthor
-                  user={user}
-                  isAuthenticated={isAuthenticated}
-                  isCurrentUser={isCurrentUser}
-                  onToggleFollow={onToggleFollow}
-                />
-              </div>
-              <a href={`/@${user.username}/post/${post.id}`}>
-                <TimeAgo publishedAt={post.createdAt} />
-              </a>
-            </div>
-            <PostDropDownMenu
-              isFollowed={user.isFollowed}
-              onToggleFollow={onToggleFollow}
-              isAuthenticated={isAuthenticated}
-            />
-          </div>
-          <div className={cx(
-            'row-start-2',
-            isParent || !isTarget ? 'col-start-2' : 'col-span-2',
-            isTarget && 'mt-[7px]',
-          )}
-          >
-            {post.text}
-          </div>
-
-          {/* Media Section */}
-          {post.image && (
-            <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
-              {/* Image */}
-
-              <div className="mb-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={post.image}
-                  alt="preview"
-                  className="block max-h-[430px] rounded-lg bg-white object-contain"
-                />
-              </div>
-            </div>
-          )}
-
-          <div className={cx('-ml-3 mt-1 flex h-9 items-center text-[13px] text-secondary-text', isTarget ? 'col-span-2' : 'col-start-2')}>
-            <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
-              <Like className={likeState.isLiked ? 'fill-notification stroke-notification' : ''} />
-              <span className={cx('tabular-nums', likeState.isLiked && 'text-notification')}>{formatCount(likeState.count)}</span>
-            </button>
-            {isAuthenticated && currentUser
-              ? (
-                  <ReplyModal
-                    author={user}
-                    post={post}
-                    user={currentUser}
-                    trigger={(
-                      replyButton
-                    )}
-                  />
-                )
-              : replyButton}
-
-            <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
-              <Repost />
-              <span>42</span>
-            </button>
-            <button type="button" className={iconStyle}>
-              <Share />
-              <span>42</span>
-            </button>
           </div>
         </div>
         <Link href={`/@${user.username}/post/${post.id}`} className="absolute inset-0"></Link>
