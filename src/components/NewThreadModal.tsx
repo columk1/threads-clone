@@ -117,10 +117,10 @@ const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children })
 type NewThreadModalProps = {
   username: string
   avatar: string | null
+  handleOpenChange: (open: boolean) => void
 }
 
-const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar }) => {
-  const { isOpen, modalType, handleOpenChange } = useModal()
+const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar, handleOpenChange }) => {
   const [state, formAction, isPending] = useActionState(createPost, null)
   const [image, setImage] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -142,11 +142,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
   }, [])
 
   const closeModal = useCallback(() => {
-    // TODO: Make this modal uncontrolled using trigger wherever it is used
     handleOpenChange(false)
-    setImage(null)
-    setImageUrl(null)
-    setText('')
   }, [handleOpenChange])
 
   const handleUploadButtonClick = () => {
@@ -214,7 +210,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
 
   if (isDesktop) {
     return (
-      <Dialog open={isOpen && modalType === 'new-thread'} onOpenChange={handleOpenChange}>
+      <Dialog open onOpenChange={handleOpenChange}>
         <DialogContent className="min-w-[620px] max-md:hidden">
           <div className="sr-only">
             <DialogDescription>Create a new thread</DialogDescription>
@@ -244,7 +240,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     )
   }
   return (
-    <Drawer open={isOpen && modalType === 'new-thread'} onOpenChange={handleOpenChange}>
+    <Drawer open onOpenChange={handleOpenChange}>
       <DrawerContent className="h-full min-w-full border-none">
         <div className="sr-only">
           <DialogDescription>Create a new thread</DialogDescription>
@@ -271,4 +267,16 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
   )
 }
 
-export default NewThreadModal
+type NewThreadModalWrapperProps = {
+  username: string
+  avatar: string | null
+}
+
+const NewThreadModalWrapper = ({ username, avatar }: NewThreadModalWrapperProps) => {
+  const { isOpen, handleOpenChange } = useModal()
+  return isOpen
+    ? <NewThreadModal username={username} avatar={avatar} handleOpenChange={handleOpenChange} />
+    : null
+}
+
+export default NewThreadModalWrapper
