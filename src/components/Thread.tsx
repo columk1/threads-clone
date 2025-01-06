@@ -149,12 +149,21 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
   const canFollow = !isCurrentUser && !user.isFollowed
 
+  const getPadding = () => {
+    switch (true) {
+      case isTarget: return 'pt-0 pb-1'
+      case isParent: return 'pt-2'
+      default: return 'pt-3 pb-2'
+    }
+  }
+
   return (
     <>
+      {(!isParent && !isTarget) && <div className="h-[0.5px] bg-gray-5"></div>}
       {/* Some hacky CSS here to get the parent thread linked to the reply in the UI */}
       <div className={cx(
-        'relative flex flex-col gap-2 px-6 py-1 text-[15px]',
-        isParent && 'pb-0',
+        'relative flex flex-col gap-2 px-6 pt-3 text-[15px]',
+        getPadding(),
       )}
       >
 
@@ -211,8 +220,8 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
             </div>
             <div className={cx(
               'row-start-2',
-              isParent || !isTarget ? 'col-start-2' : 'col-span-2',
-              isTarget && 'mt-[7px]',
+              isParent || !isTarget ? 'col-start-2' : 'col-span-2', // parent or reply thread
+              isTarget && 'mt-[7px]', // main thread
             )}
             >
               {post.text}
@@ -265,7 +274,6 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
         </div>
         <Link href={`/@${user.username}/post/${post.id}`} className="absolute inset-0"></Link>
       </div>
-      {!isParent && <div className={cx('h-[0.5px] bg-gray-5', { 'mx-6': isTarget })}></div>}
     </>
   )
 }

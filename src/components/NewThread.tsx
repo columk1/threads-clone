@@ -16,7 +16,7 @@ const NewThread: FunctionComponent = async () => {
   const avatar = user.avatar
 
   return (
-    <div className="flex items-center border-b-[0.5px] border-gray-5 px-6 py-4 text-[15px] text-gray-7">
+    <div className="flex items-center px-6 py-4 text-[15px] text-gray-7">
       <div className="flex flex-1 items-center gap-3">
         <Link href={`/${user.username}`}>
           <Avatar size="sm" url={avatar} />

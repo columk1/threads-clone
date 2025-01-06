@@ -62,7 +62,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <>
       <Header title="Thread" showBackButton />
-      <div className="flex min-h-[120vh] w-full flex-col pt-4 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+      <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
 
         {parentThread
           ? (
@@ -74,7 +74,9 @@ export default async function PostPage({ params }: Props) {
           : (
               <Thread key={thread.post.id} user={thread.user} post={thread.post} currentUser={currentUser} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
             )}
-        <div className="border-b-[0.5px] border-gray-5 px-6 py-3 text-[15px] font-semibold">Replies</div>
+
+        <div className="mx-6 h-[0.5px] bg-gray-5"></div>
+        <div className="px-6 py-3 text-[15px] font-semibold">Replies</div>
 
         {/* Replies */}
         {data.map((e) => {
