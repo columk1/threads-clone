@@ -12,7 +12,7 @@ type MobileHeaderProps = {
 
 const MobileHeader: FunctionComponent<MobileHeaderProps> = ({ user }) => {
   return (
-    <nav className={cx('fixed top-0 z-10 grid h-[60px] w-full grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] place-items-center md:hidden md:grid-cols-[1fr_minmax(auto,65%)_1fr]', user ? 'h-[60px]' : 'h-[74px]')}>
+    <nav className={cx('fixed top-0 z-20 grid h-[60px] w-full grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] bg-gray-1 place-items-center md:hidden md:grid-cols-[1fr_minmax(auto,65%)_1fr]', user ? 'h-[60px]' : 'h-[74px]')}>
       <Link href="/" className="col-start-2 flex max-w-8 items-center gap-4">
         <Logo />
       </Link>
