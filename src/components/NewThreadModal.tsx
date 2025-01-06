@@ -202,9 +202,10 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     } else {
       if (state?.data) {
         router.refresh()
+        closeModal()
       }
     }
-  }, [state, router])
+  }, [state, router, closeModal])
 
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
