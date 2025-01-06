@@ -18,7 +18,7 @@ import { Drawer, DrawerContent } from './Drawer'
 import { ImageIcon } from './icons'
 
 type ModalActions = {
-  closeModal: () => void
+  closeModal?: () => void
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   handleTextInput: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   handleUploadButtonClick: () => void
@@ -42,7 +42,27 @@ type ModalContentProps = {
   children?: React.ReactNode
 }
 
-const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children }) => {
+export const ThreadMediaContent = ({ image, children }: { image: string | null, children?: React.ReactNode }) => {
+  return (
+    <div className="flex pl-12 text-gray-7">
+      <div className="flex-1">
+        {image && (
+          <div className="mb-1 mt-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={image}
+              alt="preview"
+              className="max-h-[430px] rounded-lg object-contain"
+            />
+          </div>
+        )}
+        {children}
+      </div>
+    </div>
+  )
+}
+
+export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children }) => {
   const { isDrawer, avatar, username, image, text, isValid, isPending, fileInputRef } = state
   const { handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit } = actions
 
@@ -54,12 +74,13 @@ const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children })
   }, [])
 
   return (
-    <form onSubmit={handleSubmit} className={cx('flex flex-col justify-between', isDrawer && 'h-[calc(100%-56px)]')}>
+    <form onSubmit={handleSubmit} className={cx('flex h-full flex-col justify-between', isDrawer && 'max-h-[calc(100vh-56px)]')}>
       <div className={cx('overflow-y-auto', !isDrawer && `max-h-[calc(100vh-200px)]`)}>
         <div className={cx(`pt-2`, !isDrawer && `px-6 pb-1 pt-2`)}>
+          {children}
           <div className="relative">
             <div className="grid grid-cols-[48px_minmax(0,1fr)] text-[15px] leading-[21px]">
-              <div className="col-start-1 row-start-1 row-end-[span_2] pt-1 ">
+              <div className="col-start-1 row-start-1 row-end-[span_2] pt-[5px]">
                 <Avatar size="sm" url={avatar} />
               </div>
               <div className="flex w-full items-center justify-between gap-2">
@@ -80,30 +101,20 @@ const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children })
                 value={text}
                 onInput={handleTextInput}
               />
-              {children}
             </div>
-            {/* Media Section */}
-            <div className="flex pl-12 text-gray-7">
-              <div className="flex-1">
-                {image && (
-                  <div className="mb-1 mt-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={image}
-                      alt="preview"
-                      className="max-h-[430px] rounded-lg bg-white object-contain"
-                    />
-                  </div>
-                )}
-                <button type="button" onClick={handleUploadButtonClick} className="mt-2 flex h-9 items-center justify-start transition active:scale-85">
-                  <ImageIcon />
-                </button>
-              </div>
-            </div>
+            <ThreadMediaContent image={image}>
+              <button
+                type="button"
+                onClick={handleUploadButtonClick}
+                className="mt-2 flex h-9 items-center justify-start transition active:scale-85"
+              >
+                <ImageIcon />
+              </button>
+            </ThreadMediaContent>
           </div>
         </div>
       </div>
-      <div className={cx(`flex items-center justify-between text-[15px] text-gray-7`, !isDrawer && `p-6`)}>
+      <div className={cx(`flex items-center justify-between text-[15px] text-gray-7 py-4`, !isDrawer && `p-6`)}>
         Anyone can reply & quote
         <button type="submit" disabled={!isValid || isPending} className="ml-auto h-9 rounded-lg border border-gray-5 px-4 font-semibold text-primary-text transition active:scale-95 disabled:opacity-30">
           Post

@@ -159,23 +159,21 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
   return (
     <>
+      {/* Top border */}
       {(!isParent && !isTarget) && <div className="h-[0.5px] bg-gray-5"></div>}
-      {/* Some hacky CSS here to get the parent thread linked to the reply in the UI */}
+
       <div className={cx(
         'relative flex flex-col gap-2 px-6 pt-3 text-[15px]',
         getPadding(),
       )}
       >
 
-        {/* Remove grid */}
-        {/* <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-y-[3px]"> */}
-
+        {/* Vertical Line to Link Parent Thread */}
         <div className="relative">
-          {/* Vertical Line */}
           {isParent && <div className="absolute bottom-0 left-[17px] top-[50px] w-[2px] bg-gray-5"></div>}
 
           <div className="grid grid-cols-[48px_minmax(0,1fr)]">
-            <div className={cx('col-start-1 pt-1', isTarget ? 'row-span-1' : 'row-span-2')}>
+            <div className={cx('col-start-1 pt-[5px]', isTarget ? 'row-span-1' : 'row-span-2')}>
               <div className="relative z-10">
                 {isAuthenticated && canFollow
                   ? (
@@ -237,7 +235,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
                   <img
                     src={post.image}
                     alt="preview"
-                    className="block max-h-[430px] rounded-lg bg-white object-contain"
+                    className="block max-h-[430px] rounded-lg object-contain"
                   />
                 </div>
               </div>
