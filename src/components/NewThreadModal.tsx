@@ -116,7 +116,11 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
       </div>
       <div className={cx(`flex items-center justify-between text-[15px] text-gray-7 py-4`, !isDrawer && `p-6`)}>
         Anyone can reply & quote
-        <button type="submit" disabled={!isValid || isPending} className="ml-auto h-9 rounded-lg border border-gray-5 px-4 font-semibold text-primary-text transition active:scale-95 disabled:opacity-30">
+        <button
+          type="submit"
+          disabled={!isValid || isPending}
+          className={cx('ml-auto h-9 px-4 font-semibold transition active:scale-95 disabled:opacity-30', isDrawer ? 'rounded-full bg-primary-text text-gray-0' : 'rounded-lg border border-gray-5 text-primary-text')}
+        >
           Post
         </button>
       </div>
