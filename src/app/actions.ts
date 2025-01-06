@@ -546,9 +546,8 @@ export async function createReply(_: unknown, formData: FormData) {
 
   try {
     const reply = await db.insert(postSchema).values({
-      text: submission.value.text,
       userId: user.id,
-      parentId: submission.value.parentId,
+      ...submission.value,
     }).returning()
 
     return { data: reply }

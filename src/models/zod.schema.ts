@@ -29,8 +29,12 @@ export const newPostSchema = z.object({
 })
 
 export const replySchema = z.object({
-  text: z.string({ required_error: 'Text is required' }).trim().min(1, { message: 'Text is required' }),
+  text: z.string().trim().optional(),
+  image: z.string().url({ message: 'Invalid URL' }).optional(),
   parentId: z.string({ required_error: 'Parent ID is required' }),
+}).refine(data => data.text || data.image, {
+  message: 'Either text or image is required',
+  path: ['text'],
 })
 
 export const usernameParamSchema = z.string()
