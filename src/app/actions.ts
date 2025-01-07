@@ -2,7 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
-import { and, eq, isNull, or, sql } from 'drizzle-orm'
+import { and, desc, eq, isNull, or, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -367,6 +367,7 @@ export const getAllPosts = async (username?: string) => {
       .from(postSchema)
       .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
       .where(isNull(postSchema.parentId))
+      .orderBy(desc(postSchema.createdAt))
       .$dynamic()
 
     if (username) {
@@ -411,6 +412,7 @@ export const getAllPosts = async (username?: string) => {
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     .where(isNull(postSchema.parentId))
+    .orderBy(desc(postSchema.createdAt))
     .$dynamic()
 
   if (username) {
@@ -469,6 +471,7 @@ export const getFollowingPosts = async () => {
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
     .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, user.id)))
+    .orderBy(desc(postSchema.createdAt))
     .all()
   const formattedPosts = posts.map((post) => ({
     post: {
