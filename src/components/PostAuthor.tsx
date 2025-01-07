@@ -3,12 +3,7 @@
 import type { FunctionComponent } from 'react'
 
 import type { PostUser } from '@/app/actions'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/Tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/Tooltip'
 
 import UserCard from './UserCard'
 
@@ -19,7 +14,12 @@ type PostAuthorProps = {
   onToggleFollow?: () => Promise<void>
 }
 
-const PostAuthor: FunctionComponent<PostAuthorProps> = ({ user, isAuthenticated = false, isCurrentUser = false, onToggleFollow }) => {
+const PostAuthor: FunctionComponent<PostAuthorProps> = ({
+  user,
+  isAuthenticated = false,
+  isCurrentUser = false,
+  onToggleFollow,
+}) => {
   return (
     <TooltipProvider>
       <Tooltip>

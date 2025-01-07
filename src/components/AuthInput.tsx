@@ -53,22 +53,25 @@ const Input = ({
     }
   }, [error])
 
-  const validate = debounce(async (input: HTMLInputElement, customValidator?: (value: string) => Promise<{ error: string }>) => {
-    if (input) {
-      let message = getError(input, errorMessages) || ''
-      if (customValidator && input.validity.valid) {
-        const { error } = await customValidator(input.value)
-        if (error) {
-          message = error
-          input.setCustomValidity(message) // CSS: Activates :invalid pseudo-class
-          validateForm?.(false)
+  const validate = debounce(
+    async (input: HTMLInputElement, customValidator?: (value: string) => Promise<{ error: string }>) => {
+      if (input) {
+        let message = getError(input, errorMessages) || ''
+        if (customValidator && input.validity.valid) {
+          const { error } = await customValidator(input.value)
+          if (error) {
+            message = error
+            input.setCustomValidity(message) // CSS: Activates :invalid pseudo-class
+            validateForm?.(false)
+          }
         }
+        setValidationMessage(message)
+        setActiveError(true)
+        validateForm?.(!message)
       }
-      setValidationMessage(message)
-      setActiveError(true)
-      validateForm?.(!message)
-    }
-  }, delay)
+    },
+    delay,
+  )
 
   const onChange = () => {
     inputRef.current?.setCustomValidity('')
@@ -112,17 +115,46 @@ const Input = ({
         onChange={onChange}
         onBlur={onBlur}
       />
-      <label htmlFor={name} className={placeholder ? 'sr-only' : 'pointer-events-none absolute left-[17px] origin-top-left translate-y-[14px] scale-100 font-light text-placeholder-text transition peer-[:not(:placeholder-shown)]:translate-y-1 peer-[:not(:placeholder-shown)]:scale-75'}>
+      <label
+        htmlFor={name}
+        className={
+          placeholder
+            ? 'sr-only'
+            : 'pointer-events-none absolute left-[17px] origin-top-left translate-y-[14px] scale-100 font-light text-placeholder-text transition peer-[:not(:placeholder-shown)]:translate-y-1 peer-[:not(:placeholder-shown)]:scale-75'
+        }
+      >
         {label}
       </label>
       {icons && (
         <>
-          {activeError && <CircleX className={`absolute ${isPassword ? 'right-[40px]' : 'right-2'} top-[14px] hidden text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`} />}
-          {activeError && !validationMessage && <CircleCheck className={`absolute ${isPassword ? 'right-[40px]' : 'right-2'} right-2 top-[14px] hidden text-placeholder-text peer-[&:not(:focus-within):user-valid]:block`} />}
+          {activeError && (
+            <CircleX
+              className={`absolute ${isPassword ? 'right-[40px]' : 'right-2'} top-[14px] hidden text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`}
+            />
+          )}
+          {activeError && !validationMessage && (
+            <CircleCheck
+              className={`absolute ${isPassword ? 'right-[40px]' : 'right-2'} right-2 top-[14px] hidden text-placeholder-text peer-[&:not(:focus-within):user-valid]:block`}
+            />
+          )}
         </>
       )}
-      {isPassword && <button type="button" onClick={togglePasswordVisiblity} className="absolute right-2 top-[14px] hidden text-gray-7 peer-[&:not(:placeholder-shown)]:block">{passwordVisible ? <EyeOff className="w-6" /> : <Eye />}</button>}
-      {activeError && <p className={`hidden py-1 pl-4 text-sm text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`}>{validationMessage || error}</p>}
+      {isPassword && (
+        <button
+          type="button"
+          onClick={togglePasswordVisiblity}
+          className="absolute right-2 top-[14px] hidden text-gray-7 peer-[&:not(:placeholder-shown)]:block"
+        >
+          {passwordVisible ? <EyeOff className="w-6" /> : <Eye />}
+        </button>
+      )}
+      {activeError && (
+        <p
+          className={`hidden py-1 pl-4 text-sm text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`}
+        >
+          {validationMessage || error}
+        </p>
+      )}
     </div>
   )
 }

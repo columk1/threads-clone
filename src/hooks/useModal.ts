@@ -5,7 +5,11 @@ import { ModalContext } from '@/context/ModalContext'
 
 export type ProtectedAction = 'post' | 'activity' | 'profile' | 'follow' | 'like' | 'repost' | 'reply' | 'save'
 
-export function getAuthModalContent(action: ProtectedAction | null): { title: string, caption: string, icon: React.FC<React.SVGProps<SVGSVGElement>> | null } {
+export function getAuthModalContent(action: ProtectedAction | null): {
+  title: string
+  caption: string
+  icon: React.FC<React.SVGProps<SVGSVGElement>> | null
+} {
   switch (action) {
     case 'post':
       return {
@@ -16,13 +20,13 @@ export function getAuthModalContent(action: ProtectedAction | null): { title: st
     case 'activity':
       return {
         title: 'Say more with Threads',
-        caption: 'Join Threads to share thoughts, find out what\'s going on, follow your people and more.',
+        caption: "Join Threads to share thoughts, find out what's going on, follow your people and more.",
         icon: null,
       }
     case 'profile':
       return {
         title: 'Say more with Threads',
-        caption: 'Join Threads to share thoughts, find out what\'s going on, follow your people and more.',
+        caption: "Join Threads to share thoughts, find out what's going on, follow your people and more.",
         icon: null,
       }
     case 'like':
@@ -46,13 +50,13 @@ export function getAuthModalContent(action: ProtectedAction | null): { title: st
     case 'follow':
       return {
         title: 'Sign up to follow',
-        caption: 'Join Threads to keep up with this user\'s posts.',
+        caption: "Join Threads to keep up with this user's posts.",
         icon: FollowColorIcon,
       }
     default:
       return {
         title: 'Log in to continue',
-        caption: 'Join Threads to share thoughts, find out what\'s going on, follow your people and more.',
+        caption: "Join Threads to share thoughts, find out what's going on, follow your people and more.",
         icon: EditColorIcon,
       }
   }

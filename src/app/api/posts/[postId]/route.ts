@@ -34,12 +34,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .select(baseSelect)
       .from(postSchema)
       .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-      .where(
-        or(
-          eq(postSchema.id, id),
-          eq(postSchema.parentId, id),
-        ),
-      )
+      .where(or(eq(postSchema.id, id), eq(postSchema.parentId, id)))
       .orderBy(postSchema.createdAt)
       .all()
 
@@ -47,7 +42,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
 
-    const formattedData = results.map(result => ({
+    const formattedData = results.map((result) => ({
       ...result,
       post: {
         ...result.post,
@@ -121,7 +116,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'Post not found' }, { status: 404 })
   }
 
-  const formattedData = results.map(result => ({
+  const formattedData = results.map((result) => ({
     ...result,
     post: {
       ...result.post,

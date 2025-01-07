@@ -3,9 +3,5 @@ export default function RepostsPage() {
   // const username = pathname.split('/').find(segment => segment.startsWith('@'))
   // const subpath = pathname.split('/').pop()
 
-  return (
-    <div>
-      User's Reposts
-    </div>
-  )
+  return <div>User's Reposts</div>
 }

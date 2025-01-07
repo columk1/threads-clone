@@ -10,11 +10,7 @@ type ButtonProps = {
 
 const Button: FunctionComponent<ButtonProps> = ({ className, onClick, children }) => {
   return (
-    <button
-      type="button"
-      className={className}
-      onClick={onClick}
-    >
+    <button type="button" className={className} onClick={onClick}>
       {children}
     </button>
   )

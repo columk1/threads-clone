@@ -3,7 +3,15 @@
 import { DialogDescription } from '@radix-ui/react-dialog'
 import cx from 'clsx'
 import { useRouter } from 'next/navigation'
-import { type FunctionComponent, startTransition, useActionState, useCallback, useEffect, useRef, useState } from 'react'
+import {
+  type FunctionComponent,
+  startTransition,
+  useActionState,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { toast } from 'sonner'
 
 import { createPost } from '@/app/actions'
@@ -42,18 +50,14 @@ type ModalContentProps = {
   children?: React.ReactNode
 }
 
-export const ThreadMediaContent = ({ image, children }: { image: string | null, children?: React.ReactNode }) => {
+export const ThreadMediaContent = ({ image, children }: { image: string | null; children?: React.ReactNode }) => {
   return (
     <div className="flex pl-12 text-gray-7">
       <div className="flex-1">
         {image && (
           <div className="mb-1 mt-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={image}
-              alt="preview"
-              className="max-h-[430px] rounded-lg object-contain"
-            />
+            <img src={image} alt="preview" className="max-h-[430px] rounded-lg object-contain" />
           </div>
         )}
         {children}
@@ -74,7 +78,10 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
   }, [])
 
   return (
-    <form onSubmit={handleSubmit} className={cx('flex h-full flex-col justify-between', isDrawer && 'max-h-[calc(100vh-56px)]')}>
+    <form
+      onSubmit={handleSubmit}
+      className={cx('flex h-full flex-col justify-between', isDrawer && 'max-h-[calc(100vh-56px)]')}
+    >
       <div className={cx('overflow-y-auto', !isDrawer && `max-h-[calc(100vh-200px)]`)}>
         <div className={cx(`pt-2`, !isDrawer && `px-6 pb-1 pt-2`)}>
           {children}
@@ -119,7 +126,10 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
         <button
           type="submit"
           disabled={!isValid || isPending}
-          className={cx('ml-auto h-9 px-4 font-semibold transition active:scale-95 disabled:opacity-30', isDrawer ? 'rounded-full bg-primary-text text-gray-0' : 'rounded-lg border border-gray-5 text-primary-text')}
+          className={cx(
+            'ml-auto h-9 px-4 font-semibold transition active:scale-95 disabled:opacity-30',
+            isDrawer ? 'rounded-full bg-primary-text text-gray-0' : 'rounded-lg border border-gray-5 text-primary-text',
+          )}
         >
           Post
         </button>
@@ -241,9 +251,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
                   </button>
                 </div>
               </DialogClose>
-              <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">
-                New thread
-              </DialogTitle>
+              <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">New thread</DialogTitle>
             </div>
             <div className="h-[0.25px] bg-gray-6"></div>
           </DialogHeader>
@@ -270,9 +278,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
               </button>
             </div>
           </DialogClose>
-          <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">
-            New thread
-          </DialogTitle>
+          <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">New thread</DialogTitle>
         </DialogHeader>
         <ModalContent
           state={{ isDrawer: true, avatar, text, username, image, fileInputRef, isValid, isPending }}
@@ -290,9 +296,7 @@ type NewThreadModalWrapperProps = {
 
 const NewThreadModalWrapper = ({ username, avatar }: NewThreadModalWrapperProps) => {
   const { isOpen, handleOpenChange } = useModal()
-  return isOpen
-    ? <NewThreadModal username={username} avatar={avatar} handleOpenChange={handleOpenChange} />
-    : null
+  return isOpen ? <NewThreadModal username={username} avatar={avatar} handleOpenChange={handleOpenChange} /> : null
 }
 
 export default NewThreadModalWrapper

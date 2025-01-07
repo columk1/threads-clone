@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     const posts = await query.all()
 
-    const formattedPosts = posts.map(post => ({
+    const formattedPosts = posts.map((post) => ({
       post: {
         ...post.post,
         isLiked: false,
@@ -98,13 +98,14 @@ export async function GET(request: NextRequest) {
   }
 
   if (filter === 'following') {
-    query.innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
+    query
+      .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
       .where(eq(followerSchema.followerId, userId))
   }
 
   const posts = await query.all()
 
-  const formattedPosts = posts.map(post => ({
+  const formattedPosts = posts.map((post) => ({
     // ...post,
     post: {
       ...post.post,

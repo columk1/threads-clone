@@ -25,10 +25,7 @@ const Header: FunctionComponent<HeaderProps> = ({ title, showBackButton, childre
         <div className="absolute inset-x-12 bottom-[-0.5px] h-[0.5px] bg-gray-4" />
       </div>
       <nav className="sticky top-0 z-20 hidden h-[60px] w-full grid-rows-[1fr] place-items-center bg-secondary-bg md:grid md:grid-cols-[1fr_minmax(auto,65%)_1fr]">
-
-        <div className="col-start-1 mr-auto">
-          {showBackButton && <BackButton />}
-        </div>
+        <div className="col-start-1 mr-auto">{showBackButton && <BackButton />}</div>
         <div className="col-start-2 flex items-center justify-center gap-3 text-[15px] font-semibold text-primary-text">
           <a href="/">{title}</a>
           {children}

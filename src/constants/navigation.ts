@@ -1,7 +1,15 @@
 import type { FunctionComponent } from 'react'
 import type React from 'react'
 
-import { CreateIcon, EditIcon, HomeIcon, NotificationsFooterIcon, NotificationsIcon, ProfileIcon, SearchIcon } from '@/components/icons'
+import {
+  CreateIcon,
+  EditIcon,
+  HomeIcon,
+  NotificationsFooterIcon,
+  NotificationsIcon,
+  ProfileIcon,
+  SearchIcon,
+} from '@/components/icons'
 
 type IconProps = {
   className?: string

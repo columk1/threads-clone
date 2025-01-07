@@ -47,7 +47,7 @@ const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const handleOpenChange = (open: boolean) => {
-    setModalState(prev => ({
+    setModalState((prev) => ({
       ...prev,
       isOpen: open,
       modalType: open ? prev.modalType : null,
@@ -56,15 +56,18 @@ const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const value = useMemo(
-    () => ({ isOpen: modalState.isOpen, modalType: modalState.modalType, protectedAction: modalState.protectedAction, openModal, closeModal, handleOpenChange }),
+    () => ({
+      isOpen: modalState.isOpen,
+      modalType: modalState.modalType,
+      protectedAction: modalState.protectedAction,
+      openModal,
+      closeModal,
+      handleOpenChange,
+    }),
     [modalState],
   )
 
-  return (
-    <ModalContext.Provider value={value}>
-      {children}
-    </ModalContext.Provider>
-  )
+  return <ModalContext.Provider value={value}>{children}</ModalContext.Provider>
 }
 
 export { ModalContext, ModalProvider }

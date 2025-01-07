@@ -4,7 +4,6 @@ const Create = () => {
       <title>Create</title>
       <path d="M6 2v8m4-4H2" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5"></path>
     </svg>
-
   )
 }
 

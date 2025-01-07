@@ -18,7 +18,7 @@ export const useFollow = ({ initialUser }: { initialUser: PostUser | PublicUser 
     if ('isFollowed' in user) {
       const result = await getUserFollowStatus(user.username)
       if (typeof result === 'boolean' && result !== user.isFollowed) {
-        setUser(prev => ({
+        setUser((prev) => ({
           ...prev,
           isFollowed: result,
         }))

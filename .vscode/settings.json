@@ -25,10 +25,10 @@
   "editor.formatOnSave": false,
 
   // Auto fix with ESLint on save
-  "editor.codeActionsOnSave": [
-    "source.addMissingImports",
-    "source.fixAll.eslint"
-  ],
+  "editor.codeActionsOnSave": ["source.addMissingImports", "source.fixAll.eslint"],
+
+  // Disable Prettier errors in IDE but still fix them on save
+  // "eslint.rules.customizations": [{ "rule": "prettier/prettier", "severity": "off" }],
 
   // Enable eslint for all supported languages
   "eslint.validate": [

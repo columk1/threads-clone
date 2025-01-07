@@ -26,7 +26,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
 
   const rows = await getAllPosts(username)
 
-  return rows.map(row => (
+  return rows.map((row) => (
     <Thread
       key={row.post.id}
       post={row.post}

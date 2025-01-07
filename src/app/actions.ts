@@ -22,12 +22,8 @@ import { generateRandomString } from '@/utils/generate-random-string'
 /*
  * Generate Email Verification Code
  */
-export const generateEmailVerificationCode = async (
-  userId: string,
-): Promise<string> => {
-  await db
-    .delete(emailVerificationCodeSchema)
-    .where(eq(emailVerificationCodeSchema.userId, userId))
+export const generateEmailVerificationCode = async (userId: string): Promise<string> => {
+  await db.delete(emailVerificationCodeSchema).where(eq(emailVerificationCodeSchema.userId, userId))
 
   const code = generateRandomString(6)
 
@@ -61,11 +57,7 @@ export async function sendEmailVerificationCode(userId: string, email: string) {
  * Is Unique Field
  */
 export const isUniqueField = async (field: 'email' | 'username', value: string) => {
-  const user = await db
-    .select()
-    .from(userSchema)
-    .where(eq(userSchema[field], value))
-    .all()
+  const user = await db.select().from(userSchema).where(eq(userSchema[field], value)).all()
   return !user.length
 }
 
@@ -91,27 +83,30 @@ export async function signup(_: unknown, formData: FormData) {
     logger.info(submission)
 
     // return redirect('signup')
-    return { data: submission.data, error: {
-      email: errors.email ? errors.email[0] : null,
-      password: errors.password ? errors.password[0] : null,
-      name: errors.name ? errors.name[0] : null,
-      username: errors.username ? errors.username[0] : null,
-      default: 'Something went wrong. Please try again.',
-    } }
+    return {
+      data: submission.data,
+      error: {
+        email: errors.email ? errors.email[0] : null,
+        password: errors.password ? errors.password[0] : null,
+        name: errors.name ? errors.name[0] : null,
+        username: errors.username ? errors.username[0] : null,
+        default: 'Something went wrong. Please try again.',
+      },
+    }
   }
 
   const { email, password, name, username } = submission.data
 
-  const isValidEmail = await (isUniqueField('email', email))
+  const isValidEmail = await isUniqueField('email', email)
 
   if (!isValidEmail) {
     return { data: submission.data, error: { email: 'Another account is using the same email.' } }
   }
 
-  const isValidUsername = await (isUniqueField('username', username))
+  const isValidUsername = await isUniqueField('username', username)
 
   if (!isValidUsername) {
-    return { data: submission.data, error: { username: 'This username isn\'t available. Please try another.' } }
+    return { data: submission.data, error: { username: "This username isn't available. Please try another." } }
   }
 
   const hashedPassword = await bcrypt.hash(password, 10)
@@ -121,7 +116,7 @@ export async function signup(_: unknown, formData: FormData) {
     .insert(userSchema)
     .values({ id: userId, emailVerified: 0, password: hashedPassword, email, name, username })
     .returning()
-    .then(s => s[0])
+    .then((s) => s[0])
 
   if (!user) {
     throw new Error('Failed to create user')
@@ -152,7 +147,8 @@ export async function signup(_: unknown, formData: FormData) {
 /*
  * Verify Email
  */
-export async function verifyEmail(_: unknown, formData: FormData) { // first param is prevState
+export async function verifyEmail(_: unknown, formData: FormData) {
+  // first param is prevState
   const submission = await parseWithZod(formData, {
     schema: verifyEmailSchema.transform(async (data, ctx) => {
       const { code } = data
@@ -162,7 +158,7 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
         .from(emailVerificationCodeSchema)
         .where(eq(emailVerificationCodeSchema.code, code))
         .execute()
-        .then(s => s[0])
+        .then((s) => s[0])
 
       if (!databaseCode) {
         ctx.addIssue({
@@ -173,9 +169,7 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
         return z.NEVER
       }
 
-      if (
-        databaseCode.expiresAt && !isWithinExpirationDate(new Date(databaseCode.expiresAt))
-      ) {
+      if (databaseCode.expiresAt && !isWithinExpirationDate(new Date(databaseCode.expiresAt))) {
         ctx.addIssue({
           path: ['code'],
           code: z.ZodIssueCode.custom,
@@ -184,9 +178,7 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
         return z.NEVER
       }
 
-      await db
-        .delete(emailVerificationCodeSchema)
-        .where(eq(emailVerificationCodeSchema.id, databaseCode.id))
+      await db.delete(emailVerificationCodeSchema).where(eq(emailVerificationCodeSchema.id, databaseCode.id))
 
       return { ...data, ...databaseCode }
     }),
@@ -202,17 +194,14 @@ export async function verifyEmail(_: unknown, formData: FormData) { // first par
     .from(userSchema)
     .where(eq(userSchema.id, submission.value.userId))
     .execute()
-    .then(s => s[0])
+    .then((s) => s[0])
 
   if (!user) {
     throw new Error('User not found')
   }
 
   await lucia.invalidateUserSessions(user.id)
-  await db
-    .update(userSchema)
-    .set({ emailVerified: 1 })
-    .where(eq(userSchema.id, user.id))
+  await db.update(userSchema).set({ emailVerified: 1 }).where(eq(userSchema.id, user.id))
 
   logger.info(`\n😊 ${user.email} has been verified.\n`)
 
@@ -259,7 +248,8 @@ export async function resendVerificationEmail(): Promise<{
 /*
  * Login
  */
-export async function login(_: unknown, formData: FormData) { // first param is prevState
+export async function login(_: unknown, formData: FormData) {
+  // first param is prevState
   const submission = await parseWithZod(formData, {
     schema: loginSchema.transform(async (data, ctx) => {
       const user = await db
@@ -267,7 +257,7 @@ export async function login(_: unknown, formData: FormData) { // first param is 
         .from(userSchema)
         .where(eq(userSchema.email, data.email))
         .execute()
-        .then(s => s[0])
+        .then((s) => s[0])
       if (!(user && user.id)) {
         ctx.addIssue({
           path: ['password'],
@@ -331,11 +321,7 @@ export const logout = async () => {
 
   const sessionCookie = lucia.createBlankSessionCookie()
   const cookieStore = await cookies()
-  cookieStore.set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  )
+  cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
   await lucia.deleteExpiredSessions()
 
   cookieStore.delete(VERIFIED_EMAIL_ALERT)
@@ -389,7 +375,7 @@ export const getAllPosts = async (username?: string) => {
 
     const posts = await query.all()
 
-    const formattedPosts = posts.map(post => ({
+    const formattedPosts = posts.map((post) => ({
       ...post,
       user: {
         ...post.user,
@@ -433,7 +419,7 @@ export const getAllPosts = async (username?: string) => {
 
   const posts = await query.all()
 
-  const formattedPosts = posts.map(post => ({
+  const formattedPosts = posts.map((post) => ({
     ...post,
     post: {
       ...post.post,
@@ -456,34 +442,35 @@ export const getFollowingPosts = async () => {
   if (!user) {
     return redirect('/login')
   }
-  const posts = await db.select({
-    post: postSchema,
-    user: {
-      username: userSchema.username,
-      name: userSchema.name,
-      avatar: userSchema.avatar,
-      bio: userSchema.bio,
-      followerCount: userSchema.followerCount,
-      isFollowed: sql<boolean>`EXISTS (
+  const posts = await db
+    .select({
+      post: postSchema,
+      user: {
+        username: userSchema.username,
+        name: userSchema.name,
+        avatar: userSchema.avatar,
+        bio: userSchema.bio,
+        followerCount: userSchema.followerCount,
+        isFollowed: sql<boolean>`EXISTS (
         SELECT 1 
         FROM ${followerSchema} 
         WHERE ${followerSchema.userId} = ${userSchema.id} 
           AND ${followerSchema.followerId} = ${user.id}
       )`.as('isFollowed'),
-    },
-    isLiked: sql<boolean>`EXISTS (
+      },
+      isLiked: sql<boolean>`EXISTS (
       SELECT 1 
       FROM ${likeSchema} 
       WHERE ${likeSchema.userId} = ${user.id} 
         AND ${likeSchema.postId} = ${postSchema.id}
     )`.as('isLiked'),
-  })
+    })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
     .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, user.id)))
     .all()
-  const formattedPosts = posts.map(post => ({
+  const formattedPosts = posts.map((post) => ({
     post: {
       ...post.post,
       isLiked: !!post.isLiked,
@@ -506,7 +493,7 @@ export const createPost = async (_: unknown, formData: FormData) => {
     return redirect('/login')
   }
   const userId = user.id
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: newPostSchema,
   })
   if (submission.status !== 'success') {
@@ -515,10 +502,13 @@ export const createPost = async (_: unknown, formData: FormData) => {
     return { error: 'Something went wrong. Please try again.' }
   }
   try {
-    const newPost = await db.insert(postSchema).values({
-      userId,
-      ...submission.value,
-    }).returning()
+    const newPost = await db
+      .insert(postSchema)
+      .values({
+        userId,
+        ...submission.value,
+      })
+      .returning()
     return { data: newPost }
   } catch (err) {
     logger.error(err)
@@ -545,10 +535,13 @@ export async function createReply(_: unknown, formData: FormData) {
   }
 
   try {
-    const reply = await db.insert(postSchema).values({
-      userId: user.id,
-      ...submission.value,
-    }).returning()
+    const reply = await db
+      .insert(postSchema)
+      .values({
+        userId: user.id,
+        ...submission.value,
+      })
+      .returning()
 
     return { data: reply }
   } catch (error) {
@@ -572,7 +565,7 @@ export const followUser = async (_: unknown, formData: FormData) => {
   if (!user) {
     return redirect('/login')
   }
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: z.object({
       username: z.string().min(1),
       actionType: z.enum(['follow', 'unfollow']),
@@ -605,13 +598,11 @@ export const followUser = async (_: unknown, formData: FormData) => {
           .update(userSchema)
           .set({ followerCount: targetUser.followerCount + 1 })
           .where(eq(userSchema.id, targetUser.id))
-      } else { // unfollow branch
-        await tx.delete(followerSchema).where(
-          and(
-            eq(followerSchema.userId, targetUser.id),
-            eq(followerSchema.followerId, user.id),
-          ),
-        )
+      } else {
+        // unfollow branch
+        await tx
+          .delete(followerSchema)
+          .where(and(eq(followerSchema.userId, targetUser.id), eq(followerSchema.followerId, user.id)))
         // Update follower count
         await tx
           .update(userSchema)
@@ -620,10 +611,7 @@ export const followUser = async (_: unknown, formData: FormData) => {
       }
     })
     return {
-      success:
-      submission.value.actionType === 'follow'
-        ? FollowStatus.Followed
-        : FollowStatus.Unfollowed,
+      success: submission.value.actionType === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
     }
   } catch (err) {
     logger.error(err)
@@ -663,12 +651,9 @@ export const toggleFollow = async (username: string, action: 'follow' | 'unfollo
           .set({ followerCount: targetUser.followerCount + 1 })
           .where(eq(userSchema.id, targetUser.id))
       } else {
-        const deletedFollow = await tx.delete(followerSchema).where(
-          and(
-            eq(followerSchema.userId, targetUser.id),
-            eq(followerSchema.followerId, user.id),
-          ),
-        )
+        const deletedFollow = await tx
+          .delete(followerSchema)
+          .where(and(eq(followerSchema.userId, targetUser.id), eq(followerSchema.followerId, user.id)))
         if (deletedFollow.rowsAffected !== 1) {
           throw new Error('Failed to unfollow user')
         }
@@ -722,10 +707,7 @@ export const getUserFollowStatus = async (username: string) => {
 /*
  * GET user info
  */
-const getUserInfoCached = cache(async (username: string): Promise<
-  | { user: PostUser }
-  | { error: string }
-> => {
+const getUserInfoCached = cache(async (username: string): Promise<{ user: PostUser } | { error: string }> => {
   try {
     const { user } = await validateRequest()
     const userInfo = await db
@@ -776,10 +758,7 @@ export const getUserInfo = getUserInfoCached
  * GET public user info
  */
 
-const getPublicUserInfoCached = cache(async (username: string): Promise<
-  | { user: PublicUser }
-  | { error: string }
-> => {
+const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: PublicUser } | { error: string }> => {
   try {
     const userInfo = await db
       .select({
@@ -838,12 +817,7 @@ export const getPostById = async (id: string) => {
       .select(baseSelect)
       .from(postSchema)
       .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-      .where(
-        or(
-          eq(postSchema.id, id),
-          eq(postSchema.parentId, id),
-        ),
-      )
+      .where(or(eq(postSchema.id, id), eq(postSchema.parentId, id)))
       .orderBy(postSchema.createdAt)
       .all()
 
@@ -851,7 +825,7 @@ export const getPostById = async (id: string) => {
       return null
     }
 
-    return results.map(result => ({
+    return results.map((result) => ({
       ...result,
       post: {
         ...result.post,
@@ -885,12 +859,7 @@ export const getPostById = async (id: string) => {
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(
-      or(
-        eq(postSchema.id, id),
-        eq(postSchema.parentId, id),
-      ),
-    )
+    .where(or(eq(postSchema.id, id), eq(postSchema.parentId, id)))
     .orderBy(postSchema.createdAt)
     .all()
 
@@ -898,7 +867,7 @@ export const getPostById = async (id: string) => {
     return null
   }
 
-  return results.map(result => ({
+  return results.map((result) => ({
     ...result,
     post: {
       ...result.post,
@@ -955,11 +924,12 @@ export const likePost = async (postId: string) => {
 
   try {
     await db.transaction(async (trx) => {
-    // Add a like
+      // Add a like
       await trx.insert(likeSchema).values({ userId, postId })
 
       // Increment the like count
-      await trx.update(postSchema)
+      await trx
+        .update(postSchema)
         .set({ likeCount: sql`${postSchema.likeCount} + 1` })
         .where(eq(postSchema.id, postId))
     })
@@ -984,15 +954,11 @@ export const unlikePost = async (postId: string) => {
   try {
     await db.transaction(async (trx) => {
       // Remove a like
-      await trx.delete(likeSchema).where(
-        and(
-          eq(likeSchema.userId, userId),
-          eq(likeSchema.postId, postId),
-        ),
-      )
+      await trx.delete(likeSchema).where(and(eq(likeSchema.userId, userId), eq(likeSchema.postId, postId)))
 
       // Decrement the like count
-      await trx.update(postSchema)
+      await trx
+        .update(postSchema)
         .set({ likeCount: sql`${postSchema.likeCount} - 1` })
         .where(eq(postSchema.id, postId))
     })
@@ -1029,10 +995,7 @@ export const updateAvatar = async (url: string) => {
     // })
     // console.log(result)
 
-    await db
-      .update(userSchema)
-      .set({ avatar: url })
-      .where(eq(userSchema.id, userId))
+    await db.update(userSchema).set({ avatar: url }).where(eq(userSchema.id, userId))
 
     revalidatePath('/', 'page') // Refetch the user's posts, (profile is a dynamic segment on '/')
 

@@ -66,13 +66,15 @@ const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
               placeholder="Confirmation Code"
               error={fields.code.errors && fields.code.errors[0]}
               required
-              className={`text-gray-500 ${
-                !fields.code.valid ? 'text-red-500' : ''
-              }`}
+              className={`text-gray-500 ${!fields.code.valid ? 'text-red-500' : ''}`}
               {...getInputProps(fields.code, { type: 'text' })}
               key={fields.code.key}
             />
-            <button type="submit" disabled={false} className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text">
+            <button
+              type="submit"
+              disabled={false}
+              className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text"
+            >
               Next
             </button>
           </div>

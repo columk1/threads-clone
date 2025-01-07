@@ -43,7 +43,7 @@ export default {
         'error-text': 'var(--error-text)',
         'primary-outline': 'var(--primary-outline)',
         'secondary-button': 'var(--secondary-button)',
-        'notification': 'var(--notification)',
+        notification: 'var(--notification)',
       },
       scale: {
         80: '.8',

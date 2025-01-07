@@ -3,7 +3,13 @@
 import Link from 'next/link'
 
 import { logout } from '@/app/actions'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/DropdownMenu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/DropdownMenu'
 
 import { HamburgerMenuIcon } from './icons'
 
@@ -18,10 +24,21 @@ export const MobileSidebarDropdown = () => {
           <HamburgerMenuIcon orientation="right" />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" alignOffset={8} sideOffset={-9} className="w-60 origin-top-right text-[15px] md:hidden">
-        <DropdownMenuItem asChild className="leading-none"><Link href="/settings">Settings</Link></DropdownMenuItem>
-        <DropdownMenuItem asChild className="leading-none"><Link href="/saved">Saved</Link></DropdownMenuItem>
-        <DropdownMenuItem asChild className="leading-none"><Link href="/liked">Liked</Link></DropdownMenuItem>
+      <DropdownMenuContent
+        align="end"
+        alignOffset={8}
+        sideOffset={-9}
+        className="w-60 origin-top-right text-[15px] md:hidden"
+      >
+        <DropdownMenuItem asChild className="leading-none">
+          <Link href="/settings">Settings</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="leading-none">
+          <Link href="/saved">Saved</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="leading-none">
+          <Link href="/liked">Liked</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="leading-none text-error-text dark:focus:text-error-text">
           <button type="button" onClick={logout} className="w-full text-left">

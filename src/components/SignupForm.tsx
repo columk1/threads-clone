@@ -79,12 +79,7 @@ const SignupForm: FunctionComponent = () => {
   }, [])
 
   return (
-    <form
-      ref={formRef}
-      action={formAction}
-      autoComplete="off"
-      onInput={handleInput}
-    >
+    <form ref={formRef} action={formAction} autoComplete="off" onInput={handleInput}>
       <div className="flex w-full flex-col gap-2 text-[15px]">
         {/* {state?.error && (
           <div>
@@ -95,7 +90,9 @@ const SignupForm: FunctionComponent = () => {
             ))}
           </div>
         )} */}
-        <FacebookAuthButton iconSize="30" className="h-[3.25rem]">Log in with Facebook</FacebookAuthButton>
+        <FacebookAuthButton iconSize="30" className="h-[3.25rem]">
+          Log in with Facebook
+        </FacebookAuthButton>
         <div className="flex items-center justify-center space-x-4 text-gray-7">
           <hr className="w-full border-[0.5px] border-primary-outline" />
           <span className="px-4">or</span>
@@ -115,7 +112,6 @@ const SignupForm: FunctionComponent = () => {
             delay={VALIDATION_DELAY}
             icons
             validateForm={setCustomValidity}
-
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c]"
           />
           <AuthInput
@@ -162,7 +158,11 @@ const SignupForm: FunctionComponent = () => {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <button type="submit" disabled={isPending || !isFormValid} className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text">
+          <button
+            type="submit"
+            disabled={isPending || !isFormValid}
+            className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text"
+          >
             Sign up
           </button>
           <div className="text-center text-sm text-gray-7">

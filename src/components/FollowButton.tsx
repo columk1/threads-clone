@@ -11,7 +11,11 @@ type FollowButtonProps = {
   onToggleFollow?: () => Promise<void>
 }
 
-const FollowButton: FunctionComponent<FollowButtonProps> = ({ isAuthenticated = false, isFollowed, onToggleFollow }) => {
+const FollowButton: FunctionComponent<FollowButtonProps> = ({
+  isAuthenticated = false,
+  isFollowed,
+  onToggleFollow,
+}) => {
   const { openModal } = useModal()
 
   const handleFollow = async () => {

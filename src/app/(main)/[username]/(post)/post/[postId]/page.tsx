@@ -55,25 +55,44 @@ export default async function PostPage({ params }: Props) {
   //   ? await fetch(`${BASE_URL}/api/posts/${thread.post.parentId}?user=${currentUser?.id}`, { cache: 'force-cache', next: { revalidate: 60 } })
   //     .then(res => res.json())
   //   : null
-  const parentThread = thread.post.parentId
-    ? await getSinglePostById(thread.post.parentId)
-    : null
+  const parentThread = thread.post.parentId ? await getSinglePostById(thread.post.parentId) : null
 
   return (
     <>
       <Header title="Thread" showBackButton />
       <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
-
-        {parentThread
-          ? (
-              <Suspense fallback={<p>Loading...</p>}>
-                <Thread key={parentThread.post.id} user={parentThread.user} post={parentThread.post} currentUser={currentUser} isCurrentUser={parentThread.user.username === currentUser?.username} isAuthenticated={isAuthenticated} isParent />
-                <Thread key={thread.post.id} user={thread.user} post={thread.post} currentUser={currentUser} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
-              </Suspense>
-            )
-          : (
-              <Thread key={thread.post.id} user={thread.user} post={thread.post} currentUser={currentUser} isCurrentUser={isCurrentUser} isAuthenticated={isAuthenticated} isTarget />
-            )}
+        {parentThread ? (
+          <Suspense fallback={<p>Loading...</p>}>
+            <Thread
+              key={parentThread.post.id}
+              user={parentThread.user}
+              post={parentThread.post}
+              currentUser={currentUser}
+              isCurrentUser={parentThread.user.username === currentUser?.username}
+              isAuthenticated={isAuthenticated}
+              isParent
+            />
+            <Thread
+              key={thread.post.id}
+              user={thread.user}
+              post={thread.post}
+              currentUser={currentUser}
+              isCurrentUser={isCurrentUser}
+              isAuthenticated={isAuthenticated}
+              isTarget
+            />
+          </Suspense>
+        ) : (
+          <Thread
+            key={thread.post.id}
+            user={thread.user}
+            post={thread.post}
+            currentUser={currentUser}
+            isCurrentUser={isCurrentUser}
+            isAuthenticated={isAuthenticated}
+            isTarget
+          />
+        )}
 
         <div className="mx-6 h-[0.5px] bg-gray-5"></div>
         <div className="px-6 py-3 text-[15px] font-semibold">Replies</div>
@@ -81,7 +100,14 @@ export default async function PostPage({ params }: Props) {
         {/* Replies */}
         {data.map((e) => {
           return (
-            <Thread key={e.post.id} user={e.user} post={e.post} currentUser={currentUser} isCurrentUser={e.user.username === currentUser?.username} isAuthenticated={isAuthenticated} />
+            <Thread
+              key={e.post.id}
+              user={e.user}
+              post={e.post}
+              currentUser={currentUser}
+              isCurrentUser={e.user.username === currentUser?.username}
+              isAuthenticated={isAuthenticated}
+            />
           )
         })}
       </div>

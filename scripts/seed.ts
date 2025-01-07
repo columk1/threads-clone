@@ -77,13 +77,15 @@ async function seed() {
 
   try {
     const saltRounds = 10
-    const hashedUsers = await Promise.all(users.map(async (user) => {
-      const hashedPassword = await bcrypt.hash(user.password, saltRounds)
-      return {
-        ...user,
-        password: hashedPassword,
-      }
-    }))
+    const hashedUsers = await Promise.all(
+      users.map(async (user) => {
+        const hashedPassword = await bcrypt.hash(user.password, saltRounds)
+        return {
+          ...user,
+          password: hashedPassword,
+        }
+      }),
+    )
 
     for (const user of hashedUsers) {
       await db.insert(userSchema).values(user)

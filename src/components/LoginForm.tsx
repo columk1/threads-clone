@@ -14,7 +14,10 @@ const LoginForm = () => {
 
   const formRef = useRef<HTMLFormElement>(null)
 
-  const getValidity = useCallback(() => formRef?.current?.email?.value !== '' && formRef?.current?.password?.value !== '', [])
+  const getValidity = useCallback(
+    () => formRef?.current?.email?.value !== '' && formRef?.current?.password?.value !== '',
+    [],
+  )
 
   const handleInput = useCallback(() => {
     if (isValid !== getValidity()) {
@@ -50,7 +53,11 @@ const LoginForm = () => {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <button type="submit" disabled={!isValid && !isPending} className="flex h-[3.25rem] w-full items-center justify-center rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text">
+          <button
+            type="submit"
+            disabled={!isValid && !isPending}
+            className="flex h-[3.25rem] w-full items-center justify-center rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text"
+          >
             {isPending ? <Spinner /> : 'Log in'}
           </button>
           <div className="text-center">

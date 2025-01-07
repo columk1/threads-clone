@@ -2,7 +2,13 @@
 
 import type { FunctionComponent } from 'react'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/DropdownMenu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/DropdownMenu'
 
 import { BookmarkIcon, KebabMenuIcon, LinkIcon, ReportIcon, UnfollowIcon } from './icons'
 
@@ -13,7 +19,11 @@ type PostDropDownMenuProps = {
   isAuthenticated?: boolean
 }
 
-const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({ isFollowed, onToggleFollow, isAuthenticated }) => {
+const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
+  isFollowed,
+  onToggleFollow,
+  isAuthenticated,
+}) => {
   // const handleMouseEnter = () => {
   //   getUserFollowStatus(username).then((status) => {
   //     if (status !== isFollowed) {
@@ -31,8 +41,12 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({ isFollowed
           <div className="absolute size-8 rounded-full transition group-hover:bg-gray-3 group-active:bg-gray-3"></div>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" alignOffset={-18} sideOffset={6} className="w-60 origin-top-right text-[15px] font-semibold">
-
+      <DropdownMenuContent
+        align="end"
+        alignOffset={-18}
+        sideOffset={6}
+        className="w-60 origin-top-right text-[15px] font-semibold"
+      >
         {isAuthenticated && (
           <>
             <DropdownMenuItem asChild className="leading-none">

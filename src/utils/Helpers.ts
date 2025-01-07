@@ -3,10 +3,7 @@ export const getBaseUrl = () => {
     return process.env.NEXT_PUBLIC_APP_URL
   }
 
-  if (
-    process.env.VERCEL_ENV === 'production'
-    && process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ) {
+  if (process.env.VERCEL_ENV === 'production' && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   }
 
@@ -44,22 +41,15 @@ type ErrorMessages = {
   [key: string]: string | ValidationMessageFunction | undefined
 }
 
-export const createErrorMessageLookup = (
-  fieldName: string,
-  defaultMessage = '',
-): ErrorMessages => ({
+export const createErrorMessageLookup = (fieldName: string, defaultMessage = ''): ErrorMessages => ({
   valueMissing: `This field is required.`,
   typeMismatch: `Enter a valid ${fieldName}.`,
-  tooShort: field =>
-    `Create a ${fieldName} at least ${field.minLength} characters long.`,
-  customError: field => field.validationMessage,
+  tooShort: (field) => `Create a ${fieldName} at least ${field.minLength} characters long.`,
+  customError: (field) => field.validationMessage,
   defaultMessage,
 })
 
-export const getError = (
-  field: HTMLInputElement,
-  errorMessages: ErrorMessages,
-): string | undefined => {
+export const getError = (field: HTMLInputElement, errorMessages: ErrorMessages): string | undefined => {
   const validity = field.validity
 
   // Find the first validity state that is true and return the corresponding error message

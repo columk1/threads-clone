@@ -21,7 +21,7 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
   return (
     <>
       <HydrateStore initialPosts={rows} />
-      {rows.map(row => (
+      {rows.map((row) => (
         <Thread
           key={row.post.id}
           post={row.post}

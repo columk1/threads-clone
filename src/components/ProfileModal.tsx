@@ -28,22 +28,20 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          {trigger}
-        </DialogTrigger>
-        <DialogContent onOpenAutoFocus={e => e.preventDefault()} className="min-w-[519px] pt-6 dark:bg-gray-1 max-md:hidden">
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
+        <DialogContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="min-w-[519px] pt-6 dark:bg-gray-1 max-md:hidden"
+        >
           <div className="sr-only">
             <DialogTitle>Profile</DialogTitle>
             <DialogDescription>Edit Profile</DialogDescription>
           </div>
           <div className="flex flex-col gap-3 text-[15px]">
-
             <div className="flex gap-4">
               <div className="flex flex-1 flex-col gap-0.5">
                 <div className="font-semibold">Name</div>
-                <div className="">
-                  {`${user.name} (@${user.username})`}
-                </div>
+                <div className="">{`${user.name} (@${user.username})`}</div>
                 <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
               </div>
               <ProfileImageDropDown username={user.username} avatarUrl={user.avatar} />
@@ -53,17 +51,16 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
               <div className="flex flex-1 flex-col gap-0.5">
                 <div className="font-semibold">Bio</div>
                 {/* TODO: Wrap in button to open edit bio modal */}
-                <div className="">
-                  {user?.bio
-                    ? user.bio
-                    : (<span className="text-gray-7">+ Write bio</span>)}
-                </div>
+                <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
                 <div className="my-2 h-[0.25px] bg-gray-6"></div>
               </div>
-              <div className="">
-              </div>
+              <div className=""></div>
             </div>
-            <button type="button" onClick={closeModal} className="h-[52px] w-full rounded-lg border border-gray-5 bg-primary-text font-semibold text-black transition active:scale-95 disabled:opacity-30">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="h-[52px] w-full rounded-lg border border-gray-5 bg-primary-text font-semibold text-black transition active:scale-95 disabled:opacity-30"
+            >
               Done
             </button>
           </div>
@@ -73,10 +70,11 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
   }
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
-      <DrawerContent onOpenAutoFocus={e => e.preventDefault()} className="h-full min-w-full border-none px-4 dark:bg-gray-0">
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DrawerContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="h-full min-w-full border-none px-4 dark:bg-gray-0"
+      >
         <div className="sr-only">
           <DialogTitle>Profile</DialogTitle>
           <DialogDescription>Edit Profile</DialogDescription>
@@ -90,10 +88,12 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
               </button>
             </div>
           </DialogClose>
-          <DialogTitle className="text-[16px] font-bold">
-            Edit Profile
-          </DialogTitle>
-          <button type="button" onClick={closeModal} className="text-[17px] font-semibold text-primary-text transition active:scale-95 disabled:opacity-30">
+          <DialogTitle className="text-[16px] font-bold">Edit Profile</DialogTitle>
+          <button
+            type="button"
+            onClick={closeModal}
+            className="text-[17px] font-semibold text-primary-text transition active:scale-95 disabled:opacity-30"
+          >
             Done
           </button>
         </DialogHeader>
@@ -101,13 +101,10 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
         <div className="flex h-full flex-col justify-center">
           <div className="rounded-2xl border-[0.5px] border-gray-5 p-6 dark:bg-gray-1">
             <div className="flex flex-col gap-3 text-[15px]">
-
               <div className="flex gap-4">
                 <div className="flex flex-1 flex-col gap-0.5">
                   <div className="font-semibold">Name</div>
-                  <div className="">
-                    {`${user.name} (@${user.username})`}
-                  </div>
+                  <div className="">{`${user.name} (@${user.username})`}</div>
                   <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
                 </div>
                 <div className="">
@@ -119,15 +116,10 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                 <div className="flex flex-1 flex-col gap-0.5">
                   <div className="font-semibold">Bio</div>
                   {/* TODO: Wrap in button to open edit bio modal */}
-                  <div className="">
-                    {user?.bio
-                      ? user.bio
-                      : (<span className="text-gray-7">+ Write bio</span>)}
-                  </div>
+                  <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
                   {/* <div className="mt-2.5 h-[0.25px] bg-gray-6"></div> */}
                 </div>
-                <div className="">
-                </div>
+                <div className=""></div>
               </div>
             </div>
           </div>

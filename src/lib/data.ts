@@ -24,7 +24,7 @@ export const signUploadForm = async (options: uploadOptions) => {
     throw new Error('Cloudinary environment variables not defined')
   }
 
-  const timestamp = Math.round((new Date()).getTime() / 1000).toString()
+  const timestamp = Math.round(new Date().getTime() / 1000).toString()
 
   const params: Record<string, string> = {
     timestamp,
@@ -35,15 +35,12 @@ export const signUploadForm = async (options: uploadOptions) => {
 
   const sortedParams = Object.keys(params)
     .sort()
-    .map(key => `${key}=${params[key]}`)
+    .map((key) => `${key}=${params[key]}`)
     .join('&')
 
   const stringToSign = `${sortedParams}${apiSecret}`
 
-  const signature = crypto
-    .createHash('sha1')
-    .update(stringToSign)
-    .digest('hex')
+  const signature = crypto.createHash('sha1').update(stringToSign).digest('hex')
 
   return {
     timestamp: String(timestamp),

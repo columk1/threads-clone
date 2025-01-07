@@ -10,7 +10,7 @@ type HydrateStoreProps = {
 }
 
 const HydrateStore = ({ initialPosts }: HydrateStoreProps) => {
-  const addPosts = useAppStore(state => state.addPosts)
+  const addPosts = useAppStore((state) => state.addPosts)
 
   useEffect(() => {
     if (initialPosts) {

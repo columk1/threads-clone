@@ -4,7 +4,15 @@ import { DialogDescription } from '@radix-ui/react-dialog'
 import type { User } from 'lucia'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { type FunctionComponent, startTransition, useActionState, useCallback, useEffect, useRef, useState } from 'react'
+import {
+  type FunctionComponent,
+  startTransition,
+  useActionState,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { toast } from 'sonner'
 
 import { createReply, type PostUser } from '@/app/actions'
@@ -19,7 +27,7 @@ import { Drawer, DrawerContent } from './Drawer'
 import { ModalContent, ThreadMediaContent } from './NewThreadModal'
 import TimeAgo from './TimeAgo'
 
-const ParentThread = ({ user, author, post }: { user: User, author: PostUser, post: Post }) => {
+const ParentThread = ({ user, author, post }: { user: User; author: PostUser; post: Post }) => {
   return (
     <div className="relative mb-5">
       {/* Vertical Line to Link to Parent Thread */}
@@ -157,10 +165,8 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          {trigger}
-        </DialogTrigger>
-        <DialogContent onOpenAutoFocus={e => e.preventDefault()} className="min-w-[620px] max-md:hidden">
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="min-w-[620px] max-md:hidden">
           <div className="sr-only">
             <DialogDescription>Reply to a thread</DialogDescription>
           </div>
@@ -174,14 +180,21 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
                   </button>
                 </div>
               </DialogClose>
-              <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">
-                Reply
-              </DialogTitle>
+              <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">Reply</DialogTitle>
             </div>
             <div className="h-[0.25px] bg-gray-6"></div>
           </DialogHeader>
           <ModalContent
-            state={{ isDrawer: false, avatar: user.avatar, username: user.username, image, text, isValid, isPending, fileInputRef }}
+            state={{
+              isDrawer: false,
+              avatar: user.avatar,
+              username: user.username,
+              image,
+              text,
+              isValid,
+              isPending,
+              fileInputRef,
+            }}
             actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
           >
             <ParentThread user={user} author={author} post={post} />
@@ -194,10 +207,8 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
   }
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
-      <DrawerContent onOpenAutoFocus={e => e.preventDefault()} className="h-full min-w-full border-none">
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DrawerContent onOpenAutoFocus={(e) => e.preventDefault()} className="h-full min-w-full border-none">
         <div className="sr-only">
           <DialogDescription>Reply to a thread</DialogDescription>
         </div>
@@ -210,12 +221,19 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
               </button>
             </div>
           </DialogClose>
-          <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">
-            Reply
-          </DialogTitle>
+          <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">Reply</DialogTitle>
         </DialogHeader>
         <ModalContent
-          state={{ isDrawer: true, avatar: user.avatar, username: user.username, image, text, isValid, isPending, fileInputRef }}
+          state={{
+            isDrawer: true,
+            avatar: user.avatar,
+            username: user.username,
+            image,
+            text,
+            isValid,
+            isPending,
+            fileInputRef,
+          }}
           actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
         >
           <ParentThread user={user} author={author} post={post} />

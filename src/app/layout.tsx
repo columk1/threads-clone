@@ -34,18 +34,11 @@ export const metadata: Metadata = {
 //   return '/'
 // }
 
-export default function RootLayout(props: {
-  children: React.ReactNode
-}) {
+export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en-US" suppressHydrationWarning>
       <body suppressHydrationWarning className="overflow-y-scroll bg-primary-bg font-system text-primary-text">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <CookiesProvider>
             <ModalProvider>
               <div className="flex min-h-screen flex-1 flex-col items-center justify-center">

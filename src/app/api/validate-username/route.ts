@@ -8,10 +8,7 @@ export const POST = async (req: NextRequest) => {
     const { username } = await req.json()
 
     if (!username || typeof username !== 'string') {
-      return NextResponse.json(
-        { error: 'Invalid field.' },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: 'Invalid field.' }, { status: 400 })
     }
 
     const isUnique = await isUniqueField('username', username.trim())
@@ -19,9 +16,6 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ isUnique })
   } catch (error) {
     console.error('Error checking username uniqueness:', error)
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

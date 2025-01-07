@@ -8,31 +8,27 @@ import { create } from 'zustand'
 // };
 
 type AppState = {
-  posts: Record<string, { isLiked: boolean, likeCount: number }>
-  setPosts: (posts: Array<{ post: { id: string, isLiked?: boolean, likeCount?: number } }>) => void
-  addPosts: (posts: Array<{ post: { id: string, isLiked?: boolean, likeCount?: number } }>) => void
-  updatePost: (postId: string, updates: { isLiked: boolean, likeCount: number }) => void
+  posts: Record<string, { isLiked: boolean; likeCount: number }>
+  setPosts: (posts: Array<{ post: { id: string; isLiked?: boolean; likeCount?: number } }>) => void
+  addPosts: (posts: Array<{ post: { id: string; isLiked?: boolean; likeCount?: number } }>) => void
+  updatePost: (postId: string, updates: { isLiked: boolean; likeCount: number }) => void
   clearPosts: () => void
 }
 
-export const useAppStore = create<AppState>(set => ({
+export const useAppStore = create<AppState>((set) => ({
   posts: {},
-  setPosts: posts =>
+  setPosts: (posts) =>
     set(() => ({
       posts: Object.fromEntries(
-        posts.map(({ post }) => [
-          post.id,
-          { isLiked: post.isLiked ?? false, likeCount: post.likeCount ?? 0 },
-        ]),
+        posts.map(({ post }) => [post.id, { isLiked: post.isLiked ?? false, likeCount: post.likeCount ?? 0 }]),
       ),
     })),
-  addPosts: posts =>
-    set(state => ({
+  addPosts: (posts) =>
+    set((state) => ({
       posts: {
-        ...Object.fromEntries(posts.map(({ post }) => [
-          post.id,
-          { isLiked: post.isLiked ?? false, likeCount: post.likeCount ?? 0 },
-        ])),
+        ...Object.fromEntries(
+          posts.map(({ post }) => [post.id, { isLiked: post.isLiked ?? false, likeCount: post.likeCount ?? 0 }]),
+        ),
         // Overwrite latest posts from fetch, they could be older, cached requests
         ...state.posts,
       },

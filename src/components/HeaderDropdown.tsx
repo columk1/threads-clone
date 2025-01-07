@@ -1,12 +1,7 @@
 import Link from 'next/link'
 import type { FunctionComponent } from 'react'
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/DropdownMenu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/DropdownMenu'
 
 import { CaretIcon, CheckmarkIcon } from './icons'
 

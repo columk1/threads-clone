@@ -30,9 +30,7 @@ export const lucia = new Lucia(adapter, {
   },
 })
 
-const uncachedValidateRequest = async (): Promise<
-  { user: User, session: Session } | { user: null, session: null }
-> => {
+const uncachedValidateRequest = async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
   const cookieStore = await cookies()
   const sessionId = cookieStore.get(lucia.sessionCookieName)?.value ?? null
   if (!sessionId) {
@@ -48,20 +46,12 @@ const uncachedValidateRequest = async (): Promise<
     if (result.session && result.session.fresh) {
       const sessionCookie = lucia.createSessionCookie(result.session.id)
       const cookieStore = await cookies()
-      cookieStore.set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes,
-      )
+      cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
     }
     if (!result.session) {
       const sessionCookie = lucia.createBlankSessionCookie()
       const cookieStore = await cookies()
-      cookieStore.set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes,
-      )
+      cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
     }
   } catch {}
   return result

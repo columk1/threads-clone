@@ -22,16 +22,19 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
       <MobileHeader user={user} />
       <Sidebar user={user} />
       <MobileSidebar user={user} />
-      {user
-        ? <NewThreadModal username={user.username} avatar={user.avatar} />
-        : (
-            <>
-              <AuthPromptModal />
-              <Link href="/login" className="fixed right-5 top-5 z-30 flex h-[34px] items-center justify-center rounded-lg border border-gray-5 bg-white px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30">
-                Log in
-              </Link>
-            </>
-          )}
+      {user ? (
+        <NewThreadModal username={user.username} avatar={user.avatar} />
+      ) : (
+        <>
+          <AuthPromptModal />
+          <Link
+            href="/login"
+            className="fixed right-5 top-5 z-30 flex h-[34px] items-center justify-center rounded-lg border border-gray-5 bg-white px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30"
+          >
+            Log in
+          </Link>
+        </>
+      )}
       <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">
         {children}
       </main>

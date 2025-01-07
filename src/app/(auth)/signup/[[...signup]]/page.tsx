@@ -10,7 +10,9 @@ export async function generateMetadata() {
 const SignUpPage = () => {
   return (
     <div className="w-full px-3 sm:px-0">
-      <h1 className="mb-4 text-center font-bold">Join Threads to share thoughts, find out what's going on, follow your people and more</h1>
+      <h1 className="mb-4 text-center font-bold">
+        Join Threads to share thoughts, find out what's going on, follow your people and more
+      </h1>
       <SignupForm />
     </div>
   )

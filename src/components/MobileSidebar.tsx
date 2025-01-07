@@ -19,8 +19,7 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
   return (
     <aside className="fixed bottom-0 z-20 flex h-[68px] w-full items-center justify-evenly backdrop-blur-3xl backdrop-brightness-[0.2] md:hidden">
       {footerLinks.map((link) => {
-        const isActive = pathname === link.route
-          || (pathname.includes(link.route) && link.route.length > 1)
+        const isActive = pathname === link.route || (pathname.includes(link.route) && link.route.length > 1)
 
         if (link.route === '/create-thread') {
           return (
@@ -28,13 +27,12 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
               type="button"
               key={link.label}
               className={`group relative flex w-full items-center justify-center ${isActive && 'text-primary-text'}`}
-              onClick={() => user ? openModal('new-thread') : openModal('auth-prompt', 'post')}
+              onClick={() => (user ? openModal('new-thread') : openModal('auth-prompt', 'post'))}
             >
               <div className="z-10 transition duration-200 group-active:scale-90">
                 {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
               </div>
-              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
-              </div>
+              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90"></div>
             </button>
           )
         }
@@ -50,8 +48,7 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
               <div className="z-10 transition duration-200 group-active:scale-90">
                 {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
               </div>
-              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
-              </div>
+              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90"></div>
             </button>
           )
         }
@@ -68,8 +65,7 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
                 <div className="z-10 transition duration-200 group-active:scale-90">
                   {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
                 </div>
-                <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
-                </div>
+                <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90"></div>
               </button>
             )
           }
@@ -82,8 +78,7 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
               <div className="z-10 transition duration-200 group-active:scale-90">
                 {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
               </div>
-              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
-              </div>
+              <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90"></div>
             </Link>
           )
         }
@@ -97,8 +92,7 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
             <div className="z-10 transition duration-200 group-active:scale-90">
               {link.icon && <link.icon isActive={isActive} className="size-[26px]" />}
             </div>
-            <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90">
-            </div>
+            <div className="absolute z-0 flex h-[60px] w-full scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg group-active:scale-90"></div>
           </Link>
         )
       })}
