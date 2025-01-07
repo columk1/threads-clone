@@ -9,11 +9,7 @@ import { BackIcon } from './icons'
 import Logo from './Logo'
 import { MobileSidebarDropdown } from './MobileSidebarDropdown'
 
-type MobileHeaderProps = {
-  showBackButton?: boolean
-}
-
-const MobileHeader: FunctionComponent<MobileHeaderProps> = async ({ showBackButton }) => {
+const MobileHeader: FunctionComponent = async () => {
   const { user } = await validateRequest()
   return (
     <nav
@@ -22,13 +18,11 @@ const MobileHeader: FunctionComponent<MobileHeaderProps> = async ({ showBackButt
         user ? 'h-[60px]' : 'h-[74px]',
       )}
     >
-      {showBackButton && (
-        <div className="col-start-1 mr-auto flex h-[52px] w-full items-center justify-start pl-6">
-          <BackButton>
-            <BackIcon size="md" />
-          </BackButton>
-        </div>
-      )}
+      <div className="col-start-1 mr-auto flex h-[52px] w-full items-center justify-start pl-6">
+        <BackButton>
+          <BackIcon size="md" />
+        </BackButton>
+      </div>
       <Link href="/" className="col-start-2 flex max-w-8 items-center gap-4">
         <Logo />
       </Link>

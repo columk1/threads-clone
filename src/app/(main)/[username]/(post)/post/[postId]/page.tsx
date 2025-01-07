@@ -59,7 +59,7 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <>
-      <Header title="Thread" showBackButton />
+      <Header title="Thread" />
       <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
         {parentThread ? (
           <Suspense fallback={<p>Loading...</p>}>
