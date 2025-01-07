@@ -3,9 +3,11 @@
 import { useRouter } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
-import { BackIcon } from './icons'
+type BackButtonProps = {
+  children: React.ReactNode
+}
 
-const BackButton: FunctionComponent = () => {
+const BackButton: FunctionComponent<BackButtonProps> = ({ children }) => {
   const router = useRouter()
 
   const handleBack = () => {
@@ -26,9 +28,10 @@ const BackButton: FunctionComponent = () => {
     <button
       type="button"
       onClick={handleBack}
-      className="ml-6 rounded-full border-[0.5px] border-gray-5 bg-active-bg p-1.5"
+      className="rounded-full p-1.5 transition active:scale-85 max-md:animate-in max-md:fade-in-0 max-md:slide-in-from-left-12 max-md:[animation-duration:_250ms] md:border-[0.5px] md:border-gray-5 md:bg-gray-2"
     >
-      <BackIcon />
+      {/* Icon supplied as children */}
+      {children}
     </button>
   )
 }

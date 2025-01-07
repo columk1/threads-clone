@@ -19,7 +19,7 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
   const { user } = await validateRequest()
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-primary-bg text-gray-6 antialiased md:bg-secondary-bg md:px-5">
-      <MobileHeader user={user} />
+      <MobileHeader />
       <Sidebar user={user} />
       <MobileSidebar user={user} />
       {user ? (
