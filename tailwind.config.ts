@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
 import tailwindcssAnimate from 'tailwindcss-animate'
 
 export default {
@@ -56,5 +57,15 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [
+    tailwindcssAnimate,
+    plugin(({ addUtilities }) => {
+      const newUtilities = {
+        '.mask-gradient': {
+          'mask-image': 'linear-gradient(to top, black 0% 75%, transparent 25% 100%)',
+        },
+      }
+      addUtilities(newUtilities)
+    }),
+  ],
 } satisfies Config
