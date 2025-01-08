@@ -6,7 +6,6 @@ import { type FunctionComponent, useCallback, useState } from 'react'
 import type { PostUser } from '@/app/actions'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 
-import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTrigger } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
 import ProfileImageDropDown from './ProfileImageDropDown'
@@ -31,22 +30,25 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
         <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent
           onOpenAutoFocus={(e) => e.preventDefault()}
-          className="min-w-[519px] pt-6 dark:bg-gray-1 max-md:hidden"
+          className="min-w-[519px] p-6 dark:bg-gray-1 max-md:hidden"
         >
           <div className="sr-only">
             <DialogTitle>Profile</DialogTitle>
             <DialogDescription>Edit Profile</DialogDescription>
           </div>
           <div className="flex flex-col gap-3 text-[15px]">
+            {/* Name & Avatar */}
             <div className="flex gap-4">
               <div className="flex flex-1 flex-col gap-0.5">
                 <div className="font-semibold">Name</div>
                 <div className="">{`${user.name} (@${user.username})`}</div>
                 <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
               </div>
-              <ProfileImageDropDown username={user.username} avatarUrl={user.avatar} />
+              <div>
+                <ProfileImageDropDown username={user.username} avatarUrl={user.avatar} />
+              </div>
             </div>
-
+            {/* Bio */}
             <div className="flex gap-4">
               <div className="flex flex-1 flex-col gap-0.5">
                 <div className="font-semibold">Bio</div>
@@ -54,7 +56,6 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                 <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
                 <div className="my-2 h-[0.25px] bg-gray-6"></div>
               </div>
-              <div className=""></div>
             </div>
             <button
               type="button"
@@ -97,21 +98,22 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
             Done
           </button>
         </DialogHeader>
-        <div className="-mx-6 h-[0.25px] bg-gray-6"></div>
+        <div className="-mx-4 h-[0.25px] bg-gray-6"></div>
         <div className="flex h-full flex-col justify-center">
           <div className="rounded-2xl border-[0.5px] border-gray-5 p-6 dark:bg-gray-1">
             <div className="flex flex-col gap-3 text-[15px]">
+              {/* Name & Avatar */}
               <div className="flex gap-4">
                 <div className="flex flex-1 flex-col gap-0.5">
                   <div className="font-semibold">Name</div>
                   <div className="">{`${user.name} (@${user.username})`}</div>
                   <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
                 </div>
-                <div className="">
-                  <Avatar size="md" url={user.avatar} />
+                <div>
+                  <ProfileImageDropDown username={user.username} avatarUrl={user.avatar} />
                 </div>
               </div>
-
+              {/* Bio */}
               <div className="flex gap-4">
                 <div className="flex flex-1 flex-col gap-0.5">
                   <div className="font-semibold">Bio</div>

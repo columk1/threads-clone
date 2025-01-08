@@ -17,7 +17,7 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
   const { openModal } = useModal()
 
   return (
-    <aside className="fixed bottom-0 z-20 flex h-[68px] w-full items-center justify-evenly md:hidden">
+    <aside className="fixed bottom-0 z-20 flex h-[68px] w-screen items-center justify-evenly md:hidden">
       <div className="pointer-events-none fixed bottom-0 h-[102px] w-full bg-[rgba(16,16,16,.9)] backdrop-blur-2xl mask-gradient"></div>
       {footerLinks.map((link) => {
         const isActive = pathname === link.route || (pathname.includes(link.route) && link.route.length > 1)
