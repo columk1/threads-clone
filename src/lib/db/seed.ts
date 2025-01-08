@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt'
 
-import { db } from '../src/libs/DB'
-import { postSchema, userSchema } from '../src/models/Schema'
+import { logger } from '@/lib/Logger'
+
+import { db } from './Drizzle'
+import { postSchema, userSchema } from './Schema'
 
 async function seed() {
   const users = [
@@ -95,9 +97,9 @@ async function seed() {
       await db.insert(postSchema).values(post)
     }
 
-    console.log('Seeding complete!')
+    logger.info('Seeding complete!')
   } catch (error) {
-    console.error('Error seeding database:', error)
+    logger.error('Error seeding database:', error)
   }
 }
 

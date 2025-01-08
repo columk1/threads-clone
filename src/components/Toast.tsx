@@ -3,7 +3,7 @@
 import { useCookies } from 'next-client-cookies'
 import { useEffect } from 'react'
 
-import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
+import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 
 const Toast = ({ message }: { message: string }) => {
   const cookies = useCookies()

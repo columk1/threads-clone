@@ -2,7 +2,7 @@ import cx from 'clsx'
 import Link from 'next/link'
 import type { FunctionComponent } from 'react'
 
-import { validateRequest } from '@/libs/Lucia'
+import { validateRequest } from '@/lib/Lucia'
 
 import BackButton from './BackButton'
 import { BackIcon } from './icons'

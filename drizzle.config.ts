@@ -1,12 +1,14 @@
 import type { Config } from 'drizzle-kit'
 
+import { Env } from '@/lib/Env'
+
 export default {
-  out: './migrations',
-  schema: './src/models/Schema.ts',
+  out: './src/lib/db/migrations',
+  schema: './src/lib/db/Schema.ts',
   dialect: 'turso',
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? '',
-    authToken: process.env.TURSO_AUTH_TOKEN ?? '',
+    url: Env.DATABASE_URL ?? '',
+    authToken: Env.TURSO_AUTH_TOKEN ?? '',
   },
   verbose: true,
   strict: true,

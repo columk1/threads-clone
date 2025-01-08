@@ -2,7 +2,8 @@ import cx from 'clsx'
 import { CircleCheck, CircleX, Eye, EyeOff } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { createErrorMessageLookup, debounce, getError } from '@/utils/Helpers'
+import { createErrorMessageLookup, getError } from '@/helpers/formHelpers'
+import { debounce } from '@/utils/debounce'
 
 type AuthInputProps = {
   type: 'text' | 'password' | 'email' // Add more types as needed

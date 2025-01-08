@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation'
 
 import { getAllPosts } from '@/app/actions'
 import Thread from '@/components/Thread'
-import { validateRequest } from '@/libs/Lucia'
-import { usernameParamSchema } from '@/models/zod.schema'
+import { validateRequest } from '@/lib/Lucia'
+import { usernameParamSchema } from '@/lib/schemas/zod.schema'
 
 // import Link from 'next/link'
 // import { usePathname } from 'next/navigation'

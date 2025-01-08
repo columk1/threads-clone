@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers'
 
+import { getBaseUrl } from './getBaseUrl'
+
 // import type { ResponseData } from '@/app/api/posts/[postId]/route'
-import { BASE_URL } from '@/constants/baseURL'
 
 type FetchOptions = RequestInit & {
   headers?: Record<string, string>
@@ -17,7 +18,9 @@ export const apiFetch = async (endpoint: string, options: FetchOptions = {}) => 
     ...(authCookie ? { Cookie: cookieHeader } : {}),
   }
 
-  const response = await fetch(`${BASE_URL}/api/${endpoint}`, {
+  const baseUrl = getBaseUrl()
+
+  const response = await fetch(`${baseUrl}/api/${endpoint}`, {
     ...options,
     headers,
     credentials: 'include', // Ensure credentials are included

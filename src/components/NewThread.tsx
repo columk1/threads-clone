@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
-import { validateRequest } from '@/libs/Lucia'
+import { validateRequest } from '@/lib/Lucia'
 
 import Avatar from './Avatar'
 import PostButton from './PostButton'

@@ -4,8 +4,8 @@ import { Suspense } from 'react'
 import { getPostById, getSinglePostById } from '@/app/actions'
 import Header from '@/components/Header'
 import Thread from '@/components/Thread'
-import { validateRequest } from '@/libs/Lucia'
-import { usernameParamSchema } from '@/models/zod.schema'
+import { validateRequest } from '@/lib/Lucia'
+import { usernameParamSchema } from '@/lib/schemas/zod.schema'
 
 type Props = {
   params: Promise<{

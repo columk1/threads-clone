@@ -6,7 +6,7 @@ import createJiti from 'jiti'
 
 const jiti = createJiti(fileURLToPath(import.meta.url))
 
-jiti('./src/libs/Env')
+jiti('./src/lib/Env')
 
 const nextConfig = {
   images: {

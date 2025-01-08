@@ -16,10 +16,10 @@ import {
 import { toast } from 'sonner'
 
 import { createReply, type PostUser } from '@/app/actions'
-import { IMG_UPLOAD_URL } from '@/constants/cloudinaryURL'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { IMG_UPLOAD_URL } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
-import type { Post } from '@/models/Schema'
+import type { Post } from '@/lib/db/Schema'
 
 import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './Dialog'

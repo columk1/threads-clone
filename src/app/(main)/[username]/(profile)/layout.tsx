@@ -6,8 +6,8 @@ import Header from '@/components/Header'
 import ProfileModal from '@/components/ProfileModal'
 import ProfileNavigation from '@/components/ProfileNavigation'
 import UserProfile from '@/components/UserProfile'
-import { validateRequest } from '@/libs/Lucia'
-import { usernameParamSchema } from '@/models/zod.schema'
+import { validateRequest } from '@/lib/Lucia'
+import { usernameParamSchema } from '@/lib/schemas/zod.schema'
 
 type Props = {
   params: Promise<{ username: string }>

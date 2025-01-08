@@ -1,7 +1,7 @@
 import type { FunctionComponent } from 'react'
 
 import { getAllPosts, getFollowingPosts } from '@/app/actions'
-import { validateRequest } from '@/libs/Lucia'
+import { validateRequest } from '@/lib/Lucia'
 
 import HydrateStore from './hydrateStore'
 import Thread from './Thread'

@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { redirect } from 'next/navigation'
 
 import VerifyEmailForm from '@/components/VerifyEmailForm'
-import { validateRequest } from '@/libs/Lucia'
+import { validateRequest } from '@/lib/Lucia'
 
 export default async function VerifyEmailPage() {
   const { user } = await validateRequest()

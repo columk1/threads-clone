@@ -1,35 +1,3 @@
-export const getBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL
-  }
-
-  if (process.env.VERCEL_ENV === 'production' && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  }
-
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
-  }
-
-  return 'http://localhost:3000'
-}
-
-export function debounce<T extends (...args: any[]) => void>(
-  callback: T,
-  wait: number,
-): (...args: Parameters<T>) => void {
-  let timeout: ReturnType<typeof setTimeout>
-
-  return function (this: ThisParameterType<T>, ...args: Parameters<T>): void {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      callback.apply(this, args)
-    }, wait)
-  }
-}
-
-export const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
-
 type ValidationMessageFunction = (field: HTMLInputElement) => string
 
 type ErrorMessages = {

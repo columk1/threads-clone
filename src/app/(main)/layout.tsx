@@ -6,7 +6,7 @@ import MobileHeader from '@/components/MobileHeader'
 import MobileSidebar from '@/components/MobileSidebar'
 import NewThreadModal from '@/components/NewThreadModal'
 import Sidebar from '@/components/Sidebar'
-import { validateRequest } from '@/libs/Lucia'
+import { validateRequest } from '@/lib/Lucia'
 
 export const metadata: Metadata = {
   title: {

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Header from '@/components/Header'
 import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
-import { validateRequest } from '@/libs/Lucia'
+import { validateRequest } from '@/lib/Lucia'
 
 export default async function Following() {
   const { user } = await validateRequest()

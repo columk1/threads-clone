@@ -3,7 +3,7 @@
 import { useActionState, useCallback, useRef, useState } from 'react'
 
 import { login } from '@/app/actions'
-import Spinner from '@/components/Spinner/Spinner'
+import Spinner from '@/components/spinner/Spinner'
 
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'

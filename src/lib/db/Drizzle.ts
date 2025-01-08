@@ -2,9 +2,9 @@ import { createClient } from '@libsql/client'
 import { drizzle as drizzleLibSql } from 'drizzle-orm/libsql'
 
 // import { migrate as migrateLibSql } from 'drizzle-orm/libsql/migrator'
-import * as schema from '@/models/Schema'
+import * as schema from '@/lib/db/Schema'
 
-import { Env } from './Env'
+import { Env } from '../Env'
 
 if (!Env.DATABASE_URL) {
   throw new Error('TURSO_DATABASE_URL is not defined')

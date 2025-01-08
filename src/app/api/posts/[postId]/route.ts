@@ -2,8 +2,8 @@ import { eq, or, sql } from 'drizzle-orm'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { db } from '@/libs/DB'
-import { followerSchema, likeSchema, postSchema, userSchema } from '@/models/Schema'
+import { db } from '@/lib/db/Drizzle'
+import { followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
   const { postId: id } = await params

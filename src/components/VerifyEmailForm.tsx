@@ -9,8 +9,8 @@ import { toast } from 'sonner'
 
 import { resendVerificationEmail, verifyEmail } from '@/app/actions'
 import AuthInput from '@/components/AuthInput'
-import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
-import { verifyEmailSchema } from '@/models/zod.schema'
+import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
+import { verifyEmailSchema } from '@/lib/schemas/zod.schema'
 
 const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
   const [lastResult, action] = useFormState(verifyEmail, undefined)

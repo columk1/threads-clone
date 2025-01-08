@@ -3,10 +3,12 @@ import { Lucia, type Session, TimeSpan, type User } from 'lucia'
 import { cookies } from 'next/headers'
 import React from 'react'
 
-import { db } from '@/libs/DB'
-import { sessionSchema, userSchema } from '@/models/Schema'
+import { db } from '@/lib/db/Drizzle'
+import { sessionSchema, userSchema } from '@/lib/db/Schema'
 
-const IS_DEV = process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'
+import { Env } from './Env'
+
+const IS_DEV = Env.NODE_ENV === 'development' ? 'DEV' : 'PROD'
 
 const adapter = new DrizzleSQLiteAdapter(db, sessionSchema, userSchema)
 

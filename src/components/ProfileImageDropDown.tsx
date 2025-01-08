@@ -11,9 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/DropdownMenu'
-import { IMG_UPLOAD_URL } from '@/constants/cloudinaryURL'
+import { IMG_UPLOAD_URL } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
-import { stringToSafePublicId } from '@/utils/stringToSafePublicId'
+import { stringToSafePublicId } from '@/utils/string/stringToSafePublicId'
 
 import Avatar from './Avatar'
 

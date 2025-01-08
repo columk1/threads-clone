@@ -11,13 +11,13 @@ import { cache } from 'react'
 import { ulid } from 'ulidx'
 import { z } from 'zod'
 
-import { VERIFIED_EMAIL_ALERT } from '@/libs/constants'
-import { db } from '@/libs/DB'
-import { logger } from '@/libs/Logger'
-import { lucia, validateRequest } from '@/libs/Lucia'
-import { emailVerificationCodeSchema, followerSchema, likeSchema, postSchema, userSchema } from '@/models/Schema'
-import { loginSchema, newPostSchema, replySchema, SignupSchema, verifyEmailSchema } from '@/models/zod.schema'
-import { generateRandomString } from '@/utils/generate-random-string'
+import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
+import { db } from '@/lib/db/Drizzle'
+import { emailVerificationCodeSchema, followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
+import { logger } from '@/lib/Logger'
+import { lucia, validateRequest } from '@/lib/Lucia'
+import { loginSchema, newPostSchema, replySchema, SignupSchema, verifyEmailSchema } from '@/lib/schemas/zod.schema'
+import { generateRandomString } from '@/utils/string/generateRandomString'
 
 /*
  * Generate Email Verification Code

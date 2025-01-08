@@ -6,8 +6,8 @@ import crypto from 'node:crypto'
 
 import { redirect } from 'next/navigation'
 
-import { Env } from '@/libs/Env'
-import { validateRequest } from '@/libs/Lucia'
+import { Env } from '@/lib/Env'
+import { validateRequest } from '@/lib/Lucia'
 
 type uploadOptions = {
   [key: string]: string | undefined

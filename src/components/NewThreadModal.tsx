@@ -15,9 +15,9 @@ import {
 import { toast } from 'sonner'
 
 import { createPost } from '@/app/actions'
-import { IMG_UPLOAD_URL } from '@/constants/cloudinaryURL'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
+import { IMG_UPLOAD_URL } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
 
 import Avatar from './Avatar'
