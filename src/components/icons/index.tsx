@@ -13,14 +13,17 @@ import HomeIcon from './Home'
 import ImageIcon from './Image'
 import KebabMenuIcon from './KebabMenu'
 import Like from './Like'
+import LikeColor from './LikeColor'
 import LinkIcon from './Link'
 import NotificationsIcon from './Notifications'
 import NotificationsFooterIcon from './NotificationsFooter'
 import PinIcon from './Pin'
 import ProfileIcon from './Profile'
 import Reply from './Reply'
+import ReplyColor from './ReplyColor'
 import ReportIcon from './Report'
 import Repost from './Repost'
+import RepostColor from './RepostColor'
 import SearchIcon from './Search'
 import Share from './Share'
 import UnfollowIcon from './Unfollow'
@@ -41,14 +44,17 @@ export {
   ImageIcon,
   KebabMenuIcon,
   Like,
+  LikeColor,
   LinkIcon,
   NotificationsFooterIcon,
   NotificationsIcon,
   PinIcon,
   ProfileIcon,
   Reply,
+  ReplyColor,
   ReportIcon,
   Repost,
+  RepostColor,
   SearchIcon,
   Share,
   UnfollowIcon,
