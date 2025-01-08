@@ -18,7 +18,7 @@ const NewThread: FunctionComponent = async () => {
   return (
     <div className="flex items-center px-6 py-4 text-[15px] text-gray-7">
       <div className="flex flex-1 items-center gap-3">
-        <Link href={`/${user.username}`}>
+        <Link href={`/@${user.username}`}>
           <Avatar size="sm" url={avatar} />
         </Link>
         <PostButton className="flex w-full items-center">
