@@ -104,10 +104,10 @@ const SignupForm: FunctionComponent = () => {
             type="email"
             label="Email"
             placeholder=""
-            defaultValue={state?.data?.email}
+            defaultValue={state?.error.email.value}
             autoCapitalize="none"
             required
-            error={state?.error?.email}
+            error={state?.error.email.message}
             customValidator={validateEmail}
             delay={VALIDATION_DELAY}
             icons
@@ -119,14 +119,14 @@ const SignupForm: FunctionComponent = () => {
             type="password"
             label="Password"
             placeholder=""
-            defaultValue={state?.data?.password}
+            defaultValue=""
             minLength={6}
             autoComplete="new-password"
             autoCapitalize="none"
             required
             delay={VALIDATION_DELAY}
             icons
-            error={state?.error?.password}
+            error={state?.error.password.message}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
           <AuthInput
@@ -134,11 +134,11 @@ const SignupForm: FunctionComponent = () => {
             type="text"
             label="Full Name"
             placeholder=""
-            defaultValue={state?.data?.name}
+            defaultValue={state?.error.name.value}
             required
             delay={VALIDATION_DELAY}
             icons
-            error={state?.error?.name}
+            error={state?.error.name.message}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
           <AuthInput
@@ -146,10 +146,10 @@ const SignupForm: FunctionComponent = () => {
             type="text"
             label="Username"
             placeholder=""
-            defaultValue={state?.data?.username}
+            defaultValue={state?.error.username.value}
             autoComplete="new-username"
             required
-            error={state?.error?.username}
+            error={state?.error.username.message}
             customValidator={validateUsername}
             validateForm={setCustomValidity}
             delay={VALIDATION_DELAY}

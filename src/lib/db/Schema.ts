@@ -27,6 +27,8 @@ export const userSchema = sqliteTable(
   (table) => [index('username_idx').on(table.username)],
 )
 
+export type User = InferSelectModel<typeof userSchema>
+
 export const sessionSchema = sqliteTable('sessions', {
   id: text('id').primaryKey(),
   userId: text('user_id')

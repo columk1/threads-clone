@@ -13,6 +13,7 @@ import { z } from 'zod'
 
 import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 import { db } from '@/lib/db/Drizzle'
+import { getUserByField, insertEmailVerificationCode, insertUser } from '@/lib/db/queries'
 import { emailVerificationCodeSchema, followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { lucia, validateRequest } from '@/lib/Lucia'
@@ -22,16 +23,11 @@ import { generateRandomString } from '@/utils/string/generateRandomString'
 /*
  * Generate Email Verification Code
  */
-export const generateEmailVerificationCode = async (userId: string): Promise<string> => {
-  await db.delete(emailVerificationCodeSchema).where(eq(emailVerificationCodeSchema.userId, userId))
-
+const generateEmailVerificationCode = async (userId: string): Promise<string> => {
   const code = generateRandomString(6)
+  const expiresAt = Date.now() + 5 * 60 * 1000 // 5 minutes
 
-  await db.insert(emailVerificationCodeSchema).values({
-    code,
-    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-    userId,
-  })
+  await insertEmailVerificationCode(userId, code, expiresAt)
 
   return code
 }
@@ -44,30 +40,13 @@ export async function sendEmailVerificationCode(userId: string, email: string) {
   logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // send an email to user with this OTP
 }
 
-// export const isEmailUnique = async (email: string) => {
-//   const user = await db
-//     .select()
-//     .from(userSchema)
-//     .where(eq(userSchema.email, email))
-//     .all()
-//   return !user.length
-// }
-
 /*
  * Is Unique Field
  */
-export const isUniqueField = async (field: 'email' | 'username', value: string) => {
-  const user = await db.select().from(userSchema).where(eq(userSchema[field], value)).all()
-  return !user.length
+export const isUniqueUserField = async (field: 'email' | 'username', value: string) => {
+  const user = await getUserByField(field, value)
+  return !user
 }
-
-// const timeFromNow = (time: Date) => {
-//   const now = new Date()
-//   const diff = time.getTime() - now.getTime()
-//   const minutes = Math.floor(diff / 1000 / 60)
-//   const seconds = Math.floor(diff / 1000) % 60
-//   return `${minutes}m ${seconds}s`
-// }
 
 /*
  * Sign Up
@@ -76,47 +55,39 @@ export async function signup(_: unknown, formData: FormData) {
   // const {} = await signupLimiter.consume()
 
   const userId = ulid()
-  const submission = SignupSchema.safeParse(Object.fromEntries(formData.entries()))
+  const submission = Object.fromEntries(formData.entries())
+  const result = await SignupSchema.safeParseAsync(submission)
 
-  if (!submission.success) {
-    const errors = submission.error.flatten().fieldErrors
-    logger.info(submission)
+  if (!result.success) {
+    const errors = result.error.flatten().fieldErrors
 
-    // return redirect('signup')
-    return {
-      data: submission.data,
-      error: {
-        email: errors.email ? errors.email[0] : null,
-        password: errors.password ? errors.password[0] : null,
-        name: errors.name ? errors.name[0] : null,
-        username: errors.username ? errors.username[0] : null,
-        default: 'Something went wrong. Please try again.',
+    const error = {
+      email: {
+        value: submission?.email?.toString() || '',
+        message: errors.email?.[0] || '',
       },
+      password: {
+        value: '',
+        message: errors.password?.[0] || '',
+      },
+      name: {
+        value: submission.name?.toString() || '',
+        message: errors.name?.[0] || '',
+      },
+      username: {
+        value: submission.username?.toString() || '',
+        message: errors.username?.[0] || '',
+      },
+      default: 'Something went wrong. Please try again.',
     }
+    return { error }
   }
 
-  const { email, password, name, username } = submission.data
-
-  const isValidEmail = await isUniqueField('email', email)
-
-  if (!isValidEmail) {
-    return { data: submission.data, error: { email: 'Another account is using the same email.' } }
-  }
-
-  const isValidUsername = await isUniqueField('username', username)
-
-  if (!isValidUsername) {
-    return { data: submission.data, error: { username: "This username isn't available. Please try another." } }
-  }
+  const { email, password, name, username } = result.data
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  // await createUser(username, hashedPassword)
-  const user = await db
-    .insert(userSchema)
-    .values({ id: userId, emailVerified: 0, password: hashedPassword, email, name, username })
-    .returning()
-    .then((s) => s[0])
+  const user = await insertUser({ id: userId, emailVerified: 0, password: hashedPassword, email, name, username })
 
   if (!user) {
     throw new Error('Failed to create user')
@@ -125,7 +96,7 @@ export async function signup(_: unknown, formData: FormData) {
   logger.info(user)
 
   try {
-    sendEmailVerificationCode(userId, submission.data.email)
+    sendEmailVerificationCode(userId, result.data.email)
 
     const cookieStore = await cookies()
     cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
@@ -140,7 +111,6 @@ export async function signup(_: unknown, formData: FormData) {
     console.error(err)
   }
 
-  // return { data: user, error: null }
   return redirect('/verify-email')
 }
 

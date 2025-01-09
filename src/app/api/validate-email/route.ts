@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { isUniqueField } from '@/app/actions'
+import { isUniqueUserField } from '@/app/actions'
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -11,7 +11,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ error: 'Invalid field.' }, { status: 400 })
     }
 
-    const isUnique = await isUniqueField('email', email.trim())
+    const isUnique = await isUniqueUserField('email', email.trim())
 
     return NextResponse.json({ isUnique })
   } catch (error) {
