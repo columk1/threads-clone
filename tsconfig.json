@@ -36,6 +36,10 @@
     "isolatedModules": true,
     "incremental": true,
 
+    // Node Type Stripping
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+
     // Load types
     "types": ["vitest/globals", "@testing-library/jest-dom"],
 

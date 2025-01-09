@@ -1,9 +1,8 @@
 import bcrypt from 'bcrypt'
 
-import { logger } from '@/lib/Logger'
-
-import { db } from './Drizzle'
-import { postSchema, userSchema } from './Schema'
+import { logger } from '../Logger.ts'
+import { db } from './Drizzle.ts'
+import { postSchema, userSchema } from './Schema.ts'
 
 async function seed() {
   const users = [
@@ -76,6 +75,10 @@ async function seed() {
       likeCount: 0,
     },
   ]
+
+  // Delete all existing rows
+  await db.delete(postSchema)
+  await db.delete(userSchema)
 
   try {
     const saltRounds = 10
