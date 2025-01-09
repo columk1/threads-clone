@@ -6,9 +6,7 @@ import React from 'react'
 import { db } from '@/lib/db/Drizzle'
 import { sessionSchema, userSchema } from '@/lib/db/Schema'
 
-import { Env } from './Env'
-
-const IS_DEV = Env.NODE_ENV === 'development' ? 'DEV' : 'PROD'
+const IS_DEV = process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'
 
 const adapter = new DrizzleSQLiteAdapter(db, sessionSchema, userSchema)
 
