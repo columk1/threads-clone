@@ -104,10 +104,10 @@ const SignupForm: FunctionComponent = () => {
             type="email"
             label="Email"
             placeholder=""
-            defaultValue={state?.error.email.value}
+            defaultValue={state?.initialValue?.email?.toString()}
             autoCapitalize="none"
             required
-            error={state?.error.email.message}
+            error={state?.error?.email && state?.error?.email[0]}
             customValidator={validateEmail}
             delay={VALIDATION_DELAY}
             icons
@@ -126,7 +126,7 @@ const SignupForm: FunctionComponent = () => {
             required
             delay={VALIDATION_DELAY}
             icons
-            error={state?.error.password.message}
+            error={state?.error?.password && state?.error?.password[0]}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
           <AuthInput
@@ -134,11 +134,11 @@ const SignupForm: FunctionComponent = () => {
             type="text"
             label="Full Name"
             placeholder=""
-            defaultValue={state?.error.name.value}
+            defaultValue={state?.initialValue?.name?.toString()}
             required
             delay={VALIDATION_DELAY}
             icons
-            error={state?.error.name.message}
+            error={state?.error?.name && state?.error?.name[0]}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
           <AuthInput
@@ -146,10 +146,10 @@ const SignupForm: FunctionComponent = () => {
             type="text"
             label="Username"
             placeholder=""
-            defaultValue={state?.error.username.value}
+            defaultValue={state?.initialValue?.username?.toString()}
             autoComplete="new-username"
             required
-            error={state?.error.username.message}
+            error={state?.error?.username && state?.error?.username[0]}
             customValidator={validateUsername}
             validateForm={setCustomValidity}
             delay={VALIDATION_DELAY}

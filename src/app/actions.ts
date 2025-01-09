@@ -55,35 +55,13 @@ export async function signup(_: unknown, formData: FormData) {
   // const {} = await signupLimiter.consume()
 
   const userId = ulid()
-  const submission = Object.fromEntries(formData.entries())
-  const result = await SignupSchema.safeParseAsync(submission)
+  const submission = await parseWithZod(formData, { schema: SignupSchema, async: true })
 
-  if (!result.success) {
-    const errors = result.error.flatten().fieldErrors
-
-    const error = {
-      email: {
-        value: submission?.email?.toString() || '',
-        message: errors.email?.[0] || '',
-      },
-      password: {
-        value: '',
-        message: errors.password?.[0] || '',
-      },
-      name: {
-        value: submission.name?.toString() || '',
-        message: errors.name?.[0] || '',
-      },
-      username: {
-        value: submission.username?.toString() || '',
-        message: errors.username?.[0] || '',
-      },
-      default: 'Something went wrong. Please try again.',
-    }
-    return { error }
+  if (submission.status !== 'success') {
+    return submission.reply()
   }
 
-  const { email, password, name, username } = result.data
+  const { email, password, name, username } = submission.value
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -93,10 +71,10 @@ export async function signup(_: unknown, formData: FormData) {
     throw new Error('Failed to create user')
   }
 
-  logger.info(user)
+  logger.info('User created successfully:', user)
 
   try {
-    sendEmailVerificationCode(userId, result.data.email)
+    sendEmailVerificationCode(userId, email)
 
     const cookieStore = await cookies()
     cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
@@ -106,9 +84,10 @@ export async function signup(_: unknown, formData: FormData) {
     const session = await lucia.createSession(user.id, {})
     const sessionCookie = lucia.createSessionCookie(session.id)
     cookieStore.set(sessionCookie)
+    logger.info(`Session created successfully for user: ${userId}`)
   } catch (err) {
-    console.error(`Signup error while creating Lucia session:`)
-    console.error(err)
+    logger.error(`Signup error for user ${userId}:`, err)
+    throw new Error('Something went wrong. Please try again.')
   }
 
   return redirect('/verify-email')
