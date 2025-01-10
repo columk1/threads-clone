@@ -113,7 +113,7 @@ export async function verifyEmail(_: unknown, formData: FormData) {
         ctx.addIssue({
           path: ['code'],
           code: z.ZodIssueCode.custom,
-          message: 'Invalid OTP. Try again!',
+          message: 'Invalid one time password (OTP).',
         })
         return z.NEVER
       }

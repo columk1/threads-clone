@@ -76,6 +76,7 @@ const Input = ({
 
   const onChange = () => {
     inputRef.current?.setCustomValidity('')
+    setValidationMessage(null)
     setActiveError(false)
   }
 
