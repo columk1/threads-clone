@@ -33,3 +33,16 @@ export const insertUser = async (user: NewUserParams) => {
   const newUser = await db.insert(userSchema).values(user).returning()
   return newUser[0]
 }
+
+export const getEmailVerificationCode = async (userId: string) => {
+  const lastSent = await db.query.emailVerificationCodeSchema.findFirst({
+    where: (Schema, { eq }) => eq(Schema.userId, userId),
+    columns: { expiresAt: true },
+  })
+  return lastSent
+}
+
+export const getUserByEmail = async (email: string) => {
+  const user = await db.select().from(userSchema).where(eq(userSchema.email, email))
+  return user[0]
+}

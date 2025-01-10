@@ -13,7 +13,13 @@ import { z } from 'zod'
 
 import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 import { db } from '@/lib/db/Drizzle'
-import { getUserByField, insertEmailVerificationCode, insertUser } from '@/lib/db/queries'
+import {
+  getEmailVerificationCode,
+  getUserByEmail,
+  getUserByField,
+  insertEmailVerificationCode,
+  insertUser,
+} from '@/lib/db/queries'
 import { emailVerificationCodeSchema, followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { lucia, validateRequest } from '@/lib/Lucia'
@@ -97,7 +103,6 @@ export async function signup(_: unknown, formData: FormData) {
  * Verify Email
  */
 export async function verifyEmail(_: unknown, formData: FormData) {
-  // first param is prevState
   const submission = await parseWithZod(formData, {
     schema: verifyEmailSchema.transform(async (data, ctx) => {
       const { code } = data
@@ -113,7 +118,7 @@ export async function verifyEmail(_: unknown, formData: FormData) {
         ctx.addIssue({
           path: ['code'],
           code: z.ZodIssueCode.custom,
-          message: 'Invalid one time password (OTP).',
+          message: "That code isn't valid. You can request a new one.",
         })
         return z.NEVER
       }
@@ -166,6 +171,14 @@ export async function verifyEmail(_: unknown, formData: FormData) {
   return redirect('/')
 }
 
+const timeFromNow = (time: Date) => {
+  const now = new Date()
+  const diff = time.getTime() - now.getTime()
+  const minutes = Math.floor(diff / 1000 / 60)
+  const seconds = Math.floor(diff / 1000) % 60
+  return `${minutes}m ${seconds}s`
+}
+
 /*
  * Resend Verification Email
  */
@@ -178,16 +191,13 @@ export async function resendVerificationEmail(): Promise<{
     return redirect('/login')
   }
 
-  // const lastSent = await db.query.emailVerificationCodeSchema.findFirst({
-  //   where: (Schema, { eq }) => eq(Schema.userId, user.id),
-  //   columns: { expiresAt: true },
-  // })
+  const lastSent = await getEmailVerificationCode(user.id)
 
-  // if (lastSent?.expiresAt && isWithinExpirationDate(new Date(lastSent.expiresAt))) {
-  //   return {
-  //     error: `Please wait ${timeFromNow(new Date(lastSent.expiresAt))} before resending`,
-  //   }
-  // }
+  if (lastSent && isWithinExpirationDate(new Date(lastSent.expiresAt))) {
+    return {
+      error: `Please wait ${timeFromNow(new Date(lastSent.expiresAt))} before resending`,
+    }
+  }
 
   await sendEmailVerificationCode(user.id, user.email)
 
@@ -198,20 +208,14 @@ export async function resendVerificationEmail(): Promise<{
  * Login
  */
 export async function login(_: unknown, formData: FormData) {
-  // first param is prevState
   const submission = await parseWithZod(formData, {
     schema: loginSchema.transform(async (data, ctx) => {
-      const user = await db
-        .select()
-        .from(userSchema)
-        .where(eq(userSchema.email, data.email))
-        .execute()
-        .then((s) => s[0])
+      const user = await getUserByEmail(data.email)
       if (!(user && user.id)) {
         ctx.addIssue({
           path: ['password'],
           code: z.ZodIssueCode.custom,
-          message: 'Sorry, your password was incorrect. Please double-check your password.',
+          message: 'Incorrect password.',
         })
         return z.NEVER
       }
@@ -222,7 +226,7 @@ export async function login(_: unknown, formData: FormData) {
         ctx.addIssue({
           path: ['password'],
           code: z.ZodIssueCode.custom,
-          message: 'Sorry, your password was incorrect. Please double-check your password.',
+          message: 'Incorrect password.',
         })
         return z.NEVER
       }

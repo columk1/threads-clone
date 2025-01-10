@@ -2,9 +2,8 @@ import { type InferSelectModel, relations, sql } from 'drizzle-orm'
 import { check, index, integer, primaryKey, type SQLiteColumn, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { ulid } from 'ulidx'
 
-// To modify the database schema:
-// 1. Update this file with your desired changes.
-// 2. Generate a new migration by running: `npm run db:generate`
+// Use `npm run db:push` while prototyping
+// Generate a new migration by running: `npm run db:generate`
 
 // The migration is automatically applied during the next database interaction,
 // so there's no need to run it manually or restart the Next.js server.
@@ -51,7 +50,7 @@ export const emailVerificationCodeSchema = sqliteTable('email_verification_code'
       onUpdate: 'cascade',
       onDelete: 'cascade',
     }),
-  expiresAt: integer('expires_at'),
+  expiresAt: integer('expires_at').notNull(),
 })
 
 export const postSchema = sqliteTable(
@@ -75,13 +74,13 @@ export const postSchema = sqliteTable(
       .default(sql`(cast(unixepoch() as int))`),
   },
   (table) => {
-    return {
-      checkConstraint: check(
+    return [
+      check(
         'text_or_image',
         sql`(${table.text} IS NOT NULL AND TRIM(${table.text}) <> '') 
     OR (${table.image} IS NOT NULL AND TRIM(${table.image}) <> '')`,
       ),
-    }
+    ]
   },
 )
 

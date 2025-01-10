@@ -24,7 +24,7 @@ export default async function VerifyEmailPage() {
   return (
     <div className="w-full px-3 sm:px-0">
       <div className="mb-2 flex justify-center">
-        <Image src="/assets/images/mail-logo.png" alt="Mail Icon with Threads Logo" width={96} height={84} />
+        <Image priority src="/assets/images/mail-logo.png" alt="Mail Icon with Threads Logo" width={96} height={84} />
       </div>
       <h1 className="mb-4 text-center font-bold">Enter Confirmation Code</h1>
       <VerifyEmailForm userEmail={user.email} />
