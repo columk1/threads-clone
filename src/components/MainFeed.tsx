@@ -16,7 +16,7 @@ const MainFeed: FunctionComponent<Props> = ({ user, filter }) => {
     <>
       {user && <MobileHomeFeedFilter />}
 
-      <div className="flex w-full flex-1 flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+      <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
         <div className="">
           {user && <NewThread />}
 

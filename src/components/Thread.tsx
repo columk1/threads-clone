@@ -162,9 +162,8 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
   return (
     <>
-      {/* Top border */}
-      {!isParent && !isTarget && <div className="h-[0.5px] bg-gray-5"></div>}
-
+      {/* Top border. Add "first-hidden" to remove top border for main public feed */}
+      {!isParent && !isTarget && <div className={`h-[0.5px] bg-gray-5 ${!currentUser && 'first:hidden'}`}></div>}
       <div className={cx('relative flex flex-col gap-2 px-6 pt-3 text-[15px]', getPadding())}>
         {/* Vertical Line to Link Parent Thread */}
         <div className="relative">
