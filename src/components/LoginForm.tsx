@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState, useCallback, useRef, useState } from 'react'
+import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { login } from '@/app/actions'
 import Spinner from '@/components/spinner/Spinner'
@@ -25,6 +26,15 @@ const LoginForm = () => {
     }
   }, [isValid, getValidity])
 
+  useEffect(() => {
+    if (state?.error?.email) {
+      toast(state.error.email[0])
+    }
+    if (state?.error?.password) {
+      toast(state.error.password[0])
+    }
+  }, [state?.error])
+
   return (
     <form ref={formRef} onInput={handleInput} action={formAction} autoComplete="off">
       <div className="flex w-full flex-col gap-2 text-[15px]">
@@ -36,19 +46,15 @@ const LoginForm = () => {
             placeholder="Username, phone or email"
             autoComplete="current-email"
             defaultValue={state?.initialValue?.email?.toString()}
-            error={state?.error?.email && state?.error?.email[0]}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
           <AuthInput
-            // key forces a re-render if state receives the same error on subsequent submissions
-            key={`${state?.initialValue?.email}${state?.initialValue?.password}`}
             type="password"
             name="password"
             label="Password"
             placeholder="Password"
             autoComplete="current-password"
             defaultValue={state?.initialValue?.password?.toString()}
-            error={state?.error?.password && state?.error?.password[0]}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
         </div>
