@@ -2,7 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
-import { and, desc, eq, isNull, or, sql } from 'drizzle-orm'
+import { and, eq, or, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -14,10 +14,15 @@ import { z } from 'zod'
 import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 import { db } from '@/lib/db/Drizzle'
 import {
+  createOrDeleteFollow,
+  getAllPostsAuth,
+  getAllPostsPublic,
   getEmailVerificationCode,
+  getFollowingPostsByUserId,
   getUserByEmail,
   getUserByField,
   insertEmailVerificationCode,
+  insertPost,
   insertUser,
 } from '@/lib/db/queries'
 import { emailVerificationCodeSchema, followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
@@ -265,9 +270,7 @@ export const logout = async () => {
   const { session } = await validateRequest()
 
   if (!session) {
-    return {
-      error: 'Unauthorized',
-    }
+    return { error: 'Unauthorized' }
   }
 
   await lucia.invalidateSession(session.id)
@@ -306,83 +309,29 @@ export const getAllPosts = async (username?: string) => {
   const { user } = await validateRequest()
 
   if (!user) {
-    const query = db
-      .select({
-        post: postSchema,
-        user: {
-          username: userSchema.username,
-          name: userSchema.name,
-          avatar: userSchema.avatar,
-          bio: userSchema.bio,
-          followerCount: userSchema.followerCount,
-        },
-      })
-      .from(postSchema)
-      .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-      .where(isNull(postSchema.parentId))
-      .orderBy(desc(postSchema.createdAt))
-      .$dynamic()
-
-    if (username) {
-      query.where(eq(userSchema.username, username))
-    }
-
-    const posts = await query.all()
-
-    const formattedPosts = posts.map((post) => ({
+    const posts = await getAllPostsPublic(username)
+    // Replace 0 from Sqlite with actual boolean
+    return posts.map((post) => ({
       ...post,
       user: {
         ...post.user,
         isFollowed: false,
       },
     }))
-    return formattedPosts
   }
 
-  const query = db
-    .select({
-      post: postSchema,
-      user: {
-        username: userSchema.username,
-        name: userSchema.name,
-        avatar: userSchema.avatar,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
-        isFollowed: sql<boolean>`EXISTS (
-        SELECT 1 
-        FROM ${followerSchema} 
-        WHERE ${followerSchema.userId} = ${userSchema.id} 
-          AND ${followerSchema.followerId} = ${user.id}
-      )`.as('isFollowed'),
-      },
-      isLiked: sql<boolean>`EXISTS (
-        SELECT 1 
-        FROM ${likeSchema} 
-        WHERE ${likeSchema.userId} = ${user.id} 
-          AND ${likeSchema.postId} = ${postSchema.id}
-      )`.as('isLiked'),
-    })
-    .from(postSchema)
-    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(isNull(postSchema.parentId))
-    .orderBy(desc(postSchema.createdAt))
-    .$dynamic()
+  const posts = await getAllPostsAuth(user.id, username)
 
-  if (username) {
-    query.where(eq(userSchema.username, username))
-  }
-
-  const posts = await query.all()
-
+  // Replace 1/0s with booleans
   const formattedPosts = posts.map((post) => ({
     ...post,
     post: {
       ...post.post,
-      isLiked: !!post.isLiked,
+      isLiked: !!post.isLiked, // Cast 1/0 to true/false
     },
     user: {
       ...post.user,
-      isFollowed: !!post.user.isFollowed, // Cast 1/0 to true/false
+      isFollowed: !!post.user.isFollowed,
     },
   }))
 
@@ -397,35 +346,10 @@ export const getFollowingPosts = async () => {
   if (!user) {
     return redirect('/login')
   }
-  const posts = await db
-    .select({
-      post: postSchema,
-      user: {
-        username: userSchema.username,
-        name: userSchema.name,
-        avatar: userSchema.avatar,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
-        isFollowed: sql<boolean>`EXISTS (
-        SELECT 1 
-        FROM ${followerSchema} 
-        WHERE ${followerSchema.userId} = ${userSchema.id} 
-          AND ${followerSchema.followerId} = ${user.id}
-      )`.as('isFollowed'),
-      },
-      isLiked: sql<boolean>`EXISTS (
-      SELECT 1 
-      FROM ${likeSchema} 
-      WHERE ${likeSchema.userId} = ${user.id} 
-        AND ${likeSchema.postId} = ${postSchema.id}
-    )`.as('isLiked'),
-    })
-    .from(postSchema)
-    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
-    .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, user.id)))
-    .orderBy(desc(postSchema.createdAt))
-    .all()
+
+  const posts = await getFollowingPostsByUserId(user.id)
+
+  // Replace 1/0s with booleans
   const formattedPosts = posts.map((post) => ({
     post: {
       ...post.post,
@@ -433,7 +357,7 @@ export const getFollowingPosts = async () => {
     },
     user: {
       ...post.user,
-      isFollowed: !!post.user.isFollowed, // Cast 1/0 to true/false
+      isFollowed: !!post.user.isFollowed,
     },
   }))
   return formattedPosts
@@ -458,13 +382,7 @@ export const createPost = async (_: unknown, formData: FormData) => {
     return { error: 'Something went wrong. Please try again.' }
   }
   try {
-    const newPost = await db
-      .insert(postSchema)
-      .values({
-        userId,
-        ...submission.value,
-      })
-      .returning()
+    const newPost = await insertPost(userId, submission.value)
     return { data: newPost }
   } catch (err) {
     logger.error(err)
@@ -491,14 +409,7 @@ export async function createReply(_: unknown, formData: FormData) {
   }
 
   try {
-    const reply = await db
-      .insert(postSchema)
-      .values({
-        userId: user.id,
-        ...submission.value,
-      })
-      .returning()
-
+    const reply = await insertPost(user.id, submission.value)
     return { data: reply }
   } catch (error) {
     logger.error('Error creating reply:', error)
@@ -533,39 +444,8 @@ export const followUser = async (_: unknown, formData: FormData) => {
     return { error: 'Something went wrong. Please try again.' }
   }
   try {
-    const targetUser = await db
-      .select({ id: userSchema.id, followerCount: userSchema.followerCount })
-      .from(userSchema)
-      .where(eq(userSchema.username, submission.value.username))
-      .get()
+    await createOrDeleteFollow(submission.value.username, user.id, submission.value.actionType)
 
-    if (!targetUser) {
-      throw new Error('User not found')
-    }
-
-    await db.transaction(async (tx) => {
-      if (submission.value.actionType === 'follow') {
-        await tx.insert(followerSchema).values({
-          userId: targetUser.id,
-          followerId: user.id,
-        })
-        // Update follower count
-        await tx
-          .update(userSchema)
-          .set({ followerCount: targetUser.followerCount + 1 })
-          .where(eq(userSchema.id, targetUser.id))
-      } else {
-        // unfollow branch
-        await tx
-          .delete(followerSchema)
-          .where(and(eq(followerSchema.userId, targetUser.id), eq(followerSchema.followerId, user.id)))
-        // Update follower count
-        await tx
-          .update(userSchema)
-          .set({ followerCount: targetUser.followerCount - 1 })
-          .where(eq(userSchema.id, targetUser.id))
-      }
-    })
     return {
       success: submission.value.actionType === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
     }
