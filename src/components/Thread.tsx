@@ -171,7 +171,8 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
           <div className="grid grid-cols-[48px_minmax(0,1fr)]">
             <div className={cx('col-start-1 pt-[5px]', isTarget ? 'row-span-1' : 'row-span-2')}>
-              <div className="relative z-10">
+              {/* User Avatar */}
+              <div className="relative z-10 h-9">
                 {isAuthenticated && canFollow ? (
                   <UserModal
                     user={user}

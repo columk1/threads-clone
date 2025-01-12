@@ -30,7 +30,7 @@ const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, 
   return (
     <div
       className={cx(
-        `relative size-bg-gray-1 rounded-full outline outline-[0.5px] outline-offset-[0.5px] outline-primary-outline border-white/20 ${className}`,
+        `relative bg-gray-1 rounded-full outline outline-[0.5px] outline-offset-[0.5px] outline-primary-outline border-white/20 ${className}`,
         sizeClass[size],
         { 'lg:size-[84px]': size === 'lg' }, // Scale lg up to xl on large screens
       )}
