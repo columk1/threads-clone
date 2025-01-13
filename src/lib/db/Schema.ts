@@ -91,10 +91,16 @@ export const followerSchema = sqliteTable(
   {
     userId: text('user_id')
       .notNull()
-      .references(() => userSchema.id),
+      .references(() => userSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
     followerId: text('follower_id')
       .notNull()
-      .references(() => userSchema.id),
+      .references(() => userSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
     createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
   },
   (table) => {
@@ -110,10 +116,16 @@ export const likeSchema = sqliteTable(
   {
     userId: text('user_id')
       .notNull()
-      .references(() => userSchema.id),
+      .references(() => userSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
     postId: text('post_id')
       .notNull()
-      .references(() => postSchema.id),
+      .references(() => postSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
     createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
   },
   (table) => {
