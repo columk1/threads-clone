@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-import { getFollowStatus, handleFollow, updateUserAvatar } from '@/lib/db/queries'
+import { handleFollow, updateUserAvatar } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 import { type FollowActionType, followSchema } from '@/lib/schemas/zod.schema'
@@ -36,34 +36,18 @@ enum FollowStatus {
   Unfollowed = 'Unfollowed',
 }
 
-export const handleFollowAction = async (username: string, action: FollowActionType) => {
+export const handleFollowAction = async (userId: string, action: FollowActionType) => {
   const { user } = await validateRequest()
   if (!user) {
     return redirect('/login')
   }
 
   try {
-    followSchema.parse({ username, action })
-    await handleFollow(username, user.id, action)
+    followSchema.parse({ userId, action })
+    await handleFollow(userId, user.id, action)
     return {
       success: action === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
     }
-  } catch (err) {
-    logger.error(err)
-    return { error: 'Something went wrong. Please try again.' }
-  }
-}
-
-/*
- * Get user follow status
- */
-export const isFollowing = async (username: string) => {
-  const { user } = await validateRequest()
-  if (!user) {
-    return redirect('/login')
-  }
-  try {
-    return await getFollowStatus(username, user.id)
   } catch (err) {
     logger.error(err)
     return { error: 'Something went wrong. Please try again.' }

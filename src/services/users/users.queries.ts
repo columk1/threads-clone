@@ -6,6 +6,7 @@ import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 
 export type PostUser = {
+  id: string
   username: string
   name: string
   avatar: string | null
@@ -15,6 +16,7 @@ export type PostUser = {
 }
 
 export type PublicUser = {
+  id: string
   username: string
   name: string
   avatar: string | null
@@ -47,6 +49,7 @@ const getAuthUserInfoCached = cache(async (username: string): Promise<{ user: Po
 
     return {
       user: {
+        id: userInfo.id,
         username: userInfo.username,
         name: userInfo.name,
         avatar: userInfo.avatar,
@@ -75,6 +78,7 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: 
     }
     return {
       user: {
+        id: userInfo.id,
         username: userInfo.username,
         name: userInfo.name,
         avatar: userInfo.avatar,

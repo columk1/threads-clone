@@ -69,65 +69,65 @@ export const getUserByEmail = async (email: string) => {
   return await db.select().from(userSchema).where(eq(userSchema.email, email)).get()
 }
 
-export const getUserIdAndFollowerCount = async (username: string) => {
+export const getFollowerCount = async (userId: string) => {
   return await db
-    .select({ id: userSchema.id, followerCount: userSchema.followerCount })
+    .select({ followerCount: userSchema.followerCount })
     .from(userSchema)
-    .where(eq(userSchema.username, username))
+    .where(eq(userSchema.id, userId))
     .get()
 }
 
-export const handleFollow = async (username: string, followerId: string, action: 'follow' | 'unfollow') => {
-  const targetUser = await getUserIdAndFollowerCount(username)
+export const handleFollow = async (userId: string, followerId: string, action: 'follow' | 'unfollow') => {
+  const targetUser = await getFollowerCount(userId)
   if (!targetUser) {
     throw new Error('User not found')
   }
   await db.transaction(async (tx) => {
     if (action === 'follow') {
       await tx.insert(followerSchema).values({
-        userId: targetUser.id,
+        userId,
         followerId,
       })
       // Update follower count
       await tx
         .update(userSchema)
         .set({ followerCount: targetUser.followerCount + 1 })
-        .where(eq(userSchema.id, targetUser.id))
+        .where(eq(userSchema.id, userId))
     } else {
       // unfollow branch
       await tx
         .delete(followerSchema)
-        .where(and(eq(followerSchema.userId, targetUser.id), eq(followerSchema.followerId, followerId)))
+        .where(and(eq(followerSchema.userId, userId), eq(followerSchema.followerId, followerId)))
       // Update follower count
       await tx
         .update(userSchema)
         .set({ followerCount: targetUser.followerCount - 1 })
-        .where(eq(userSchema.id, targetUser.id))
+        .where(eq(userSchema.id, userId))
     }
   })
 }
 
-export const getFollowStatus = async (targetUsername: string, userId: string) => {
+export const getFollowStatus = async (targetUserId: string, userId: string) => {
   const result = await db
     .select({
       isFollowed: sql<boolean>`EXISTS (
       SELECT 1 
       FROM ${followerSchema} 
       WHERE ${followerSchema.userId} = (
-        SELECT id FROM ${userSchema} WHERE username = ${targetUsername}
+        SELECT id FROM ${userSchema} WHERE id = ${targetUserId}
       )
       AND ${followerSchema.followerId} = ${userId}
       LIMIT 1
     )`.as('isFollowed'),
     })
     .from(userSchema)
-    .where(eq(userSchema.username, targetUsername))
+    .where(eq(userSchema.id, targetUserId))
     .get()
 
   return Boolean(result?.isFollowed)
 }
 
-export const getAuthUserDetails = async (targetUsername: string, userId: string) => {
+export const getAuthUserDetails = async (targetUserId: string, userId: string) => {
   return await db
     .select({
       ...baseUserSelect,
@@ -140,7 +140,7 @@ export const getAuthUserDetails = async (targetUsername: string, userId: string)
         )`.as('isFollowed'),
     })
     .from(userSchema)
-    .where(eq(userSchema.username, targetUsername))
+    .where(eq(userSchema.id, targetUserId))
     .get()
 }
 
@@ -157,11 +157,7 @@ export const listPublicPosts = async (authorUsername?: string) => {
     .select({
       post: postSchema,
       user: {
-        username: userSchema.username,
-        name: userSchema.name,
-        avatar: userSchema.avatar,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
+        ...baseUserSelect,
         isFollowed: sql`false`,
       },
     })
@@ -177,16 +173,12 @@ export const listPublicPosts = async (authorUsername?: string) => {
   return await query.all()
 }
 
-export const listAuthPosts = async (userId: string, authorUsername?: string) => {
+export const listAuthPosts = async (userId: string, authorId?: string) => {
   const query = db
     .select({
       post: postSchema,
       user: {
-        username: userSchema.username,
-        name: userSchema.name,
-        avatar: userSchema.avatar,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
+        ...baseUserSelect,
         isFollowed: sql<boolean>`EXISTS (
       SELECT 1 
       FROM ${followerSchema} 
@@ -207,8 +199,8 @@ export const listAuthPosts = async (userId: string, authorUsername?: string) => 
     .orderBy(desc(postSchema.createdAt))
     .$dynamic()
 
-  if (authorUsername) {
-    query.where(eq(userSchema.username, authorUsername))
+  if (authorId) {
+    query.where(eq(userSchema.id, authorId))
   }
 
   return await query.all()
@@ -219,11 +211,7 @@ export const listFollowingPosts = async (userId: string) => {
     .select({
       post: postSchema,
       user: {
-        username: userSchema.username,
-        name: userSchema.name,
-        avatar: userSchema.avatar,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
+        ...baseUserSelect,
         isFollowed: sql<boolean>`EXISTS (
         SELECT 1 
         FROM ${followerSchema} 

@@ -58,8 +58,8 @@ export const usernameParamSchema = z
   .transform((s) => s.slice(3)) // Remove %40 prefix
 
 export const followSchema = z.object({
-  username: z.string().min(1),
-  action: z.enum(['follow', 'unfollow']),
+  userId: z.string().min(1, { message: 'UserId is required' }),
+  action: z.enum(['follow', 'unfollow'], { message: 'Invalid action' }),
 })
 
 export type FollowActionType = z.infer<typeof followSchema>['action']

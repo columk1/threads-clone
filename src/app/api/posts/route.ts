@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { db } from '@/lib/db/Drizzle'
+import { baseUserSelect } from '@/lib/db/queries'
 import { followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
 
 // type PostsResponse = {
@@ -35,12 +36,7 @@ export async function GET(request: NextRequest) {
     const query = db
       .select({
         post: postSchema,
-        user: {
-          username: userSchema.username,
-          name: userSchema.name,
-          bio: userSchema.bio,
-          followerCount: userSchema.followerCount,
-        },
+        user: baseUserSelect,
       })
       .from(postSchema)
       .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
