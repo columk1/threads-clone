@@ -4,46 +4,15 @@ import Link from 'next/link'
 import { type FunctionComponent, useActionState, useCallback, useRef, useState } from 'react'
 
 import { signup } from '@/services/auth/auth.actions'
+import { isUniqueEmail, isUniqueUsername } from '@/services/users/users.client.queries'
 
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'
 
 const VALIDATION_DELAY = 300
 
-const isEmailUnique = async (email: string): Promise<boolean> => {
-  const res = await fetch('/api/validate-email', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email }),
-  })
-
-  if (res.ok) {
-    const { isUnique } = await res.json()
-    return isUnique
-  }
-  return true
-}
-
-const isUsernameUnique = async (username: string): Promise<boolean> => {
-  const res = await fetch('/api/validate-username', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username }),
-  })
-
-  if (res.ok) {
-    const { isUnique } = await res.json()
-    return isUnique
-  }
-  return true
-}
-
 const validateEmail = async (email: string) => {
-  const isUnique = await isEmailUnique(email)
+  const isUnique = await isUniqueEmail(email)
   if (!isUnique) {
     return {
       error: 'Another account is using the same email.',
@@ -53,7 +22,7 @@ const validateEmail = async (email: string) => {
 }
 
 const validateUsername = async (username: string) => {
-  const isUnique = await isUsernameUnique(username)
+  const isUnique = await isUniqueUsername(username)
   if (!isUnique) {
     return {
       error: 'A user with that username already exists.',

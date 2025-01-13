@@ -17,23 +17,28 @@ const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
   const cookies = useCookies()
 
   useEffect(() => {
-    if (resendState?.success) {
-      toast(`We sent the confirmation code to your email ${userEmail}.`)
-    }
-    if (resendState?.error) {
-      // toast(resendState.error, {
-      //   icon: <ExclamationTriangleIcon className="h-5 w-5 text-destructive" />,
-      // });
-      toast(resendState.error)
-    }
-  }, [resendState?.error, resendState?.success, userEmail])
+    let toastShown = false
 
-  useEffect(() => {
-    const emailSent = cookies.get(VERIFIED_EMAIL_ALERT)
-    if (emailSent) {
+    // Check for successful resend
+    if (resendState?.success && !toastShown) {
       toast(`We sent the confirmation code to your email ${userEmail}.`)
+      toastShown = true
     }
-  }, [cookies, userEmail])
+
+    // Check for failed resend
+    if (resendState?.error && !toastShown) {
+      toast(resendState.error)
+      toastShown = true
+    }
+
+    // Check for cookie set by initial email action
+    const emailSent = cookies.get(VERIFIED_EMAIL_ALERT)
+
+    if (emailSent && !toastShown) {
+      toast(`We sent the confirmation code to your email ${userEmail}.`)
+      toastShown = true
+    }
+  }, [resendState?.error, resendState?.success, cookies, userEmail])
 
   const [form, fields] = useForm({
     id: 'verify-email-form',
