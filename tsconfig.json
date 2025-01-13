@@ -58,13 +58,5 @@
     ]
   },
   "exclude": ["./out/**/*", "./node_modules/**/*", "**/*.spec.ts", "**/*.e2e.ts", "./sandbox/**/*"],
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".storybook/*.ts",
-    ".next/types/**/*.ts",
-    "**/*.mts",
-    "scripts/seed.js"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "**/*.mts", "scripts/seed.js"]
 }

@@ -3,6 +3,7 @@ import '@/styles/global.css'
 import type { Metadata } from 'next'
 import { CookiesProvider } from 'next-client-cookies/server'
 import { ThemeProvider } from 'next-themes'
+import { Suspense } from 'react'
 import { Toaster } from 'sonner'
 
 import { ModalProvider } from '@/context/ModalContext'
@@ -39,25 +40,28 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en-US" suppressHydrationWarning>
       <body suppressHydrationWarning className="overflow-y-scroll bg-primary-bg font-system text-primary-text">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <CookiesProvider>
-            <ModalProvider>
-              <div className="flex min-h-screen flex-1 flex-col items-center justify-center">
-                {/* <div className="flex min-h-screen flex-col justify-between"> */}
-                {props.children}
-                <Toaster
-                  position="bottom-center"
-                  className="flex justify-center"
-                  toastOptions={{
-                    classNames: {
-                      toast: 'text-base w-fit py-3 px-5',
-                      icon: 'hidden',
-                    },
-                    duration: 2500,
-                  }}
-                />
-              </div>
-            </ModalProvider>
-          </CookiesProvider>
+          {/* Suspense is required for cookies provider since it is async */}
+          <Suspense fallback={<div></div>}>
+            <CookiesProvider>
+              <ModalProvider>
+                <div className="flex min-h-screen flex-1 flex-col items-center justify-center">
+                  {/* <div className="flex min-h-screen flex-col justify-between"> */}
+                  {props.children}
+                  <Toaster
+                    position="bottom-center"
+                    className="flex justify-center"
+                    toastOptions={{
+                      classNames: {
+                        toast: 'text-base w-fit py-3 px-5',
+                        icon: 'hidden',
+                      },
+                      duration: 2500,
+                    }}
+                  />
+                </div>
+              </ModalProvider>
+            </CookiesProvider>
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>
