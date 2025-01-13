@@ -21,7 +21,8 @@ import {
 } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { lucia, validateRequest } from '@/lib/Lucia'
-import { loginSchema, SignupSchema, verifyEmailSchema } from '@/lib/schemas/zod.schema'
+import { loginSchema, verifyEmailSchema } from '@/lib/schemas/zod.schema'
+import { signupSchema } from '@/lib/schemas/zod.schema.server'
 import { generateRandomString } from '@/utils/string/generateRandomString'
 
 /*
@@ -49,7 +50,7 @@ export async function sendEmailVerificationCode(userId: string, email: string) {
  */
 export async function signup(_: unknown, formData: FormData) {
   const userId = ulid()
-  const submission = await parseWithZod(formData, { schema: SignupSchema, async: true })
+  const submission = await parseWithZod(formData, { schema: signupSchema, async: true })
 
   if (submission.status !== 'success') {
     return submission.reply()

@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { type FunctionComponent, useActionState, useCallback, useRef, useState } from 'react'
 
+import { isUniqueEmail, isUniqueUsername } from '@/helpers/formHelpers'
 import { signup } from '@/services/auth/auth.actions'
-import { isUniqueEmail, isUniqueUsername } from '@/services/users/users.client.queries'
 
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'

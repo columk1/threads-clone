@@ -1,3 +1,5 @@
+import { getBaseUrl } from '@/utils/getBaseUrl'
+
 type ValidationMessageFunction = (field: HTMLInputElement) => string
 
 type ErrorMessages = {
@@ -32,3 +34,17 @@ export const getError = (field: HTMLInputElement, errorMessages: ErrorMessages):
   // Return the default message if no other message was found
   return errorMessages.defaultMessage
 }
+
+/*
+ * Is Unique Email
+ */
+
+export const isUniqueEmail = async (email: string) =>
+  await fetch(`${getBaseUrl()}/api/users/validate?email=${encodeURIComponent(email)}`).then((res) => res.ok)
+
+/*
+ * Is Unique Email
+ */
+
+export const isUniqueUsername = async (username: string) =>
+  await fetch(`${getBaseUrl()}/api/users/validate?username=${encodeURIComponent(username)}`).then((res) => res.ok)
