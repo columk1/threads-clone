@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
-import { getPostById, getSinglePostById } from '@/app/actions'
+import { getAuthPostById, getPublicPostById, getSinglePostById } from '@/app/actions'
 import Header from '@/components/Header'
 import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
@@ -31,6 +31,8 @@ export default async function PostPage({ params }: Props) {
 
   // const data: ResponseData = await fetch(`${BASE_URL}/api/posts/${postId}?user=${currentUser?.id}&replies=true`, { next: { revalidate: 60 } })
   //   .then(res => res.json())
+
+  const getPostById = currentUser ? getAuthPostById : getPublicPostById
 
   const data = await getPostById(postId)
 

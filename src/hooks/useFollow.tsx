@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { getUserFollowStatus, type PostUser, type PublicUser, toggleFollow } from '@/app/actions'
+import { handleFollowAction, isFollowing, type PostUser, type PublicUser } from '@/app/actions'
 
 import { useModal } from './useModal'
 
@@ -16,7 +16,7 @@ export const useFollow = ({ initialUser }: { initialUser: PostUser | PublicUser 
 
   const validateFollowStatus = async () => {
     if ('isFollowed' in user) {
-      const result = await getUserFollowStatus(user.username)
+      const result = await isFollowing(user.username)
       if (typeof result === 'boolean' && result !== user.isFollowed) {
         setUser((prev) => ({
           ...prev,
@@ -34,7 +34,7 @@ export const useFollow = ({ initialUser }: { initialUser: PostUser | PublicUser 
         followerCount: user.isFollowed ? user.followerCount - 1 : user.followerCount + 1,
       })
 
-      const result = await toggleFollow(user.username, user.isFollowed ? 'unfollow' : 'follow')
+      const result = await handleFollowAction(user.username, user.isFollowed ? 'unfollow' : 'follow')
       if (result.error) {
         toast.error(result.error)
         setUser(user)

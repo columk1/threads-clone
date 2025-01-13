@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react'
 
-import type { getAllPosts } from '@/app/actions'
+import type { getPosts } from '@/app/actions'
 import { useAppStore } from '@/hooks/useAppStore'
 
 type HydrateStoreProps = {
-  initialPosts: Awaited<ReturnType<typeof getAllPosts>>
+  initialPosts: Awaited<ReturnType<typeof getPosts>>
 }
 
 const HydrateStore = ({ initialPosts }: HydrateStoreProps) => {

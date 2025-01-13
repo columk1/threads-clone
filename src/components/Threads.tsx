@@ -1,6 +1,6 @@
 import type { FunctionComponent } from 'react'
 
-import { getAllPosts, getFollowingPosts } from '@/app/actions'
+import { getFollowingPosts, getPosts } from '@/app/actions'
 import { validateRequest } from '@/lib/Lucia'
 
 import HydrateStore from './hydrateStore'
@@ -12,8 +12,8 @@ type ThreadsProps = {
 
 const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
   const { user } = await validateRequest()
-  const getPosts = filter === undefined ? getAllPosts : getFollowingPosts
-  const rows = await getPosts()
+  const getPostsQuery = filter === undefined ? getPosts : getFollowingPosts
+  const rows = await getPostsQuery()
   // const rows: PostsResponse
   //   = await fetch(`${BASE_URL}/api/posts?user=${user?.id}${filter ? `&filter=${filter}` : ''}`, { next: { revalidate: 60, tags: ['posts'] } })
   //     .then(res => res.json())

@@ -56,3 +56,10 @@ export const usernameParamSchema = z
   .string()
   .startsWith('%40', 'Username must start with @')
   .transform((s) => s.slice(3)) // Remove %40 prefix
+
+export const followSchema = z.object({
+  username: z.string().min(1),
+  action: z.enum(['follow', 'unfollow']),
+})
+
+export type FollowActionType = z.infer<typeof followSchema>['action']

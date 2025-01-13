@@ -225,7 +225,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     if (state?.error) {
       toast(state.error)
     } else {
-      if (state?.data) {
+      if (state?.success) {
         router.refresh()
         closeModal()
       }

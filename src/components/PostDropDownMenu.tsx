@@ -25,7 +25,7 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
   isAuthenticated,
 }) => {
   // const handleMouseEnter = () => {
-  //   getUserFollowStatus(username).then((status) => {
+  //   isFollowing(username).then((status) => {
   //     if (status !== isFollowed) {
   //       onFollowToggle()
   //     }

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
 
-import { likePost, type PostUser, unlikePost } from '@/app/actions'
+import { handleLikeAction, type PostUser } from '@/app/actions'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useFollow } from '@/hooks/useFollow'
 import { useModal } from '@/hooks/useModal'
@@ -104,7 +104,8 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
   const handleToggleLike = async () => {
     toggleLike()
-    const result = await (likeState.isLiked ? unlikePost(post.id) : likePost(post.id))
+    const likeAction = likeState.isLiked ? 'unlike' : 'like'
+    const result = await handleLikeAction(likeAction, post.id)
     if (result.error) {
       // revert optimistic update
       toggleLike()

@@ -2,7 +2,6 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
-import { and, eq, or, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -12,23 +11,42 @@ import { ulid } from 'ulidx'
 import { z } from 'zod'
 
 import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
-import { db } from '@/lib/db/Drizzle'
 import {
-  createOrDeleteFollow,
-  getAllPostsAuth,
-  getAllPostsPublic,
+  createEmailVerificationCode,
+  createUser,
+  deleteEmailVerificationCode,
+  deleteLikeAndUpdateCount,
+  findUserByField,
+  getAuthPostWithReplies,
+  getAuthUserDetails,
   getEmailVerificationCode,
-  getFollowingPostsByUserId,
+  getFollowStatus,
+  getLatestVerificationCode,
+  getPostById,
+  getPublicPostWithReplies,
+  getPublicUserDetails,
   getUserByEmail,
-  getUserByField,
-  insertEmailVerificationCode,
+  getUserById,
+  handleFollow,
+  insertLikeAndUpdateCount,
   insertPost,
-  insertUser,
+  listAuthPosts,
+  listFollowingPosts,
+  listPublicPosts,
+  updateEmailVerified,
+  updateUserAvatar,
 } from '@/lib/db/queries'
-import { emailVerificationCodeSchema, followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { lucia, validateRequest } from '@/lib/Lucia'
-import { loginSchema, newPostSchema, replySchema, SignupSchema, verifyEmailSchema } from '@/lib/schemas/zod.schema'
+import {
+  type FollowActionType,
+  followSchema,
+  loginSchema,
+  newPostSchema,
+  replySchema,
+  SignupSchema,
+  verifyEmailSchema,
+} from '@/lib/schemas/zod.schema'
 import { generateRandomString } from '@/utils/string/generateRandomString'
 
 /*
@@ -38,7 +56,7 @@ const generateEmailVerificationCode = async (userId: string): Promise<string> =>
   const code = generateRandomString(6)
   const expiresAt = Date.now() + 5 * 60 * 1000 // 5 minutes
 
-  await insertEmailVerificationCode(userId, code, expiresAt)
+  await createEmailVerificationCode(userId, code, expiresAt)
 
   return code
 }
@@ -55,7 +73,7 @@ export async function sendEmailVerificationCode(userId: string, email: string) {
  * Is Unique Field
  */
 export const isUniqueUserField = async (field: 'email' | 'username', value: string) => {
-  const user = await getUserByField(field, value)
+  const user = await findUserByField(field, value)
   return !user
 }
 
@@ -76,7 +94,7 @@ export async function signup(_: unknown, formData: FormData) {
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  const user = await insertUser({ id: userId, emailVerified: 0, password: hashedPassword, email, name, username })
+  const user = await createUser({ id: userId, emailVerified: 0, password: hashedPassword, email, name, username })
 
   if (!user) {
     throw new Error('Failed to create user')
@@ -112,12 +130,7 @@ export async function verifyEmail(_: unknown, formData: FormData) {
     schema: verifyEmailSchema.transform(async (data, ctx) => {
       const { code } = data
 
-      const databaseCode = await db
-        .select()
-        .from(emailVerificationCodeSchema)
-        .where(eq(emailVerificationCodeSchema.code, code))
-        .execute()
-        .then((s) => s[0])
+      const databaseCode = await getEmailVerificationCode(code)
 
       if (!databaseCode) {
         ctx.addIssue({
@@ -137,7 +150,7 @@ export async function verifyEmail(_: unknown, formData: FormData) {
         return z.NEVER
       }
 
-      await db.delete(emailVerificationCodeSchema).where(eq(emailVerificationCodeSchema.id, databaseCode.id))
+      await deleteEmailVerificationCode(databaseCode.id)
 
       return { ...data, ...databaseCode }
     }),
@@ -148,19 +161,14 @@ export async function verifyEmail(_: unknown, formData: FormData) {
     return submission.reply()
   }
 
-  const user = await db
-    .select()
-    .from(userSchema)
-    .where(eq(userSchema.id, submission.value.userId))
-    .execute()
-    .then((s) => s[0])
+  const user = await getUserById(submission.value.userId)
 
   if (!user) {
     throw new Error('User not found')
   }
 
   await lucia.invalidateUserSessions(user.id)
-  await db.update(userSchema).set({ emailVerified: 1 }).where(eq(userSchema.id, user.id))
+  await updateEmailVerified(user.id)
 
   logger.info(`\n😊 ${user.email} has been verified.\n`)
 
@@ -196,7 +204,7 @@ export async function resendVerificationEmail(): Promise<{
     return redirect('/login')
   }
 
-  const lastSent = await getEmailVerificationCode(user.id)
+  const lastSent = await getLatestVerificationCode(user.id)
 
   if (lastSent && isWithinExpirationDate(new Date(lastSent.expiresAt))) {
     return {
@@ -305,11 +313,11 @@ export type PublicUser = {
 /*
  * GET posts
  */
-export const getAllPosts = async (username?: string) => {
+export const getPosts = async (username?: string) => {
   const { user } = await validateRequest()
 
   if (!user) {
-    const posts = await getAllPostsPublic(username)
+    const posts = await listPublicPosts(username)
     // Replace 0 from Sqlite with actual boolean
     return posts.map((post) => ({
       ...post,
@@ -320,18 +328,18 @@ export const getAllPosts = async (username?: string) => {
     }))
   }
 
-  const posts = await getAllPostsAuth(user.id, username)
+  const posts = await listAuthPosts(user.id, username)
 
   // Replace 1/0s with booleans
   const formattedPosts = posts.map((post) => ({
     ...post,
     post: {
       ...post.post,
-      isLiked: !!post.isLiked, // Cast 1/0 to true/false
+      isLiked: Boolean(post.isLiked), // Cast 1/0 to true/false
     },
     user: {
       ...post.user,
-      isFollowed: !!post.user.isFollowed,
+      isFollowed: Boolean(post.user.isFollowed),
     },
   }))
 
@@ -347,17 +355,17 @@ export const getFollowingPosts = async () => {
     return redirect('/login')
   }
 
-  const posts = await getFollowingPostsByUserId(user.id)
+  const posts = await listFollowingPosts(user.id)
 
   // Replace 1/0s with booleans
   const formattedPosts = posts.map((post) => ({
     post: {
       ...post.post,
-      isLiked: !!post.isLiked,
+      isLiked: Boolean(post.isLiked),
     },
     user: {
       ...post.user,
-      isFollowed: !!post.user.isFollowed,
+      isFollowed: Boolean(post.user.isFollowed),
     },
   }))
   return formattedPosts
@@ -382,8 +390,8 @@ export const createPost = async (_: unknown, formData: FormData) => {
     return { error: 'Something went wrong. Please try again.' }
   }
   try {
-    const newPost = await insertPost(userId, submission.value)
-    return { data: newPost }
+    await insertPost(userId, submission.value)
+    return { success: true }
   } catch (err) {
     logger.error(err)
     return { error: 'Something went wrong. Please try again.' }
@@ -418,7 +426,7 @@ export async function createReply(_: unknown, formData: FormData) {
 }
 
 /*
- * POST follow user
+ * POST: Follow/Unfollow
  */
 
 enum FollowStatus {
@@ -426,79 +434,15 @@ enum FollowStatus {
   Unfollowed = 'Unfollowed',
 }
 
-export const followUser = async (_: unknown, formData: FormData) => {
-  logger.info(formData)
-  const { user } = await validateRequest()
-  if (!user) {
-    return redirect('/login')
-  }
-  const submission = parseWithZod(formData, {
-    schema: z.object({
-      username: z.string().min(1),
-      actionType: z.enum(['follow', 'unfollow']),
-    }),
-  })
-  if (submission.status !== 'success') {
-    logger.info('error submitting new thread')
-    // return submission.reply()
-    return { error: 'Something went wrong. Please try again.' }
-  }
-  try {
-    await createOrDeleteFollow(submission.value.username, user.id, submission.value.actionType)
-
-    return {
-      success: submission.value.actionType === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
-    }
-  } catch (err) {
-    logger.error(err)
-    return { error: 'Something went wrong. Please try again.' }
-  }
-}
-
-/*
- * POST: Follow/Unfollow
- */
-
-export const toggleFollow = async (username: string, action: 'follow' | 'unfollow') => {
+export const handleFollowAction = async (username: string, action: FollowActionType) => {
   const { user } = await validateRequest()
   if (!user) {
     return redirect('/login')
   }
 
   try {
-    const targetUser = await db
-      .select({ id: userSchema.id, followerCount: userSchema.followerCount })
-      .from(userSchema)
-      .where(eq(userSchema.username, username))
-      .get()
-
-    if (!targetUser) {
-      throw new Error('User not found')
-    }
-
-    await db.transaction(async (tx) => {
-      if (action === 'follow') {
-        await tx.insert(followerSchema).values({
-          userId: targetUser.id,
-          followerId: user.id,
-        })
-        await tx
-          .update(userSchema)
-          .set({ followerCount: targetUser.followerCount + 1 })
-          .where(eq(userSchema.id, targetUser.id))
-      } else {
-        const deletedFollow = await tx
-          .delete(followerSchema)
-          .where(and(eq(followerSchema.userId, targetUser.id), eq(followerSchema.followerId, user.id)))
-        if (deletedFollow.rowsAffected !== 1) {
-          throw new Error('Failed to unfollow user')
-        }
-        await tx
-          .update(userSchema)
-          .set({ followerCount: targetUser.followerCount - 1 })
-          .where(eq(userSchema.id, targetUser.id))
-      }
-    })
+    followSchema.parse({ username, action })
+    await handleFollow(username, user.id, action)
     return {
       success: action === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
     }
@@ -509,31 +453,46 @@ export const toggleFollow = async (username: string, action: 'follow' | 'unfollo
 }
 
 /*
- * GET user follow status
+ * POST follow user
  */
-export const getUserFollowStatus = async (username: string) => {
+
+// export const handleFollowAction = async (_: unknown, formData: FormData) => {
+//   logger.info(formData)
+//   const { user } = await validateRequest()
+//   if (!user) {
+//     return redirect('/login')
+//   }
+//   const submission = parseWithZod(formData, {
+//     schema: followSchema,
+//   })
+//   if (submission.status !== 'success') {
+//     logger.info('error submitting new thread')
+//     // return submission.reply()
+//     return { error: 'Something went wrong. Please try again.' }
+//   }
+//   try {
+//     await createOrDeleteFollow(submission.value.username, user.id, submission.value.actionType)
+
+//     return {
+//       success: submission.value.actionType === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
+//     }
+//   } catch (err) {
+//     logger.error(err)
+//     return { error: 'Something went wrong. Please try again.' }
+//   }
+// }
+
+/*
+ * GET user follow status
+ * Used for getting follow status on hover in Thread, might not be needed depending on how state is managed.
+ */
+export const isFollowing = async (username: string) => {
   const { user } = await validateRequest()
   if (!user) {
     return redirect('/login')
   }
   try {
-    const result = await db
-      .select({
-        isFollowed: sql<boolean>`EXISTS (
-      SELECT 1 
-      FROM ${followerSchema} 
-      WHERE ${followerSchema.userId} = (
-        SELECT id FROM ${userSchema} WHERE username = ${username}
-      )
-      AND ${followerSchema.followerId} = ${user.id}
-      LIMIT 1
-    )`.as('isFollowed'),
-      })
-      .from(userSchema)
-      .where(eq(userSchema.username, username))
-      .get()
-
-    return !!result?.isFollowed
+    return await getFollowStatus(username, user.id)
   } catch (err) {
     logger.error(err)
     return { error: 'Something went wrong. Please try again.' }
@@ -543,30 +502,13 @@ export const getUserFollowStatus = async (username: string) => {
 /*
  * GET user info
  */
-const getUserInfoCached = cache(async (username: string): Promise<{ user: PostUser } | { error: string }> => {
+const getAuthUserInfoCached = cache(async (username: string): Promise<{ user: PostUser } | { error: string }> => {
   try {
     const { user } = await validateRequest()
-    const userInfo = await db
-      .select({
-        id: userSchema.id,
-        username: userSchema.username,
-        name: userSchema.name,
-        avatar: userSchema.avatar,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
-        isFollowed: user
-          ? sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id}
-          AND ${followerSchema.followerId} = ${user.id}
-          LIMIT 1
-        )`.as('isFollowed')
-          : sql<boolean>`false`.as('isFollowed'),
-      })
-      .from(userSchema)
-      .where(eq(userSchema.username, username))
-      .get()
+    if (!user) {
+      return redirect('/login')
+    }
+    const userInfo = await getAuthUserDetails(username, user.id)
 
     if (!userInfo) {
       return { error: 'User not found' }
@@ -579,7 +521,7 @@ const getUserInfoCached = cache(async (username: string): Promise<{ user: PostUs
         avatar: userInfo.avatar,
         bio: userInfo.bio,
         followerCount: userInfo.followerCount,
-        isFollowed: !!userInfo.isFollowed,
+        isFollowed: Boolean(userInfo.isFollowed),
       },
     }
   } catch (err) {
@@ -588,7 +530,7 @@ const getUserInfoCached = cache(async (username: string): Promise<{ user: PostUs
   }
 })
 
-export const getUserInfo = getUserInfoCached
+export const getUserInfo = getAuthUserInfoCached
 
 /*
  * GET public user info
@@ -596,18 +538,7 @@ export const getUserInfo = getUserInfoCached
 
 const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: PublicUser } | { error: string }> => {
   try {
-    const userInfo = await db
-      .select({
-        id: userSchema.id,
-        username: userSchema.username,
-        name: userSchema.name,
-        avatar: userSchema.avatar,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
-      })
-      .from(userSchema)
-      .where(eq(userSchema.username, username))
-      .get()
+    const userInfo = await getPublicUserDetails(username)
 
     if (!userInfo) {
       return { error: 'User not found' }
@@ -630,74 +561,11 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: 
 export const getPublicUserInfo = getPublicUserInfoCached
 
 /*
- * GET post and replies by id including author info from user table
+ * GET public post and replies by id including author info from user table
  */
 
-export const getPostById = async (id: string) => {
-  const { user } = await validateRequest()
-
-  // Base query that works for both authenticated and public users
-  const baseSelect = {
-    post: postSchema,
-    user: {
-      username: userSchema.username,
-      name: userSchema.name,
-      avatar: userSchema.avatar,
-      bio: userSchema.bio,
-      followerCount: userSchema.followerCount,
-    },
-  }
-
-  if (!user) {
-    const results = await db
-      .select(baseSelect)
-      .from(postSchema)
-      .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-      .where(or(eq(postSchema.id, id), eq(postSchema.parentId, id)))
-      .orderBy(postSchema.createdAt)
-      .all()
-
-    if (!results.length) {
-      return null
-    }
-
-    return results.map((result) => ({
-      ...result,
-      post: {
-        ...result.post,
-        isLiked: false,
-      },
-      user: {
-        ...result.user,
-        isFollowed: false,
-      },
-    }))
-  }
-
-  const results = await db
-    .select({
-      ...baseSelect,
-      user: {
-        ...baseSelect.user,
-        isFollowed: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${userSchema.id}
-              AND ${followerSchema.followerId} = ${user.id}
-          )`.as('isFollowed'),
-      },
-      isLiked: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${likeSchema} 
-          WHERE ${likeSchema.userId} = ${user.id} 
-            AND ${likeSchema.postId} = ${postSchema.id}
-        )`.as('isLiked'),
-    })
-    .from(postSchema)
-    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(or(eq(postSchema.id, id), eq(postSchema.parentId, id)))
-    .orderBy(postSchema.createdAt)
-    .all()
+export const getPublicPostById = async (id: string) => {
+  const results = await getPublicPostWithReplies(id)
 
   if (!results.length) {
     return null
@@ -707,11 +575,40 @@ export const getPostById = async (id: string) => {
     ...result,
     post: {
       ...result.post,
-      isLiked: !!result.isLiked,
+      isLiked: false,
     },
     user: {
       ...result.user,
-      isFollowed: !!result.user.isFollowed,
+      isFollowed: false,
+    },
+  }))
+}
+
+/*
+ * GET authenticated post and replies by id including author info from user table
+ */
+
+export const getAuthPostById = async (id: string) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+
+  const results = await getAuthPostWithReplies(id, user.id)
+
+  if (!results.length) {
+    return null
+  }
+
+  return results.map((result) => ({
+    ...result,
+    post: {
+      ...result.post,
+      isLiked: Boolean(result.isLiked),
+    },
+    user: {
+      ...result.user,
+      isFollowed: Boolean(result.user.isFollowed),
     },
   }))
 }
@@ -721,21 +618,7 @@ export const getPostById = async (id: string) => {
  */
 
 export const getSinglePostById = async (id: string) => {
-  const post = await db
-    .select({
-      post: postSchema,
-      user: {
-        username: userSchema.username,
-        name: userSchema.name,
-        avatar: userSchema.avatar,
-        bio: userSchema.bio,
-        followerCount: userSchema.followerCount,
-      },
-    })
-    .from(postSchema)
-    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(eq(postSchema.id, id))
-    .get()
+  const post = await getPostById(id)
 
   if (!post) {
     return null
@@ -748,56 +631,26 @@ export const getSinglePostById = async (id: string) => {
 }
 
 /*
- * POST: Like
+ * POST: Like/Unlike
  */
 
-export const likePost = async (postId: string) => {
-  const { user } = await validateRequest()
-  if (!user) {
-    return redirect('/login')
-  }
-  const userId = user.id
+export type LikeAction = 'like' | 'unlike'
 
-  try {
-    await db.transaction(async (trx) => {
-      // Add a like
-      await trx.insert(likeSchema).values({ userId, postId })
-
-      // Increment the like count
-      await trx
-        .update(postSchema)
-        .set({ likeCount: sql`${postSchema.likeCount} + 1` })
-        .where(eq(postSchema.id, postId))
-    })
-  } catch (err) {
-    logger.error(err)
-    return { error: 'Something went wrong. Please try again.', success: false }
-  }
-  return { success: true }
+const likeQueries = {
+  like: insertLikeAndUpdateCount,
+  unlike: deleteLikeAndUpdateCount,
 }
 
-/*
- * POST: Unlike
- */
-
-export const unlikePost = async (postId: string) => {
+export const handleLikeAction = async (actionType: LikeAction, postId: string) => {
   const { user } = await validateRequest()
   if (!user) {
     return redirect('/login')
   }
+
   const userId = user.id
-
+  const likeQuery = likeQueries[actionType]
   try {
-    await db.transaction(async (trx) => {
-      // Remove a like
-      await trx.delete(likeSchema).where(and(eq(likeSchema.userId, userId), eq(likeSchema.postId, postId)))
-
-      // Decrement the like count
-      await trx
-        .update(postSchema)
-        .set({ likeCount: sql`${postSchema.likeCount} - 1` })
-        .where(eq(postSchema.id, postId))
-    })
+    await likeQuery(postId, userId)
   } catch (err) {
     logger.error(err)
     return { error: 'Something went wrong. Please try again.', success: false }
@@ -831,7 +684,7 @@ export const updateAvatar = async (url: string) => {
     // })
     // console.log(result)
 
-    await db.update(userSchema).set({ avatar: url }).where(eq(userSchema.id, userId))
+    await updateUserAvatar(userId, url)
 
     revalidatePath('/', 'page') // Refetch the user's posts, (profile is a dynamic segment on '/')
 
