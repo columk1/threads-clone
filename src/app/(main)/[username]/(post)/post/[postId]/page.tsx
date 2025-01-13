@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
-import { getAuthPostById, getPublicPostById, getSinglePostById } from '@/app/actions'
 import Header from '@/components/Header'
 import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
+import { getAuthPostById, getPublicPostById, getSinglePostById } from '@/services/posts/posts.queries'
 
 type Props = {
   params: Promise<{

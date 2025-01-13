@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 
-import { logout } from '@/app/actions'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/DropdownMenu'
+import { logout } from '@/services/auth/auth.actions'
 
 import { HamburgerMenuIcon } from './icons'
 

@@ -1,6 +1,6 @@
 import type { FunctionComponent } from 'react'
 
-import type { PostUser } from '@/app/actions'
+import type { PostUser } from '@/services/users/users.queries'
 
 import Avatar from './Avatar'
 import FollowButton from './FollowButton'

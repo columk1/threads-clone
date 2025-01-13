@@ -3,8 +3,8 @@
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { login } from '@/app/actions'
 import Spinner from '@/components/spinner/Spinner'
+import { login } from '@/services/auth/auth.actions'
 
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'

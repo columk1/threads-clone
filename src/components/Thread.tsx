@@ -6,11 +6,12 @@ import Link from 'next/link'
 import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
 
-import { handleLikeAction, type PostUser } from '@/app/actions'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useFollow } from '@/hooks/useFollow'
 import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/lib/db/Schema'
+import { handleLikeAction } from '@/services/posts/posts.actions'
+import type { PostUser } from '@/services/users/users.queries'
 import { formatCount } from '@/utils/format/formatCount'
 
 import Avatar from './Avatar'

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { isUniqueUserField } from '@/app/actions'
+import { isUniqueUserField } from '@/services/users/users.queries'
 
 export const POST = async (req: NextRequest) => {
   try {

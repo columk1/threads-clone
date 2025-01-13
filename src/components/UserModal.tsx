@@ -1,7 +1,7 @@
 import { type FunctionComponent, useState } from 'react'
 
-import type { PostUser } from '@/app/actions'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/Dialog'
+import type { PostUser } from '@/services/users/users.queries'
 
 import UserCard from './UserCard'
 

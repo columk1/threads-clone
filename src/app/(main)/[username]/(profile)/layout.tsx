@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 
-import { getPublicUserInfo, getUserInfo, type PostUser, type PublicUser } from '@/app/actions'
 import Avatar from '@/components/Avatar'
 import Header from '@/components/Header'
 import ProfileModal from '@/components/ProfileModal'
@@ -8,6 +7,7 @@ import ProfileNavigation from '@/components/ProfileNavigation'
 import UserProfile from '@/components/UserProfile'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
+import { getPublicUserInfo, getUserInfo, type PostUser, type PublicUser } from '@/services/users/users.queries'
 
 type Props = {
   params: Promise<{ username: string }>

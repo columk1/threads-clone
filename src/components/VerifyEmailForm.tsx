@@ -6,10 +6,10 @@ import { useCookies } from 'next-client-cookies'
 import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { resendVerificationEmail, verifyEmail } from '@/app/actions'
 import AuthInput from '@/components/AuthInput'
 import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 import { verifyEmailSchema } from '@/lib/schemas/zod.schema'
+import { resendVerificationEmail, verifyEmail } from '@/services/auth/auth.actions'
 
 const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
   const [state, formAction, isPending] = useActionState(verifyEmail, null)

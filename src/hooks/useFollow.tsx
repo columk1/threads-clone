@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { handleFollowAction, isFollowing, type PostUser, type PublicUser } from '@/app/actions'
+import { handleFollowAction, isFollowing } from '@/services/users/users.actions'
+import type { PostUser, PublicUser } from '@/services/users/users.queries'
 
 import { useModal } from './useModal'
 

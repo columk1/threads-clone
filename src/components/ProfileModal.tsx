@@ -3,8 +3,8 @@
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog'
 import { type FunctionComponent, useCallback, useState } from 'react'
 
-import type { PostUser } from '@/app/actions'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import type { PostUser } from '@/services/users/users.queries'
 
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTrigger } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { isUniqueUserField } from '@/app/actions'
+import { isUniqueUserField } from '@/services/users/users.queries'
 
 const required_error = 'This field is required.'
 

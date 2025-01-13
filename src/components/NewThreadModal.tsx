@@ -14,11 +14,11 @@ import {
 } from 'react'
 import { toast } from 'sonner'
 
-import { createPost } from '@/app/actions'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
 import { IMG_UPLOAD_URL } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
+import { createPost } from '@/services/posts/posts.actions'
 
 import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'

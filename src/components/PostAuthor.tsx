@@ -2,8 +2,8 @@
 
 import type { FunctionComponent } from 'react'
 
-import type { PostUser } from '@/app/actions'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/Tooltip'
+import type { PostUser } from '@/services/users/users.queries'
 
 import UserCard from './UserCard'
 

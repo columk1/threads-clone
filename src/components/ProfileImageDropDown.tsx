@@ -3,7 +3,6 @@
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { updateAvatar } from '@/app/actions'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +12,7 @@ import {
 } from '@/components/DropdownMenu'
 import { IMG_UPLOAD_URL } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
+import { updateAvatar } from '@/services/users/users.actions'
 import { stringToSafePublicId } from '@/utils/string/stringToSafePublicId'
 
 import Avatar from './Avatar'

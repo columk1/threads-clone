@@ -1,7 +1,7 @@
 'use client'
 
-import type { PostUser, PublicUser } from '@/app/actions'
 import { useFollow } from '@/hooks/useFollow'
+import type { PostUser, PublicUser } from '@/services/users/users.queries'
 
 import Avatar from './Avatar'
 import FollowButton from './FollowButton'
