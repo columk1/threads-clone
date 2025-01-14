@@ -135,6 +135,28 @@ export const likeSchema = sqliteTable(
   },
 )
 
+export const repostSchema = sqliteTable(
+  'reposts',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => userSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
+    postId: text('post_id')
+      .notNull()
+      .references(() => postSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
+    createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
+  },
+  (table) => {
+    return [primaryKey({ columns: [table.userId, table.postId] })]
+  },
+)
+
 export const userRelations = relations(userSchema, ({ many }) => ({
   session: many(sessionSchema),
   emailVerificationCode: many(emailVerificationCodeSchema),
@@ -175,6 +197,7 @@ export const postRelations = relations(postSchema, ({ one, many }) => ({
   }),
   likes: many(likeSchema),
 }))
+
 export const likeRelations = relations(likeSchema, ({ one }) => ({
   user: one(userSchema, {
     fields: [likeSchema.userId],
@@ -182,6 +205,17 @@ export const likeRelations = relations(likeSchema, ({ one }) => ({
   }),
   post: one(postSchema, {
     fields: [likeSchema.postId],
+    references: [postSchema.id],
+  }),
+}))
+
+export const repostRelations = relations(repostSchema, ({ one }) => ({
+  user: one(userSchema, {
+    fields: [repostSchema.userId],
+    references: [userSchema.id],
+  }),
+  post: one(postSchema, {
+    fields: [repostSchema.postId],
     references: [postSchema.id],
   }),
 }))
