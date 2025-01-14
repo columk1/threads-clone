@@ -57,6 +57,7 @@ async function seed() {
       parentId: null,
       createdAt: 1731795283,
       likeCount: 0,
+      replyCount: 1,
     },
     {
       id: '01JDQVX9Q9G0SRQCKY33B4H9FJ',

@@ -69,6 +69,8 @@ export const postSchema = sqliteTable(
       }),
     parentId: text('parent_id').references((): SQLiteColumn => postSchema.id, {}),
     likeCount: integer('like_count').notNull().default(0),
+    replyCount: integer('reply_count').notNull().default(0),
+    repostCount: integer('repost_count').notNull().default(0),
     createdAt: integer('created_at')
       .notNull()
       .default(sql`(cast(unixepoch() as int))`),
@@ -173,7 +175,6 @@ export const postRelations = relations(postSchema, ({ one, many }) => ({
   }),
   likes: many(likeSchema),
 }))
-
 export const likeRelations = relations(likeSchema, ({ one }) => ({
   user: one(userSchema, {
     fields: [likeSchema.userId],
