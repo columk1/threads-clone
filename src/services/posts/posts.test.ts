@@ -1,3 +1,4 @@
+import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -7,6 +8,7 @@ import {
   getPostById,
   getPublicPostWithReplies,
   insertLikeAndUpdateCount,
+  insertPost,
   listAuthPosts,
   listFollowingPosts,
   listPublicPosts,
@@ -15,7 +17,7 @@ import type { Post } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 
-import { handleLikeAction } from './posts.actions'
+import { createPost, handleLikeAction } from './posts.actions'
 import type { AuthPostsResponse, PublicPostsResponse } from './posts.queries'
 import { getAuthPostById, getFollowingPosts, getPosts, getPublicPostById, getSinglePostById } from './posts.queries'
 
@@ -24,8 +26,18 @@ vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
 }))
 
+vi.mock('@conform-to/zod', () => ({
+  parseWithZod: vi.fn().mockReturnValue({
+    status: 'success',
+    value: {
+      text: 'Test post content',
+      image: 'image-url',
+    },
+  }),
+}))
+
 vi.mock('@/lib/db/queries', () => ({
-  insertPost: vi.fn(),
+  insertPost: vi.fn().mockResolvedValue({ id: 'new-post-123' }),
   insertLikeAndUpdateCount: vi.fn(),
   deleteLikeAndUpdateCount: vi.fn(),
   listPublicPosts: vi.fn(),
@@ -65,6 +77,8 @@ describe('Posts Service', () => {
     createdAt: Date.now(),
     parentId: null,
     likeCount: 0,
+    replyCount: 0,
+    repostCount: 0,
     userId: mockUser.id,
     image: null,
   }
@@ -82,6 +96,7 @@ describe('Posts Service', () => {
 
   describe('Actions', () => {
     beforeEach(() => {
+      vi.clearAllMocks()
       ;(validateRequest as any).mockResolvedValue({ user: mockUser })
     })
 
@@ -106,6 +121,47 @@ describe('Posts Service', () => {
         const result = await handleLikeAction('like', mockBasePost.id)
 
         expect(result).toEqual({ error: 'Something went wrong. Please try again.', success: false })
+        expect(logger.error).toHaveBeenCalled()
+      })
+    })
+
+    describe('createPost', () => {
+      it('should create a post with the correct data', async () => {
+        const formData = new FormData()
+        formData.append('text', 'Test post content')
+        formData.append('image', 'image-url')
+
+        const result = await createPost(null, formData)
+
+        expect(insertPost).toHaveBeenCalledWith(mockUser.id, {
+          text: 'Test post content',
+          image: 'image-url',
+        })
+        expect(result).toEqual({ success: true })
+      })
+
+      it('should handle validation errors', async () => {
+        vi.mocked(parseWithZod).mockReturnValueOnce({
+          status: 'error',
+          error: new Error('Validation failed'),
+        } as any)
+
+        const formData = new FormData()
+        const result = await createPost(null, formData)
+
+        expect(insertPost).not.toHaveBeenCalled()
+        expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
+        expect(logger.info).toHaveBeenCalled()
+      })
+
+      it('should handle database errors', async () => {
+        const formData = new FormData()
+        formData.append('text', 'Test post')
+        vi.mocked(insertPost).mockRejectedValueOnce(new Error('DB Error'))
+
+        const result = await createPost(null, formData)
+
+        expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
         expect(logger.error).toHaveBeenCalled()
       })
     })
