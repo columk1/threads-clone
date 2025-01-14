@@ -3,22 +3,16 @@
 import cx from 'clsx'
 import type { User } from 'lucia'
 import Link from 'next/link'
-import { type FunctionComponent, useState } from 'react'
-import { toast } from 'sonner'
+import type { FunctionComponent } from 'react'
 
-import { useAppStore } from '@/hooks/useAppStore'
 import { useFollow } from '@/hooks/useFollow'
-import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/lib/db/Schema'
-import { handleLikeAction } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
-import { formatCount } from '@/utils/format/formatCount'
 
 import Avatar from './Avatar'
-import { Like, Reply, Repost, Share } from './icons'
 import PostAuthor from './PostAuthor'
 import PostDropDownMenu from './PostDropDownMenu'
-import ReplyModal from './ReplyModal'
+import ThreadActions from './ThreadActions'
 import TimeAgo from './TimeAgo'
 import UserModal from './UserModal'
 
@@ -39,8 +33,6 @@ type PublicThreadProps = {
   isParent: boolean
 }
 
-const iconStyle = 'flex h-full z-10 items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
-
 type ThreadContentProps = {
   post: Post & { isLiked?: boolean }
   user: PostUser
@@ -51,11 +43,6 @@ type ThreadContentProps = {
   isAuthenticated?: boolean
   isTarget: boolean
   isParent: boolean
-}
-
-type LikeState = {
-  isLiked: boolean
-  count: number
 }
 
 const ThreadContent: FunctionComponent<ThreadContentProps> = ({
@@ -69,86 +56,6 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   isAuthenticated = false,
   isParent,
 }) => {
-  // const cachedPost = useAppStore(state => state.posts[post.id])
-  // const [likeState, setLikeState] = useState<LikeState>({
-  //   isLiked: post.isLiked || false,
-  //   count: post.likeCount,
-  // })
-
-  // const cachedPost = useSyncExternalStore(
-  //   useAppStore.subscribe, // Subscribe function for Zustand
-  //   () => useAppStore.getState().posts[post.id], // Selector for the current post
-  //   () => undefined, // Server-side fallback, optional if SSR is needed
-  // )
-  const cachedPost = useAppStore((state) => state.posts[post.id])
-
-  const [likeState, setLikeState] = useState<LikeState>({
-    isLiked: cachedPost?.isLiked ?? post.isLiked ?? false,
-    count: cachedPost?.likeCount ?? post.likeCount,
-  })
-
-  const { openModal } = useModal()
-  const updatePost = useAppStore((state) => state.updatePost)
-
-  const toggleLike = () => {
-    setLikeState((prev) => ({
-      isLiked: !prev.isLiked,
-      count: prev.count + (prev.isLiked ? -1 : 1),
-    }))
-    if (cachedPost) {
-      updatePost(post.id, {
-        isLiked: !likeState.isLiked,
-        likeCount: likeState.count + (likeState.isLiked ? -1 : 1),
-      })
-    }
-  }
-
-  const handleToggleLike = async () => {
-    toggleLike()
-    const likeAction = likeState.isLiked ? 'unlike' : 'like'
-    const result = await handleLikeAction(likeAction, post.id)
-    if (result.error) {
-      // revert optimistic update
-      toggleLike()
-      toast(result.error)
-    }
-  }
-
-  const handleInteraction = (action: 'like' | 'reply' | 'repost') => {
-    if (!isAuthenticated) {
-      openModal('auth-prompt', action)
-      return
-    }
-    // Handle the actual action here
-    // TODO: Implement like, reply, repost functionality
-    switch (action) {
-      case 'like':
-        // eslint-disable-next-line no-console
-        console.log('clicked like')
-        handleToggleLike()
-        break
-      case 'reply':
-        // eslint-disable-next-line no-console
-        console.log('clicked reply')
-        break
-      case 'repost':
-        // eslint-disable-next-line no-console
-        console.log('clicked repost')
-        break
-    }
-  }
-
-  const replyButton = (
-    <button
-      type="button"
-      className={iconStyle}
-      onClick={!isAuthenticated ? () => handleInteraction('reply') : undefined}
-    >
-      <Reply />
-      <span>42</span>
-    </button>
-  )
-
   const canFollow = !isCurrentUser && !user.isFollowed
 
   const getPadding = () => {
@@ -236,33 +143,13 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
               </div>
             )}
 
-            <div
-              className={cx(
-                '-ml-3 mt-1 flex h-9 items-center text-[13px] text-secondary-text',
-                isTarget ? 'col-span-2' : 'col-start-2',
-              )}
-            >
-              <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
-                <Like className={likeState.isLiked ? 'fill-notification stroke-notification' : ''} />
-                <span className={cx('tabular-nums', likeState.isLiked && 'text-notification')}>
-                  {formatCount(likeState.count)}
-                </span>
-              </button>
-              {isAuthenticated && currentUser ? (
-                <ReplyModal author={user} post={post} user={currentUser} trigger={replyButton} />
-              ) : (
-                replyButton
-              )}
-
-              <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
-                <Repost />
-                <span>42</span>
-              </button>
-              <button type="button" className={iconStyle}>
-                <Share />
-                <span>42</span>
-              </button>
-            </div>
+            <ThreadActions
+              post={post}
+              currentUser={currentUser}
+              author={user}
+              isAuthenticated={isAuthenticated}
+              className={cx(isTarget ? 'col-span-2' : 'col-start-2')}
+            />
           </div>
         </div>
         <Link href={`/@${user.username}/post/${post.id}`} className="absolute inset-0"></Link>
@@ -280,11 +167,6 @@ const AuthThread: FunctionComponent<ThreadProps> = ({
   isParent = false,
 }) => {
   const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser })
-  // const router = useRouter()
-
-  // useEffect(() => {
-  //   router.prefetch(`/@${user.username}/post/${post.id}`)
-  // }, [router, user.username, post.id])
 
   // type guard to make sure it's not a PublicUser
   if (!('isFollowed' in user)) {

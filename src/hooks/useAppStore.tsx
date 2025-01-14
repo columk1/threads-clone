@@ -1,17 +1,10 @@
 import { create } from 'zustand'
 
-// type AppState = {
-//   posts: Record<string, { isLiked: boolean; isSaved: boolean; isReposted: boolean }>;
-//   users: Record<string, { isFollowed: boolean; isBlocked: boolean }>;
-//   addPosts: (posts: Array<{ postId: string; isLiked: boolean; isSaved: boolean; isReposted: boolean }>) => void;
-//   updatePost: (postId: string, updates: Partial<{ isLiked: boolean; isSaved: boolean; isReposted: boolean }>) => void;
-// };
-
 type AppState = {
-  posts: Record<string, { isLiked: boolean; likeCount: number }>
-  setPosts: (posts: Array<{ post: { id: string; isLiked?: boolean; likeCount?: number } }>) => void
-  addPosts: (posts: Array<{ post: { id: string; isLiked?: boolean; likeCount?: number } }>) => void
-  updatePost: (postId: string, updates: { isLiked: boolean; likeCount: number }) => void
+  posts: Record<string, { isLiked: boolean; likeCount: number; replyCount: number }>
+  setPosts: (posts: Array<{ post: { id: string; isLiked?: boolean; likeCount: number; replyCount: number } }>) => void
+  addPosts: (posts: Array<{ post: { id: string; isLiked?: boolean; likeCount: number; replyCount: number } }>) => void
+  updatePost: (postId: string, updates: { isLiked: boolean; likeCount: number; replyCount: number }) => void
   clearPosts: () => void
 }
 
@@ -20,14 +13,20 @@ export const useAppStore = create<AppState>((set) => ({
   setPosts: (posts) =>
     set(() => ({
       posts: Object.fromEntries(
-        posts.map(({ post }) => [post.id, { isLiked: post.isLiked ?? false, likeCount: post.likeCount ?? 0 }]),
+        posts.map(({ post }) => [
+          post.id,
+          { isLiked: post.isLiked ?? false, likeCount: post.likeCount, replyCount: post.replyCount },
+        ]),
       ),
     })),
   addPosts: (posts) =>
     set((state) => ({
       posts: {
         ...Object.fromEntries(
-          posts.map(({ post }) => [post.id, { isLiked: post.isLiked ?? false, likeCount: post.likeCount ?? 0 }]),
+          posts.map(({ post }) => [
+            post.id,
+            { isLiked: post.isLiked ?? false, likeCount: post.likeCount, replyCount: post.replyCount },
+          ]),
         ),
         // Overwrite latest posts from fetch, they could be older, cached requests
         ...state.posts,

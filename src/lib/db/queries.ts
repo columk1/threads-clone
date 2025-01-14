@@ -19,6 +19,8 @@ export const basePostSelect = {
   userId: postSchema.userId,
   parentId: postSchema.parentId,
   likeCount: postSchema.likeCount,
+  replyCount: postSchema.replyCount,
+  repostCount: postSchema.repostCount,
   createdAt: postSchema.createdAt,
 }
 
@@ -248,10 +250,31 @@ export const listFollowingPosts = async (userId: string) => {
     .all()
 }
 
+export const incrementReplyCount = async (tx: any, postId: string) => {
+  await tx
+    .update(postSchema)
+    .set({ replyCount: sql`${postSchema.replyCount} + 1` })
+    .where(eq(postSchema.id, postId))
+}
+
 export const insertPost = async (userId: string, post: { text?: string; image?: string; parentId?: string }) => {
-  return await db.insert(postSchema).values({
-    userId,
-    ...post,
+  return await db.transaction(async (tx) => {
+    // Insert the post
+    const newPost = await tx
+      .insert(postSchema)
+      .values({
+        userId,
+        ...post,
+      })
+      .returning()
+      .get()
+
+    // If this is a reply, increment the parent's reply count
+    if (post.parentId) {
+      await incrementReplyCount(tx, post.parentId)
+    }
+
+    return newPost
   })
 }
 
