@@ -1,3 +1,4 @@
+import { headers } from 'next/headers'
 import type { FunctionComponent } from 'react'
 
 import BackButton from './BackButton'
@@ -8,7 +9,9 @@ type HeaderProps = {
   children?: React.ReactNode
 }
 
-const Header: FunctionComponent<HeaderProps> = ({ title, children }) => {
+const Header: FunctionComponent<HeaderProps> = async ({ title, children }) => {
+  const headersList = await headers()
+  const referer = headersList.get('referer')
   return (
     <>
       {/* Recreate the top outline of the main content to make header fixed/curved over the scrolling content */}
@@ -26,7 +29,7 @@ const Header: FunctionComponent<HeaderProps> = ({ title, children }) => {
       </div>
       <nav className="sticky top-0 z-20 hidden h-[60px] w-full grid-rows-[1fr] place-items-center bg-secondary-bg md:grid md:grid-cols-[1fr_minmax(auto,65%)_1fr]">
         <div className="col-start-1 flex h-[52px] w-full items-center justify-start pl-6">
-          <BackButton>
+          <BackButton referer={referer}>
             <BackIcon />
           </BackButton>
         </div>

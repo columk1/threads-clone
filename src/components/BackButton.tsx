@@ -4,11 +4,12 @@ import cx from 'clsx'
 import { usePathname, useRouter } from 'next/navigation'
 import { type FunctionComponent, useEffect, useState } from 'react'
 
-type BackButtonProps = {
+type BackButtonUiProps = {
+  referer: string | null
   children: React.ReactNode
 }
 
-const BackButton: FunctionComponent<BackButtonProps> = ({ children }) => {
+const BackButtonUi: FunctionComponent<BackButtonUiProps> = ({ referer, children }) => {
   const [isAnimating, setIsAnimating] = useState(false)
 
   const router = useRouter()
@@ -17,15 +18,16 @@ const BackButton: FunctionComponent<BackButtonProps> = ({ children }) => {
 
   const handleBack = () => {
     setIsAnimating(true)
+
+    if (!referer) {
+      router.push('/')
+      return
+    }
+
     try {
-      const referrerUrl = new URL(document.referrer)
-      if (referrerUrl.hostname === window.location.hostname) {
-        router.back()
-      } else {
-        router.push('/')
-      }
+      const refererUrl = new URL(referer)
+      router[refererUrl.hostname === window.location.hostname ? 'back' : 'push']('/')
     } catch {
-      // If referrer is empty or invalid URL
       router.push('/')
     }
   }
@@ -57,4 +59,4 @@ const BackButton: FunctionComponent<BackButtonProps> = ({ children }) => {
   )
 }
 
-export default BackButton
+export default BackButtonUi

@@ -1,4 +1,5 @@
 import cx from 'clsx'
+import { headers } from 'next/headers'
 import Link from 'next/link'
 import type { FunctionComponent } from 'react'
 
@@ -11,6 +12,8 @@ import { MobileSidebarDropdown } from './MobileSidebarDropdown'
 
 const MobileHeader: FunctionComponent = async () => {
   const { user } = await validateRequest()
+  const headersList = await headers()
+  const referer = headersList.get('referer')
   return (
     <nav
       className={cx(
@@ -19,7 +22,7 @@ const MobileHeader: FunctionComponent = async () => {
       )}
     >
       <div className="col-start-1 mr-auto flex h-[52px] w-full items-center justify-start pl-6">
-        <BackButton>
+        <BackButton referer={referer}>
           <BackIcon size="md" />
         </BackButton>
       </div>
