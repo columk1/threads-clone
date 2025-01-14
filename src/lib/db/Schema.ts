@@ -150,7 +150,9 @@ export const repostSchema = sqliteTable(
         onUpdate: 'cascade',
         onDelete: 'cascade',
       }),
-    createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
+    createdAt: integer('created_at')
+      .notNull()
+      .default(sql`(cast(unixepoch() as int))`),
   },
   (table) => {
     return [primaryKey({ columns: [table.userId, table.postId] })]
