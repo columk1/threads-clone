@@ -10,15 +10,36 @@ import {
 } from '@/lib/db/queries'
 import { validateRequest } from '@/lib/Lucia'
 
+export type AuthPostsResponse = Awaited<ReturnType<typeof listAuthPosts>>
+export type PublicPostsResponse = Awaited<ReturnType<typeof listPublicPosts>>
+
+/*
+ * Helper to format posts data returned from query
+ */
+
+const formatPostsData = (data: Awaited<ReturnType<typeof listFollowingPosts>>) => {
+  return data.map((item) => ({
+    ...item,
+    post: {
+      ...item.post,
+      isLiked: Boolean(item.post.isLiked), // Cast 1/0 to true/false
+    },
+    user: {
+      ...item.user,
+      isFollowed: Boolean(item.user.isFollowed),
+    },
+  }))
+}
+
 /*
  * Get Posts
  */
-export const getPosts = async (username?: string) => {
+export const getPosts = async (username?: string): Promise<AuthPostsResponse | PublicPostsResponse> => {
   const { user } = await validateRequest()
 
   if (!user) {
     const posts = await listPublicPosts(username)
-    // Replace 0 from Sqlite with actual boolean
+    // Replace 1/0 from Sqlite with boolean
     return posts.map((post) => ({
       ...post,
       user: {
@@ -28,22 +49,9 @@ export const getPosts = async (username?: string) => {
     }))
   }
 
-  const posts = await listAuthPosts(user.id, username)
+  const data = await listAuthPosts(user.id, username)
 
-  // Replace 1/0s with booleans
-  const formattedPosts = posts.map((post) => ({
-    ...post,
-    post: {
-      ...post.post,
-      isLiked: Boolean(post.isLiked), // Cast 1/0 to true/false
-    },
-    user: {
-      ...post.user,
-      isFollowed: Boolean(post.user.isFollowed),
-    },
-  }))
-
-  return formattedPosts
+  return formatPostsData(data)
 }
 
 /*
@@ -55,20 +63,9 @@ export const getFollowingPosts = async () => {
     return redirect('/login')
   }
 
-  const posts = await listFollowingPosts(user.id)
+  const data = await listFollowingPosts(user.id)
 
-  // Replace 1/0s with booleans
-  const formattedPosts = posts.map((post) => ({
-    post: {
-      ...post.post,
-      isLiked: Boolean(post.isLiked),
-    },
-    user: {
-      ...post.user,
-      isFollowed: Boolean(post.user.isFollowed),
-    },
-  }))
-  return formattedPosts
+  return formatPostsData(data)
 }
 
 /*
@@ -109,17 +106,7 @@ export const getAuthPostById = async (id: string) => {
     return null
   }
 
-  return results.map((result) => ({
-    ...result,
-    post: {
-      ...result.post,
-      isLiked: Boolean(result.isLiked),
-    },
-    user: {
-      ...result.user,
-      isFollowed: Boolean(result.user.isFollowed),
-    },
-  }))
+  return formatPostsData(results)
 }
 
 /*

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
 import { findUserByField, getAuthUserDetails, getPublicUserDetails } from '@/lib/db/queries'
+import { logger } from '@/lib/Logger'
 // import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 
@@ -59,7 +60,7 @@ const getAuthUserInfoCached = cache(async (username: string): Promise<{ user: Po
       },
     }
   } catch (err) {
-    console.error(err)
+    logger.error(err)
     return { error: 'Failed to fetch user info' }
   }
 })
@@ -87,7 +88,7 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: 
       },
     }
   } catch (err) {
-    console.error(err)
+    logger.error(err)
     return { error: 'Failed to fetch user info' }
   }
 })

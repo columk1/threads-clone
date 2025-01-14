@@ -12,6 +12,16 @@ export const baseUserSelect = {
   followerCount: userSchema.followerCount,
 }
 
+export const basePostSelect = {
+  id: postSchema.id,
+  text: postSchema.text,
+  image: postSchema.image,
+  userId: postSchema.userId,
+  parentId: postSchema.parentId,
+  likeCount: postSchema.likeCount,
+  createdAt: postSchema.createdAt,
+}
+
 type UserField = keyof User
 
 export const findUserByField = async (field: UserField, value: string) => {
@@ -158,7 +168,7 @@ export const listPublicPosts = async (authorUsername?: string) => {
       post: postSchema,
       user: {
         ...baseUserSelect,
-        isFollowed: sql`false`,
+        isFollowed: sql<boolean>`false`,
       },
     })
     .from(postSchema)
@@ -176,22 +186,24 @@ export const listPublicPosts = async (authorUsername?: string) => {
 export const listAuthPosts = async (userId: string, authorId?: string) => {
   const query = db
     .select({
-      post: postSchema,
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${likeSchema} 
+          WHERE ${likeSchema.userId} = ${userId} 
+            AND ${likeSchema.postId} = ${postSchema.id}
+        )`.as('isLiked'),
+      },
       user: {
         ...baseUserSelect,
         isFollowed: sql<boolean>`EXISTS (
-      SELECT 1 
-      FROM ${followerSchema} 
-      WHERE ${followerSchema.userId} = ${userSchema.id} 
-        AND ${followerSchema.followerId} = ${userId}
-    )`.as('isFollowed'),
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userSchema.id} 
+            AND ${followerSchema.followerId} = ${userId}
+        )`.as('isFollowed'),
       },
-      isLiked: sql<boolean>`EXISTS (
-      SELECT 1 
-      FROM ${likeSchema} 
-      WHERE ${likeSchema.userId} = ${userId} 
-        AND ${likeSchema.postId} = ${postSchema.id}
-    )`.as('isLiked'),
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -209,7 +221,15 @@ export const listAuthPosts = async (userId: string, authorId?: string) => {
 export const listFollowingPosts = async (userId: string) => {
   return await db
     .select({
-      post: postSchema,
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${likeSchema} 
+          WHERE ${likeSchema.userId} = ${userId} 
+            AND ${likeSchema.postId} = ${postSchema.id}
+        )`.as('isLiked'),
+      },
       user: {
         ...baseUserSelect,
         isFollowed: sql<boolean>`EXISTS (
@@ -219,12 +239,6 @@ export const listFollowingPosts = async (userId: string) => {
           AND ${followerSchema.followerId} = ${userId}
       )`.as('isFollowed'),
       },
-      isLiked: sql<boolean>`EXISTS (
-      SELECT 1 
-      FROM ${likeSchema} 
-      WHERE ${likeSchema.userId} = ${userId} 
-        AND ${likeSchema.postId} = ${postSchema.id}
-    )`.as('isLiked'),
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -257,7 +271,15 @@ export const getPublicPostWithReplies = async (postId: string) => {
 export const getAuthPostWithReplies = async (postId: string, userId: string) => {
   return await db
     .select({
-      post: postSchema,
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${likeSchema} 
+          WHERE ${likeSchema.userId} = ${userId} 
+            AND ${likeSchema.postId} = ${postSchema.id}
+        )`.as('isLiked'),
+      },
       user: {
         ...baseUserSelect,
         isFollowed: sql<boolean>`EXISTS (
@@ -267,12 +289,6 @@ export const getAuthPostWithReplies = async (postId: string, userId: string) => 
             AND ${followerSchema.followerId} = ${userId}
         )`.as('isFollowed'),
       },
-      isLiked: sql<boolean>`EXISTS (
-        SELECT 1 
-        FROM ${likeSchema} 
-        WHERE ${likeSchema.userId} = ${userId} 
-          AND ${likeSchema.postId} = ${postSchema.id}
-      )`.as('isLiked'),
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
