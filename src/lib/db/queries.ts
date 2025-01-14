@@ -1,7 +1,15 @@
 import { and, desc, eq, isNull, or, sql } from 'drizzle-orm'
 
 import { db } from './Drizzle'
-import { emailVerificationCodeSchema, followerSchema, likeSchema, postSchema, type User, userSchema } from './Schema'
+import {
+  emailVerificationCodeSchema,
+  followerSchema,
+  likeSchema,
+  postSchema,
+  repostSchema,
+  type User,
+  userSchema,
+} from './Schema'
 
 export const baseUserSelect = {
   id: userSchema.id,
@@ -332,7 +340,7 @@ export const getPostById = async (id: string) => {
     .get()
 }
 
-export const insertLikeAndUpdateCount = async (postId: string, userId: string) => {
+export const insertLike = async (postId: string, userId: string) => {
   await db.transaction(async (trx) => {
     // Add a like
     await trx.insert(likeSchema).values({ userId, postId })
@@ -345,7 +353,7 @@ export const insertLikeAndUpdateCount = async (postId: string, userId: string) =
   })
 }
 
-export const deleteLikeAndUpdateCount = async (postId: string, userId: string) => {
+export const deleteLike = async (postId: string, userId: string) => {
   await db.transaction(async (trx) => {
     // Remove a like
     await trx.delete(likeSchema).where(and(eq(likeSchema.userId, userId), eq(likeSchema.postId, postId)))
@@ -357,3 +365,131 @@ export const deleteLikeAndUpdateCount = async (postId: string, userId: string) =
       .where(eq(postSchema.id, postId))
   })
 }
+
+export const listReposts = async (userId: string) => {
+  return await db
+    .select({
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${likeSchema} 
+          WHERE ${likeSchema.userId} = ${userId} 
+            AND ${likeSchema.postId} = ${postSchema.id}
+        )`.as('isLiked'),
+        isReposted: sql<boolean>`true`.as('isReposted'),
+      },
+      user: {
+        ...baseUserSelect,
+        isFollowed: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userSchema.id} 
+            AND ${followerSchema.followerId} = ${userId}
+        )`.as('isFollowed'),
+      },
+      createdAt: repostSchema.createdAt,
+    })
+    .from(repostSchema)
+    .innerJoin(postSchema, eq(repostSchema.postId, postSchema.id))
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .where(eq(repostSchema.userId, userId))
+    .orderBy(desc(repostSchema.createdAt))
+    .all()
+}
+
+export const insertRepost = async (postId: string, userId: string) => {
+  await db.transaction(async (tx) => {
+    await tx.insert(repostSchema).values({
+      postId,
+      userId,
+    })
+    await tx
+      .update(postSchema)
+      .set({ repostCount: sql`${postSchema.repostCount} + 1` })
+      .where(eq(postSchema.id, postId))
+  })
+}
+
+export const deleteRepost = async (postId: string, userId: string) => {
+  await db.transaction(async (tx) => {
+    await tx.delete(repostSchema).where(and(eq(repostSchema.postId, postId), eq(repostSchema.userId, userId)))
+    await tx
+      .update(postSchema)
+      .set({ repostCount: sql`${postSchema.repostCount} - 1` })
+      .where(eq(postSchema.id, postId))
+  })
+}
+
+// export const listFollowingPostsAndReposts = async (userId: string, limit = 20) => {
+//   // First, create a CTE (Common Table Expression) that unions posts and reposts
+//   const postsAndReposts = db.$with('posts_and_reposts').as(
+//     db.select({
+//       id: postSchema.id,
+//       activityTime: postSchema.createdAt,
+//       actorId: postSchema.userId,
+//       isRepost: sql<boolean>`false`,
+//     })
+//     .from(postSchema)
+//     .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
+//     .where(eq(followerSchema.followerId, userId))
+//     .union(
+//       db.select({
+//         id: postSchema.id,
+//         activityTime: repostSchema.createdAt,
+//         actorId: repostSchema.userId,
+//         isRepost: sql<boolean>`true`,
+//       })
+//       .from(repostSchema)
+//       .innerJoin(followerSchema, eq(repostSchema.userId, followerSchema.userId))
+//       .innerJoin(postSchema, eq(repostSchema.postId, postSchema.id))
+//       .where(eq(followerSchema.followerId, userId))
+//     )
+//   )
+
+//   // Then use this CTE to get the full post details
+//   return await db
+//     .with(postsAndReposts)
+//     .select({
+//       post: {
+//         ...basePostSelect,
+//         isLiked: sql<boolean>`EXISTS (
+//           SELECT 1 FROM ${likeSchema}
+//           WHERE ${likeSchema.userId} = ${userId}
+//             AND ${likeSchema.postId} = ${postSchema.id}
+//         )`.as('isLiked'),
+//         isReposted: sql<boolean>`EXISTS (
+//           SELECT 1 FROM ${repostSchema}
+//           WHERE ${repostSchema.userId} = ${userId}
+//             AND ${repostSchema.postId} = ${postSchema.id}
+//         )`.as('isReposted'),
+//       },
+//       user: {
+//         ...baseUserSelect,
+//         isFollowed: sql<boolean>`EXISTS (
+//           SELECT 1 FROM ${followerSchema}
+//           WHERE ${followerSchema.userId} = ${userSchema.id}
+//             AND ${followerSchema.followerId} = ${userId}
+//         )`.as('isFollowed'),
+//       },
+//       repostedBy: {
+//         id: sql<string>`CASE
+//           WHEN posts_and_reposts.is_repost
+//           THEN posts_and_reposts.actor_id
+//           ELSE NULL
+//         END`.as('id'),
+//         createdAt: sql<string>`CASE
+//           WHEN posts_and_reposts.is_repost
+//           THEN posts_and_reposts.activity_time
+//           ELSE NULL
+//         END`.as('createdAt'),
+//       },
+//       activityTime: postsAndReposts.activityTime,
+//     })
+//     .from(postsAndReposts)
+//     .innerJoin(postSchema, eq(postsAndReposts.id, postSchema.id))
+//     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+//     .orderBy(desc(postsAndReposts.activityTime))
+//     .limit(limit)
+//     .all()
+// }

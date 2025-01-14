@@ -3,7 +3,7 @@
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 
-import { deleteLikeAndUpdateCount, insertLikeAndUpdateCount, insertPost } from '@/lib/db/queries'
+import { deleteLike, deleteRepost, insertLike, insertPost, insertRepost } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 import { newPostSchema, replySchema } from '@/lib/schemas/zod.schema'
@@ -66,8 +66,8 @@ export async function createReply(_: unknown, formData: FormData) {
 export type LikeAction = 'like' | 'unlike'
 
 const likeQueries = {
-  like: insertLikeAndUpdateCount,
-  unlike: deleteLikeAndUpdateCount,
+  like: insertLike,
+  unlike: deleteLike,
 }
 
 export const handleLikeAction = async (actionType: LikeAction, postId: string) => {
@@ -80,6 +80,33 @@ export const handleLikeAction = async (actionType: LikeAction, postId: string) =
   const likeQuery = likeQueries[actionType]
   try {
     await likeQuery(postId, userId)
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong. Please try again.', success: false }
+  }
+  return { success: true }
+}
+
+/*
+ * Repost/Unrepost
+ */
+export type RepostAction = 'repost' | 'unrepost'
+
+const repostQueries = {
+  repost: insertRepost,
+  unrepost: deleteRepost,
+}
+
+export const handleRepostAction = async (actionType: RepostAction, postId: string) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect('/login')
+  }
+
+  const userId = user.id
+  const repostQuery = repostQueries[actionType]
+  try {
+    await repostQuery(postId, userId)
   } catch (err) {
     logger.error(err)
     return { error: 'Something went wrong. Please try again.', success: false }

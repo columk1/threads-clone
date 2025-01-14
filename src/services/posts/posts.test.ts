@@ -3,11 +3,11 @@ import { redirect } from 'next/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
-  deleteLikeAndUpdateCount,
+  deleteLike,
   getAuthPostWithReplies,
   getPostById,
   getPublicPostWithReplies,
-  insertLikeAndUpdateCount,
+  insertLike,
   insertPost,
   listAuthPosts,
   listFollowingPosts,
@@ -104,19 +104,19 @@ describe('Posts Service', () => {
       it('should successfully like a post', async () => {
         const result = await handleLikeAction('like', mockBasePost.id)
 
-        expect(insertLikeAndUpdateCount).toHaveBeenCalledWith(mockBasePost.id, mockUser.id)
+        expect(insertLike).toHaveBeenCalledWith(mockBasePost.id, mockUser.id)
         expect(result).toEqual({ success: true })
       })
 
       it('should successfully unlike a post', async () => {
         const result = await handleLikeAction('unlike', mockBasePost.id)
 
-        expect(deleteLikeAndUpdateCount).toHaveBeenCalledWith(mockBasePost.id, mockUser.id)
+        expect(deleteLike).toHaveBeenCalledWith(mockBasePost.id, mockUser.id)
         expect(result).toEqual({ success: true })
       })
 
       it('should handle errors', async () => {
-        ;(insertLikeAndUpdateCount as any).mockRejectedValue(new Error('DB Error'))
+        ;(insertLike as any).mockRejectedValue(new Error('DB Error'))
 
         const result = await handleLikeAction('like', mockBasePost.id)
 
