@@ -8,6 +8,7 @@ type AvatarProps = {
   url: string | null
   size?: 'sm' | 'md' | 'lg' | 'xl'
   isFollowed?: boolean
+  priority?: boolean
   className?: string
 }
 
@@ -26,7 +27,7 @@ const sizeClass = {
 //   xl: 84,
 // }
 
-const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, className }) => {
+const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, priority, className }) => {
   return (
     <div
       className={cx(
@@ -42,6 +43,7 @@ const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, 
           height={84}
           alt="Avatar"
           className="aspect-square object-cover text-xs"
+          priority={priority ?? false}
         />
       </div>
       {isFollowed === false ? (
