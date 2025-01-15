@@ -275,7 +275,7 @@ export const listFollowingPosts = async (userId: string) => {
     .all()
 }
 
-export const listReplies = async (authorUsername: string, userId?: string) => {
+export const listReplies = async (authorUsername: string, userId: string = '') => {
   return await db
     .select({
       post: {
@@ -310,7 +310,7 @@ export const listReplies = async (authorUsername: string, userId?: string) => {
     .all()
 }
 
-export const listReposts = async (username: string, currentUserId?: string) => {
+export const listReposts = async (username: string, currentUserId: string = '') => {
   const userId = await findUserByField('username', username).then((user) => user?.id)
   if (!userId) {
     throw new Error('User not found')
