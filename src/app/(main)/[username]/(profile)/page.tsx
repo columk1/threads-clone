@@ -8,7 +8,7 @@ import { getPosts } from '@/services/posts/posts.queries'
 // import Link from 'next/link'
 // import { usePathname } from 'next/navigation'
 
-export default async function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
+export default async function UserProfileThreads({ params }: { params: Promise<{ username: string }> }) {
   const { user } = await validateRequest()
 
   const profileParams = await params
@@ -25,7 +25,6 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
   //     .then(res => res.json())
 
   const rows = await getPosts(username)
-
   return rows.map((row) => (
     <Thread
       key={row.post.id}

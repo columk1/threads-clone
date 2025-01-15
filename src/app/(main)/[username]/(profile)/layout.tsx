@@ -58,7 +58,12 @@ const UserProfileLayout = async ({ params, children }: Props) => {
   const user = res.user
   // Branch for public user page
   if (currentUser?.username !== user.username) {
-    return <UserProfile initialUser={user}>{children}</UserProfile>
+    return (
+      <>
+        <Header title={`${user.username}`} />
+        <UserProfile initialUser={user}>{children}</UserProfile>
+      </>
+    )
   }
 
   if (!('isFollowed' in user)) {

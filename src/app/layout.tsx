@@ -41,7 +41,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <body suppressHydrationWarning className="overflow-y-scroll bg-primary-bg font-system text-primary-text">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           {/* Suspense is required for cookies provider since it is async */}
-          <Suspense fallback={<div></div>}>
+          <Suspense fallback={<div>Cookie fallback</div>}>
             <CookiesProvider>
               <ModalProvider>
                 <div className="flex min-h-screen flex-1 flex-col items-center justify-center">
