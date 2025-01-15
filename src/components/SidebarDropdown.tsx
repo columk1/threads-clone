@@ -1,18 +1,13 @@
-import Link from 'next/link'
 import { type FunctionComponent, useState } from 'react'
 
 import MoreIcon from '@/components/icons/HamburgerMenu'
 import { logout } from '@/services/auth/auth.actions'
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from './DropdownMenu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './DropdownMenu'
 
-const SidebarDropdown: FunctionComponent = () => {
+type SidebarDropdownProps = { isAuthenticated: boolean }
+
+const SidebarDropdown: FunctionComponent<SidebarDropdownProps> = ({ isAuthenticated }) => {
   const [open, setOpen] = useState(false)
 
   return (
@@ -32,18 +27,25 @@ const SidebarDropdown: FunctionComponent = () => {
         sideOffset={-51}
         className="w-60 origin-bottom-left text-[15px]"
       >
-        <DropdownMenuItem>Appearance</DropdownMenuItem>
-        <DropdownMenuItem>Insights</DropdownMenuItem>
-        <DropdownMenuItem asChild className="leading-none">
-          <Link href="/settings">Settings</Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {/* These are optional features to add from the Threads UI */}
+        {/* <DropdownMenuItem>Appearance</DropdownMenuItem> */}
+        {/* {isAuthenticated && (
+          <>
+            <DropdownMenuItem>Insights</DropdownMenuItem>
+            <DropdownMenuItem asChild className="leading-none">
+              <Link href="/settings">Settings</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )} */}
         <DropdownMenuItem>Report a problem</DropdownMenuItem>
-        <DropdownMenuItem asChild className="leading-none text-error-text dark:focus:text-error-text">
-          <button type="button" onClick={logout} className="w-full text-left">
-            Log out
-          </button>
-        </DropdownMenuItem>
+        {isAuthenticated && (
+          <DropdownMenuItem asChild className="leading-none text-error-text dark:focus:text-error-text">
+            <button type="button" onClick={logout} className="w-full text-left">
+              Log out
+            </button>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

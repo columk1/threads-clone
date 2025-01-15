@@ -16,6 +16,7 @@ type SidebarProps = {
 }
 
 const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
+  const isAuthenticated = Boolean(user)
   const pathname = usePathname()
   const { openModal } = useModal()
 
@@ -94,7 +95,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
           )
         })}
       </div>
-      <SidebarDropdown />
+      <SidebarDropdown isAuthenticated={isAuthenticated} />
     </aside>
   )
 }
