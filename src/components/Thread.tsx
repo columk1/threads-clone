@@ -189,11 +189,7 @@ const AuthThread: FunctionComponent<ThreadProps> = ({
   isParent = false,
   reposted,
 }) => {
-  const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser })
-  // type guard to make sure it's not a PublicUser
-  if (!('isFollowed' in user)) {
-    return null
-  }
+  const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser, isAuthenticated: true })
   return (
     <ThreadContent
       post={post}

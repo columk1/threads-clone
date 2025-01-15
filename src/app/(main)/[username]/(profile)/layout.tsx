@@ -5,14 +5,14 @@ import Header from '@/components/Header'
 import VisitorProfile from '@/components/UserProfile'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
-import { getPublicUserInfo, getUserInfo, type PostUser, type PublicUser } from '@/services/users/users.queries'
+import { getPublicUserInfo, getUserInfo, type PostUser } from '@/services/users/users.queries'
 
 type Props = {
   params: Promise<{ username: string }>
   children: React.ReactNode
 }
 
-type UserInfo = { user: PostUser } | { user: PublicUser } | { error: string }
+type UserInfo = { user: PostUser } | { error: string }
 
 const fetchUserInfo = async (isCurrentUser: boolean, username: string): Promise<UserInfo> => {
   if (isCurrentUser) {

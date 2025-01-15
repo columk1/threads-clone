@@ -3,7 +3,6 @@ import { cache } from 'react'
 
 import { findUserByField, getAuthUserDetails, getPublicUserDetails } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
-// import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 
 export type PostUser = {
@@ -14,15 +13,6 @@ export type PostUser = {
   bio: string | null
   followerCount: number
   isFollowed: boolean
-}
-
-export type PublicUser = {
-  id: string
-  username: string
-  name: string
-  avatar: string | null
-  bio: string | null
-  followerCount: number
 }
 
 /*
@@ -70,7 +60,7 @@ export const getUserInfo = getAuthUserInfoCached
 /*
  * Get public user info
  */
-const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: PublicUser } | { error: string }> => {
+const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: PostUser } | { error: string }> => {
   try {
     const userInfo = await getPublicUserDetails(username)
 
@@ -85,6 +75,7 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: 
         avatar: userInfo.avatar,
         bio: userInfo.bio,
         followerCount: userInfo.followerCount,
+        isFollowed: Boolean(userInfo.isFollowed),
       },
     }
   } catch (err) {

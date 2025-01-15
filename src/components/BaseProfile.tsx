@@ -1,10 +1,10 @@
-import type { PostUser, PublicUser } from '@/services/users/users.queries'
+import type { PostUser } from '@/services/users/users.queries'
 
 import Avatar from './Avatar'
 import ProfileNavigation from './ProfileNavigation'
 
 type BaseProfileProps = {
-  user: PublicUser | PostUser
+  user: PostUser
   children: React.ReactNode
   actions: React.ReactNode
 }

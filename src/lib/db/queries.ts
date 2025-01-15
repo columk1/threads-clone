@@ -168,7 +168,14 @@ export const getAuthUserDetails = async (targetUsername: string, userId: string)
 }
 
 export const getPublicUserDetails = async (username: string) => {
-  return await db.select(baseUserSelect).from(userSchema).where(eq(userSchema.username, username)).get()
+  return await db
+    .select({
+      ...baseUserSelect,
+      isFollowed: sql<boolean>`false`,
+    })
+    .from(userSchema)
+    .where(eq(userSchema.username, username))
+    .get()
 }
 
 export const updateUserAvatar = async (userId: string, url: string) => {
@@ -178,7 +185,11 @@ export const updateUserAvatar = async (userId: string, url: string) => {
 export const listPublicPosts = async (authorUsername?: string) => {
   const query = db
     .select({
-      post: postSchema,
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`false`,
+        isReposted: sql<boolean>`false`,
+      },
       user: {
         ...baseUserSelect,
         isFollowed: sql<boolean>`false`,
@@ -196,7 +207,7 @@ export const listPublicPosts = async (authorUsername?: string) => {
   return await query.all()
 }
 
-export const listAuthPosts = async (authorUsername?: string, userId?: string) => {
+export const listPosts = async (authorUsername?: string, userId: string = '') => {
   const filters: SQLWrapper[] = [isNull(postSchema.parentId)]
 
   if (authorUsername) {
@@ -381,8 +392,15 @@ export const insertPost = async (userId: string, post: { text?: string; image?: 
 export const getPublicPostWithReplies = async (postId: string) => {
   return await db
     .select({
-      post: postSchema,
-      user: baseUserSelect,
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`false`,
+        isReposted: sql<boolean>`false`,
+      },
+      user: {
+        ...baseUserSelect,
+        isFollowed: sql<boolean>`false`,
+      },
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -429,8 +447,15 @@ export const getAuthPostWithReplies = async (postId: string, userId: string) => 
 export const getPostById = async (id: string) => {
   return await db
     .select({
-      post: postSchema,
-      user: baseUserSelect,
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`false`,
+        isReposted: sql<boolean>`false`,
+      },
+      user: {
+        ...baseUserSelect,
+        isFollowed: sql<boolean>`false`,
+      },
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))

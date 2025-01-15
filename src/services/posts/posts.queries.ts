@@ -4,16 +4,13 @@ import {
   getAuthPostWithReplies,
   getPostById,
   getPublicPostWithReplies,
-  listAuthPosts,
   listFollowingPosts,
-  listPublicPosts,
+  listPosts,
   listReplies,
   listReposts,
 } from '@/lib/db/queries'
 import { validateRequest } from '@/lib/Lucia'
 
-export type AuthPostsResponse = Awaited<ReturnType<typeof listAuthPosts>>
-export type PublicPostsResponse = Awaited<ReturnType<typeof listPublicPosts>>
 export type RepliesResponse = Awaited<ReturnType<typeof listReplies>>
 export type RepostsResponse = Awaited<ReturnType<typeof listReposts>>
 
@@ -38,22 +35,12 @@ const formatPostsData = (data: Awaited<ReturnType<typeof listFollowingPosts>>) =
 /*
  * Get Posts
  */
-export const getPosts = async (username?: string): Promise<AuthPostsResponse | PublicPostsResponse> => {
+export const getPosts = async (username?: string) => {
   const { user } = await validateRequest()
 
-  if (!user) {
-    const posts = await listPublicPosts(username)
-    // Replace 1/0 from Sqlite with boolean
-    return posts.map((post) => ({
-      ...post,
-      user: {
-        ...post.user,
-        isFollowed: false,
-      },
-    }))
-  }
-  const data = await listAuthPosts(username, user.id)
+  const data = await listPosts(username, user?.id)
 
+  // Replace 1/0 from Sqlite with boolean
   return formatPostsData(data)
 }
 

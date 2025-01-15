@@ -1,68 +1,91 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 import type { FollowingResponseData } from '@/app/api/users/[userId]/following/route'
+import { useAppStore } from '@/hooks/useAppStore'
 import { handleFollowAction } from '@/services/users/users.actions'
-import type { PostUser, PublicUser } from '@/services/users/users.queries'
+import type { PostUser } from '@/services/users/users.queries'
 
 import { useModal } from './useModal'
 
-export const useFollow = ({ initialUser }: { initialUser: PostUser | PublicUser }) => {
-  const [user, setUser] = useState(initialUser)
+export const useFollow = ({
+  initialUser,
+  isAuthenticated = false,
+}: {
+  initialUser: PostUser
+  isAuthenticated: boolean
+}) => {
   const { openModal } = useModal()
+  const updateUser = useAppStore((state) => state.updateUser)
+  const storedUser = useAppStore((state) => state.users[initialUser.id])
+  const addUsers = useAppStore((state) => state.addUsers)
 
-  // Reset client user state if the avatar changes
-  if (initialUser.avatar !== user.avatar) {
-    setUser(initialUser)
-  }
+  useEffect(() => {
+    addUsers([
+      {
+        id: initialUser.id,
+        isFollowed: initialUser.isFollowed,
+        followerCount: initialUser.followerCount,
+      },
+    ])
+  }, [initialUser, addUsers])
 
   const validateFollowStatus = async () => {
-    if ('isFollowed' in user) {
-      //       const result = await isFollowing(user.username)
-      // if (typeof result === 'boolean' && result !== user.isFollowed) {
-      //   setUser((prev) => ({
-      //     ...prev,
-      //     isFollowed: result,
-      //   }))
-      try {
-        const response = await fetch(`/api/users/${user.id}/following`)
-        if (response.ok) {
-          const result: FollowingResponseData = await response.json()
-          if (typeof result === 'boolean' && result !== user.isFollowed) {
-            setUser((prev) => ({
-              ...prev,
-              isFollowed: result,
-            }))
-          }
+    try {
+      const response = await fetch(`/api/users/${initialUser.id}/following`)
+      if (response.ok) {
+        const result: FollowingResponseData = await response.json()
+        if (typeof result === 'boolean' && result !== storedUser?.isFollowed) {
+          updateUser(initialUser.id, {
+            isFollowed: result,
+            followerCount: result ? initialUser.followerCount + 1 : initialUser.followerCount - 1,
+          })
         }
-      } catch (error) {
-        console.error('Error checking follow status:', error)
       }
+    } catch (error) {
+      console.error('Error checking follow status:', error)
     }
   }
 
   const handleToggleFollow = async () => {
-    if ('isFollowed' in user) {
-      setUser({
-        ...user,
-        isFollowed: !user.isFollowed,
-        followerCount: user.isFollowed ? user.followerCount - 1 : user.followerCount + 1,
-      })
-
-      const result = await handleFollowAction(user.id, user.isFollowed ? 'unfollow' : 'follow')
-      if (result.error) {
-        toast.error(result.error)
-        setUser(user)
-        return
-      }
-      // Threads only toasts on unfollow
-      if (user.isFollowed) {
-        toast(result.success)
-      }
-    } else {
+    if (!isAuthenticated) {
       openModal('auth-prompt', 'follow')
+      return
+    }
+
+    const currentFollowState = storedUser?.isFollowed ?? initialUser.isFollowed
+    const currentFollowerCount = storedUser?.followerCount ?? initialUser.followerCount
+    const newIsFollowed = !currentFollowState
+
+    updateUser(initialUser.id, {
+      isFollowed: newIsFollowed,
+      followerCount: newIsFollowed ? currentFollowerCount + 1 : currentFollowerCount - 1,
+    })
+
+    const result = await handleFollowAction(initialUser.id, newIsFollowed ? 'follow' : 'unfollow')
+    if (result.error) {
+      toast.error(result.error)
+      updateUser(initialUser.id, {
+        isFollowed: currentFollowState,
+        followerCount: currentFollowerCount,
+      })
+      return
+    }
+    // Threads only toasts on unfollow
+    if (!newIsFollowed) {
+      toast(result.success)
     }
   }
 
-  return { user, handleToggleFollow, validateFollowStatus }
+  return {
+    user: {
+      ...initialUser,
+      ...(storedUser && {
+        isFollowed: storedUser.isFollowed,
+        followerCount: storedUser.followerCount,
+      }),
+    },
+    handleToggleFollow,
+    validateFollowStatus,
+  }
 }

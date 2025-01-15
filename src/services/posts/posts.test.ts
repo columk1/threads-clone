@@ -9,16 +9,14 @@ import {
   getPublicPostWithReplies,
   insertLike,
   insertPost,
-  listAuthPosts,
   listFollowingPosts,
-  listPublicPosts,
+  listPosts,
 } from '@/lib/db/queries'
 import type { Post } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 
 import { createPost, handleLikeAction } from './posts.actions'
-import type { AuthPostsResponse, PublicPostsResponse } from './posts.queries'
 import { getAuthPostById, getFollowingPosts, getPosts, getPublicPostById, getSinglePostById } from './posts.queries'
 
 // Mock external dependencies
@@ -42,8 +40,7 @@ vi.mock('@/lib/db/queries', () => ({
   deleteLike: vi.fn(),
   insertRepost: vi.fn(),
   deleteRepost: vi.fn(),
-  listPublicPosts: vi.fn(),
-  listAuthPosts: vi.fn(),
+  listPosts: vi.fn(),
   listFollowingPosts: vi.fn(),
   getPublicPostWithReplies: vi.fn(),
   getAuthPostWithReplies: vi.fn(),
@@ -84,6 +81,11 @@ describe('Posts Service', () => {
     userId: mockUser.id,
     image: null,
   }
+
+  type PostsResponse = {
+    post: Post & { isLiked: boolean; isReposted?: boolean }
+    user: typeof mockUser & { isFollowed: boolean }
+  }[]
 
   // Type guard to check if a post has isLiked property
   const isAuthPost = (post: {
@@ -171,38 +173,58 @@ describe('Posts Service', () => {
 
   describe('Queries', () => {
     describe('getPosts', () => {
-      it('should return public posts for unauthenticated users', async () => {
+      it('should return posts for unauthenticated users', async () => {
         ;(validateRequest as any).mockResolvedValue({ user: null })
-        const mockPublicPosts: PublicPostsResponse = [
+        const mockPublicPosts = [
           {
-            post: mockBasePost,
-            user: mockUser,
+            post: { ...mockBasePost, isLiked: false, isReposted: false },
+            user: { ...mockUser, isFollowed: false },
           },
         ]
-        ;(listPublicPosts as any).mockResolvedValue(mockPublicPosts)
+        ;(listPosts as any).mockResolvedValue(mockPublicPosts)
 
         const result = await getPosts()
 
-        expect(listPublicPosts).toHaveBeenCalled()
-        expect(listAuthPosts).not.toHaveBeenCalled()
+        expect(listPosts).toHaveBeenCalledWith(undefined, undefined)
         expect(result[0]?.user?.isFollowed).toBe(false)
+        expect(result[0]?.post?.isLiked).toBe(false)
       })
 
       it('should return authenticated posts for logged-in users', async () => {
         ;(validateRequest as any).mockResolvedValue({ user: { id: 'current-user' } })
-        const mockAuthPosts: AuthPostsResponse = [
+        const mockAuthPosts = [
           {
             post: { ...mockBasePost, isLiked: true, isReposted: false },
             user: { ...mockUser, isFollowed: true },
           },
         ]
-        ;(listAuthPosts as any).mockResolvedValue(mockAuthPosts)
+        ;(listPosts as any).mockResolvedValue(mockAuthPosts)
 
         const result = await getPosts()
         const firstPost = result[0]
 
-        expect(listPublicPosts).not.toHaveBeenCalled()
-        expect(listAuthPosts).toHaveBeenCalledWith('current-user', undefined)
+        expect(listPosts).toHaveBeenCalledWith(undefined, 'current-user')
+
+        if (firstPost && isAuthPost(firstPost)) {
+          expect(firstPost.post.isLiked).toBe(true)
+          expect(firstPost.user.isFollowed).toBe(true)
+        }
+      })
+
+      it('should return posts for a specific username', async () => {
+        ;(validateRequest as any).mockResolvedValue({ user: { id: 'current-user' } })
+        const mockAuthPosts = [
+          {
+            post: { ...mockBasePost, isLiked: true, isReposted: false },
+            user: { ...mockUser, isFollowed: true },
+          },
+        ]
+        ;(listPosts as any).mockResolvedValue(mockAuthPosts)
+
+        const result = await getPosts('testuser')
+        const firstPost = result[0]
+
+        expect(listPosts).toHaveBeenCalledWith('testuser', 'current-user')
 
         if (firstPost && isAuthPost(firstPost)) {
           expect(firstPost.post.isLiked).toBe(true)
@@ -214,7 +236,7 @@ describe('Posts Service', () => {
     describe('getFollowingPosts', () => {
       it('should return posts from followed users', async () => {
         ;(validateRequest as any).mockResolvedValue({ user: { id: 'current-user' } })
-        const mockAuthPosts: AuthPostsResponse = [
+        const mockAuthPosts = [
           {
             post: { ...mockBasePost, isLiked: true, isReposted: false },
             user: { ...mockUser, isFollowed: true },
@@ -244,10 +266,10 @@ describe('Posts Service', () => {
 
     describe('getPublicPostById', () => {
       it('should return formatted public post with replies', async () => {
-        const mockPublicPosts: PublicPostsResponse = [
+        const mockPublicPosts: PostsResponse = [
           {
-            post: mockBasePost,
-            user: mockUser,
+            post: { ...mockBasePost, isLiked: false, isReposted: false },
+            user: { ...mockUser, isFollowed: false },
           },
         ]
         ;(getPublicPostWithReplies as any).mockResolvedValue(mockPublicPosts)
@@ -312,9 +334,9 @@ describe('Posts Service', () => {
 
     describe('getSinglePostById', () => {
       it('should return a single post with user info', async () => {
-        const mockPublicPost: PublicPostsResponse[0] = {
-          post: mockBasePost,
-          user: mockUser,
+        const mockPublicPost: PostsResponse[0] = {
+          post: { ...mockBasePost, isLiked: false, isReposted: false },
+          user: { ...mockUser, isFollowed: false },
         }
         ;(getPostById as any).mockResolvedValue(mockPublicPost)
 

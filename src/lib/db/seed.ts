@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 
 import { logger } from '../Logger.ts'
 import { db } from './Drizzle.ts'
-import { postSchema, userSchema } from './Schema.ts'
+import { postSchema, repostSchema, userSchema } from './Schema.ts'
 
 async function seed() {
   const users = [
@@ -75,6 +75,23 @@ async function seed() {
       createdAt: 1733294308,
       likeCount: 0,
     },
+    {
+      id: 'KLJE86EF3BBCTQYZG8EDWX6E0D',
+      text: 'interesting',
+      userId: '01JCVFAX0PC4G5P456FEEJ2PMV',
+      parentId: '01JC2P47P0VD0GEGWDZY9QHBNB',
+      createdAt: 1733394308,
+      likeCount: 0,
+    },
+  ]
+
+  const reposts = [
+    {
+      id: '78DRNUQHMT3786WUFECKHSDZ',
+      userId: '01JBXMJGX3JABF1GQXSW38MXMN',
+      postId: '01JCVGNVNDD355AS194HPHG8Y6',
+      createdAt: 1731895283,
+    },
   ]
 
   // Delete all existing rows
@@ -99,6 +116,10 @@ async function seed() {
 
     for (const post of posts) {
       await db.insert(postSchema).values(post)
+    }
+
+    for (const repost of reposts) {
+      await db.insert(repostSchema).values(repost)
     }
 
     logger.info('Seeding complete!')

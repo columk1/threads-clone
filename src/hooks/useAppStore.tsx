@@ -5,6 +5,7 @@ type AppState = {
     string,
     { isLiked: boolean; likeCount: number; replyCount: number; isReposted: boolean; repostCount: number }
   >
+  users: Record<string, { isFollowed: boolean; followerCount: number }>
   setPosts: (
     posts: Array<{
       post: {
@@ -33,11 +34,16 @@ type AppState = {
     postId: string,
     updates: { isLiked: boolean; likeCount: number; replyCount: number; isReposted: boolean; repostCount: number },
   ) => void
+  setUsers: (users: Array<{ id: string; isFollowed: boolean; followerCount: number }>) => void
+  addUsers: (users: Array<{ id: string; isFollowed: boolean; followerCount: number }>) => void
+  updateUser: (userId: string, updates: { isFollowed: boolean; followerCount: number }) => void
   clearPosts: () => void
+  clearUsers: () => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
   posts: {},
+  users: {},
   setPosts: (posts) =>
     set(() => ({
       posts: Object.fromEntries(
@@ -68,7 +74,6 @@ export const useAppStore = create<AppState>((set) => ({
             },
           ]),
         ),
-        // Overwrite latest posts from fetch, they could be older, cached requests
         ...state.posts,
       },
     })),
@@ -77,7 +82,7 @@ export const useAppStore = create<AppState>((set) => ({
       const post = state.posts[postId]
       if (!post) {
         return state
-      } // Return unchanged state if post doesn't exist
+      }
 
       return {
         posts: {
@@ -86,8 +91,53 @@ export const useAppStore = create<AppState>((set) => ({
         },
       }
     }),
+  setUsers: (users) =>
+    set(() => ({
+      users: Object.fromEntries(
+        users.map((user) => [
+          user.id,
+          {
+            isFollowed: user.isFollowed,
+            followerCount: user.followerCount,
+          },
+        ]),
+      ),
+    })),
+  addUsers: (users) =>
+    set((state) => ({
+      users: {
+        ...Object.fromEntries(
+          users.map((user) => [
+            user.id,
+            {
+              isFollowed: user.isFollowed,
+              followerCount: user.followerCount,
+            },
+          ]),
+        ),
+        ...state.users,
+      },
+    })),
+  updateUser: (userId, updates) =>
+    set((state) => {
+      const user = state.users[userId]
+      if (!user) {
+        return state
+      }
+
+      return {
+        users: {
+          ...state.users,
+          [userId]: { ...state.users[userId], ...updates },
+        },
+      }
+    }),
   clearPosts: () =>
     set(() => ({
       posts: {},
+    })),
+  clearUsers: () =>
+    set(() => ({
+      users: {},
     })),
 }))

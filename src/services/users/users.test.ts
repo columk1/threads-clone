@@ -184,7 +184,6 @@ describe('User Queries', () => {
   describe('getPublicUserInfo', () => {
     it('should return public user info', async () => {
       const publicUser = { ...mockUser }
-      delete (publicUser as any).isFollowed
       ;(getPublicUserDetails as any).mockResolvedValue(publicUser)
 
       const result = await getPublicUserInfo('testuser')
