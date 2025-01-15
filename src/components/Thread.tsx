@@ -19,7 +19,6 @@ import UserModal from './UserModal'
 
 type ThreadProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }
-
   user: PostUser
   currentUser: User | null
   isCurrentUser: boolean
@@ -29,43 +28,15 @@ type ThreadProps = {
   reposted?: { username: string; createdAt: number }
 }
 
-type PublicThreadProps = {
-  post: Post
-  user: PostUser
-  isTarget: boolean
+type ThreadLayoutProps = {
+  children: React.ReactNode
   isParent: boolean
-  reposted?: { username: string; createdAt: number }
-}
-
-type ThreadContentProps = {
-  post: Post & { isLiked?: boolean; isReposted?: boolean }
-
-  user: PostUser
-  onToggleFollow?: () => Promise<void>
-  validateFollowStatus?: () => Promise<void>
+  isTarget: boolean
   currentUser: User | null
-  isCurrentUser?: boolean
-  isAuthenticated?: boolean
-  isTarget: boolean
-  isParent: boolean
-  reposted?: { username: string; createdAt: number }
 }
 
-const ThreadContent: FunctionComponent<ThreadContentProps> = ({
-  isTarget,
-  post,
-  user,
-  currentUser,
-  onToggleFollow,
-  validateFollowStatus,
-  isCurrentUser = false,
-  isAuthenticated = false,
-  isParent,
-  reposted,
-}) => {
-  const canFollow = !isCurrentUser && !user.isFollowed
-
-  const getPadding = () => {
+const ThreadLayout: FunctionComponent<ThreadLayoutProps> = ({ children, isParent, isTarget, currentUser }) => {
+  const getYPadding = () => {
     switch (true) {
       case isTarget:
         return 'pt-0 pb-1'
@@ -78,148 +49,110 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
 
   return (
     <>
-      {/* Top border. Add "first-hidden" to remove top border for main public feed */}
       {!isParent && !isTarget && <div className={`h-[0.5px] bg-gray-5 ${!currentUser && 'first:hidden'}`}></div>}
-      <div className={cx('relative flex flex-col gap-2 px-6 pt-3 text-[15px]', getPadding())}>
-        {/* Vertical Line to Link Parent Thread */}
-        <div className="relative">
-          {isParent && <div className="absolute bottom-[-7px] left-[17px] top-[50px] w-[2px] bg-gray-5"></div>}
-
-          {reposted && (
-            <Link href={`/@${user.username}`} className="group relative z-10">
-              <div className="flex h-9 items-center gap-3 text-[13px] text-gray-7">
-                <span className="w-9">
-                  <RepostIcon className="size-4 justify-self-end" />
-                </span>
-                <div>
-                  <span className="font-semibold group-hover:underline">{reposted.username}</span>
-                  <span>&nbsp;reposted&nbsp;</span>
-                  <TimeAgo publishedAt={reposted.createdAt} />
-                  <span>&nbsp;ago</span>
-                </div>
-              </div>
-            </Link>
-          )}
-          <div className="grid grid-cols-[48px_minmax(0,1fr)]">
-            <div className={cx('col-start-1 pt-[5px]', isTarget ? 'row-span-1' : 'row-span-2')}>
-              {/* User Avatar */}
-              <div className="relative z-10 h-9">
-                {isAuthenticated && canFollow ? (
-                  <UserModal
-                    user={user}
-                    isAuthenticated
-                    isCurrentUser={isCurrentUser}
-                    onToggleFollow={onToggleFollow}
-                    trigger={
-                      <button type="button">
-                        <Avatar url={user.avatar} isFollowed={canFollow && user.isFollowed} />
-                      </button>
-                    }
-                  />
-                ) : (
-                  <Link href={`/@${user.username}`}>
-                    <Avatar url={user.avatar} />
-                  </Link>
-                )}
-              </div>
-            </div>
-            <div className="flex w-full items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="font-semibold" onMouseEnter={() => validateFollowStatus?.()}>
-                  <PostAuthor
-                    user={user}
-                    isAuthenticated={isAuthenticated}
-                    isCurrentUser={isCurrentUser}
-                    onToggleFollow={onToggleFollow}
-                  />
-                </div>
-                <a href={`/@${user.username}/post/${post.id}`}>
-                  <TimeAgo publishedAt={post.createdAt} />
-                </a>
-              </div>
-              <PostDropDownMenu
-                isFollowed={user.isFollowed}
-                onToggleFollow={onToggleFollow}
-                isAuthenticated={isAuthenticated}
-              />
-            </div>
-            <div
-              className={cx(
-                'row-start-2',
-                // text position for target thread OR it's parent and replies
-                isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2',
-              )}
-            >
-              {post.text}
-            </div>
-
-            {/* Media Section */}
-            {post.image && (
-              <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
-                {/* Image */}
-
-                <div className="mb-1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={post.image} alt="preview" className="block max-h-[430px] rounded-lg object-contain" />
-                </div>
-              </div>
-            )}
-
-            <ThreadActions
-              post={post}
-              currentUser={currentUser}
-              author={user}
-              isAuthenticated={isAuthenticated}
-              className={cx(isTarget ? 'col-span-2' : 'col-start-2')}
-            />
-          </div>
-        </div>
-        <Link href={`/@${user.username}/post/${post.id}`} className="absolute inset-0"></Link>
-      </div>
+      <div className={cx('relative flex flex-col gap-2 px-6 text-[15px]', getYPadding())}>{children}</div>
     </>
   )
 }
 
-const AuthThread: FunctionComponent<ThreadProps> = ({
-  post,
-  user: initialUser,
-  isCurrentUser,
-  currentUser,
-  isTarget = false,
-  isParent = false,
-  reposted,
-}) => {
-  const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser, isAuthenticated: true })
+const RepostHeader: FunctionComponent<{
+  username: string
+  createdAt: number
+}> = ({ username, createdAt }) => (
+  <Link href={`/@${username}`} className="group relative z-10">
+    <div className="flex h-9 items-center gap-3 text-[13px] text-gray-7">
+      <span className="w-9">
+        <RepostIcon className="size-4 justify-self-end" />
+      </span>
+      <div>
+        <span className="font-semibold group-hover:underline">{username}</span>
+        <span>&nbsp;reposted&nbsp;</span>
+        <TimeAgo publishedAt={createdAt} />
+        <span>&nbsp;ago</span>
+      </div>
+    </div>
+  </Link>
+)
+
+const ThreadContent: FunctionComponent<{
+  post: Post
+  user: PostUser
+  isTarget: boolean
+  isAuthenticated: boolean
+  isCurrentUser: boolean
+  currentUser: User | null
+  onToggleFollow?: () => Promise<void>
+  validateFollowStatus?: () => Promise<void>
+}> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow, validateFollowStatus }) => {
+  const canFollow = !isCurrentUser && !user.isFollowed
+
   return (
-    <ThreadContent
-      post={post}
-      user={user}
-      isAuthenticated
-      isCurrentUser={isCurrentUser}
-      currentUser={currentUser}
-      onToggleFollow={handleToggleFollow}
-      validateFollowStatus={validateFollowStatus}
-      isTarget={isTarget}
-      isParent={isParent}
-      reposted={reposted}
-    />
+    <div className="grid grid-cols-[48px_minmax(0,1fr)]">
+      <div className={cx('col-start-1 pt-[5px]', isTarget ? 'row-span-1' : 'row-span-2')}>
+        <div className="relative z-10 h-9">
+          {isAuthenticated && canFollow ? (
+            <UserModal
+              user={user}
+              isAuthenticated
+              isCurrentUser={isCurrentUser}
+              onToggleFollow={onToggleFollow}
+              trigger={
+                <button type="button">
+                  <Avatar url={user.avatar} isFollowed={canFollow && user.isFollowed} />
+                </button>
+              }
+            />
+          ) : (
+            <Link href={`/@${user.username}`}>
+              <Avatar url={user.avatar} />
+            </Link>
+          )}
+        </div>
+      </div>
+      <div className="flex w-full items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <div className="font-semibold" onMouseEnter={() => validateFollowStatus?.()}>
+            <PostAuthor
+              user={user}
+              isAuthenticated={isAuthenticated}
+              isCurrentUser={isCurrentUser}
+              onToggleFollow={onToggleFollow}
+            />
+          </div>
+          <a href={`/@${user.username}/post/${post.id}`}>
+            <TimeAgo publishedAt={post.createdAt} />
+          </a>
+        </div>
+        <PostDropDownMenu
+          isFollowed={user.isFollowed}
+          onToggleFollow={onToggleFollow}
+          isAuthenticated={isAuthenticated}
+        />
+      </div>
+
+      <div className={cx('row-start-2', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>{post.text}</div>
+
+      {post.image && (
+        <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
+          <div className="mb-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={post.image} alt="preview" className="block max-h-[430px] rounded-lg object-contain" />
+          </div>
+        </div>
+      )}
+
+      <ThreadActions
+        post={post}
+        currentUser={currentUser}
+        author={user}
+        isAuthenticated={isAuthenticated}
+        className={cx('row-start-3', isTarget ? 'col-span-2' : 'col-start-2')}
+      />
+    </div>
   )
 }
 
-const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user, isTarget, isParent, reposted }) => {
-  return (
-    <ThreadContent
-      post={post}
-      user={user}
-      currentUser={null}
-      isTarget={isTarget}
-      isParent={isParent}
-      reposted={reposted}
-    />
-  )
-}
-
-const Thread: FunctionComponent<ThreadProps> = ({
+export default function Thread({
   post,
   user,
   currentUser,
@@ -228,22 +161,34 @@ const Thread: FunctionComponent<ThreadProps> = ({
   isTarget = false,
   isParent = false,
   reposted,
-}) => {
-  if (isAuthenticated) {
-    return (
-      <AuthThread
-        post={post}
-        user={user}
-        isAuthenticated
-        currentUser={currentUser}
-        isCurrentUser={isCurrentUser}
-        isTarget={isTarget}
-        isParent={isParent}
-        reposted={reposted}
-      />
-    )
-  }
-  return <PublicThread post={post} user={user} isTarget={isTarget} isParent={isParent} reposted={reposted} />
-}
+}: ThreadProps) {
+  const {
+    user: followableUser,
+    handleToggleFollow,
+    validateFollowStatus,
+  } = useFollow({
+    initialUser: user,
+    isAuthenticated,
+  })
 
-export default Thread
+  return (
+    <ThreadLayout isParent={isParent} isTarget={isTarget} currentUser={currentUser}>
+      <div className="relative">
+        {isParent && <div className="absolute bottom-[-7px] left-[17px] top-[50px] w-[2px] bg-gray-5"></div>}
+        {reposted && <RepostHeader username={reposted.username} createdAt={reposted.createdAt} />}
+
+        <ThreadContent
+          post={post}
+          user={followableUser}
+          isTarget={isTarget}
+          isAuthenticated={isAuthenticated}
+          isCurrentUser={isCurrentUser}
+          currentUser={currentUser}
+          onToggleFollow={handleToggleFollow}
+          validateFollowStatus={validateFollowStatus}
+        />
+      </div>
+      <Link href={`/@${user.username}/post/${post.id}`} className="absolute inset-0"></Link>
+    </ThreadLayout>
+  )
+}
