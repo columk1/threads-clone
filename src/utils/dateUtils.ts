@@ -15,7 +15,8 @@ export const getRelativeTime = (epochMs: number) => {
 
   const secondsAgo = Math.floor(diffMs / 1000)
   if (secondsAgo < 60) {
-    return `${secondsAgo}s`
+    // return `${secondsAgo}s`
+    return 'now'
   }
 
   const minutesAgo = Math.floor(secondsAgo / 60)
