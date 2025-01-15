@@ -12,7 +12,7 @@ export default async function RepliesPage({ params }: { params: Promise<{ userna
 
   const result = usernameParamSchema.safeParse(profileParams.username)
   if (!result.success) {
-    notFound()
+    return notFound()
   }
   const username = result.data
 

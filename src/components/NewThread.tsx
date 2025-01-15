@@ -11,7 +11,7 @@ const NewThread: FunctionComponent = async () => {
   // TODO: Come up with lighter way of getting user here
   const { user } = await validateRequest()
   if (!user) {
-    notFound()
+    return notFound()
   }
   const avatar = user.avatar
 

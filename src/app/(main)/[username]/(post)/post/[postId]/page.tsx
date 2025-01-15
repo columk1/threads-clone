@@ -21,7 +21,7 @@ export default async function PostPage({ params }: Props) {
 
   const result = usernameParamSchema.safeParse(postParams.username)
   if (!result.success) {
-    notFound()
+    return notFound()
   }
 
   const username = result.data
@@ -37,20 +37,20 @@ export default async function PostPage({ params }: Props) {
   const data = await getPostById(postId)
 
   // if ('error' in data) {
-  //   notFound()
+  //   return notFound()
   // }
 
   if (!Array.isArray(data)) {
-    notFound()
+    return notFound()
   }
 
   if (!data || data[0]?.user?.username !== username) {
-    notFound()
+    return notFound()
   }
 
   const thread = data.shift()
   if (!thread) {
-    notFound()
+    return notFound()
   }
 
   // const parentThread = thread.post.parentId

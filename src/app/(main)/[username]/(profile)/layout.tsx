@@ -28,13 +28,13 @@ export async function generateMetadata({ params }: Props) {
   const { username } = await params
   const result = usernameParamSchema.safeParse(username)
   if (!result.success) {
-    notFound()
+    return notFound()
   }
   const { user: currentUser } = await validateRequest()
 
   const res = await fetchUserInfo(!!currentUser, result.data)
   if ('error' in res) {
-    notFound()
+    return notFound()
   }
   return {
     title: `${res.user.username}`,
@@ -45,14 +45,14 @@ const UserProfileLayout = async ({ params, children }: Props) => {
   const { username } = await params
   const result = usernameParamSchema.safeParse(username)
   if (!result.success) {
-    notFound()
+    return notFound()
   }
 
   const { user: currentUser } = await validateRequest()
 
   const res = await fetchUserInfo(!!currentUser, result.data)
   if ('error' in res) {
-    notFound()
+    return notFound()
   }
 
   const user = res.user
@@ -67,7 +67,7 @@ const UserProfileLayout = async ({ params, children }: Props) => {
   }
 
   if (!('isFollowed' in user)) {
-    notFound()
+    return notFound()
   }
 
   // Branch for current user's profile

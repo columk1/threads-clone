@@ -15,7 +15,7 @@ export default async function UserProfileThreads({ params }: { params: Promise<{
 
   const result = usernameParamSchema.safeParse(profileParams.username)
   if (!result.success) {
-    notFound()
+    return notFound()
   }
   const username = result.data
 

@@ -7,7 +7,7 @@ export default function ProfileNavigation() {
   const pathname = usePathname()
   const profile = pathname.split('/').find((segment) => segment.startsWith('@')) // @username
   if (!profile) {
-    notFound()
+    return notFound()
   }
   // const username = profile?.slice(1)
   const subpath = pathname.split('/').pop()
