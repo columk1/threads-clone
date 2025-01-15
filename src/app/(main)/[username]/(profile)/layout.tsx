@@ -1,10 +1,8 @@
 import { notFound } from 'next/navigation'
 
-import Avatar from '@/components/Avatar'
+import CurrentUserProfile from '@/components/CurrentUserProfile'
 import Header from '@/components/Header'
-import ProfileModal from '@/components/ProfileModal'
-import ProfileNavigation from '@/components/ProfileNavigation'
-import UserProfile from '@/components/UserProfile'
+import VisitorProfile from '@/components/UserProfile'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
 import { getPublicUserInfo, getUserInfo, type PostUser, type PublicUser } from '@/services/users/users.queries'
@@ -61,7 +59,7 @@ const UserProfileLayout = async ({ params, children }: Props) => {
     return (
       <>
         <Header title={`${user.username}`} />
-        <UserProfile initialUser={user}>{children}</UserProfile>
+        <VisitorProfile initialUser={user}>{children}</VisitorProfile>
       </>
     )
   }
@@ -74,36 +72,7 @@ const UserProfileLayout = async ({ params, children }: Props) => {
   return (
     <>
       <Header title="Profile" />
-      <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
-        <div className="flex w-full flex-col items-center justify-center gap-4 px-6 py-5 text-[15px] font-normal">
-          <div className="flex w-full items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-2xl font-semibold">{user.name}</span>
-              <span>{user.username}</span>
-            </div>
-            <Avatar size="lg" url={user.avatar} />
-          </div>
-          <div className="flex flex-col gap-1.5 self-start">
-            <div>{user.bio}</div>
-            <div className="text-gray-7">
-              {`${Intl.NumberFormat().format(user.followerCount)} follower${user.followerCount !== 1 ? 's' : ''}`}
-            </div>
-          </div>
-          <ProfileModal
-            user={user}
-            trigger={
-              <button
-                type="button"
-                className="h-9 w-full rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30"
-              >
-                Edit Profile
-              </button>
-            }
-          />
-        </div>
-        <ProfileNavigation />
-        {children}
-      </div>
+      <CurrentUserProfile user={user}>{children}</CurrentUserProfile>
     </>
   )
 }
