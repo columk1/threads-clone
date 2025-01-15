@@ -6,17 +6,17 @@ import { toast } from 'sonner'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/lib/db/Schema'
-import { handleLikeAction } from '@/services/posts/posts.actions'
+import { handleLikeAction, handleRepostAction } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
 import { formatCount } from '@/utils/format/formatCount'
 
-import { Like, Reply, Repost, Share } from './icons'
+import { LikeIcon, ReplyIcon, RepostedIcon, RepostIcon, ShareIcon } from './icons'
 import ReplyModal from './ReplyModal'
 
 const iconStyle = 'flex h-full z-10 items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
 
 type ThreadActionsProps = {
-  post: Post & { isLiked?: boolean }
+  post: Post & { isLiked?: boolean; isReposted?: boolean }
   currentUser: User | null
   author: PostUser
   isAuthenticated: boolean
@@ -47,7 +47,9 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
 
   const likeCount = cachedPost?.likeCount ?? post.likeCount
   const isLiked = cachedPost?.isLiked ?? post.isLiked ?? false
+  const isReposted = cachedPost?.isReposted ?? post.isReposted ?? false
   const replyCount = cachedPost?.replyCount ?? post.replyCount
+  const repostCount = cachedPost?.repostCount ?? post.repostCount
 
   const toggleLike = () => {
     const newLikeCount = likeCount + (isLiked ? -1 : 1)
@@ -56,6 +58,21 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
         isLiked: !isLiked,
         likeCount: newLikeCount,
         replyCount: post.replyCount,
+        isReposted,
+        repostCount,
+      })
+    }
+  }
+
+  const toggleRepost = () => {
+    const newRepostCount = repostCount + (isReposted ? -1 : 1)
+    if (cachedPost) {
+      updatePost(post.id, {
+        isLiked,
+        likeCount,
+        replyCount,
+        isReposted: !isReposted,
+        repostCount: newRepostCount,
       })
     }
   }
@@ -71,6 +88,20 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
     }
   }
 
+  const handleToggleRepost = async () => {
+    toggleRepost()
+    const repostAction = isReposted ? 'unrepost' : 'repost'
+    const successMessage = isReposted ? 'Removed' : 'Reposted'
+    const result = await handleRepostAction(repostAction, post.id)
+    if (result.error) {
+      // revert optimistic update
+      toggleRepost()
+      toast(result.error)
+      return
+    }
+    toast(successMessage)
+  }
+
   const handleInteraction = (action: 'like' | 'reply' | 'repost') => {
     if (!isAuthenticated) {
       openModal('auth-prompt', action)
@@ -82,15 +113,14 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
         handleToggleLike()
         break
       case 'repost':
-        // eslint-disable-next-line no-console
-        console.log('clicked repost')
+        handleToggleRepost()
         break
     }
   }
 
   const replyButton = (
     <button type="button" className={iconStyle} onClick={() => handleInteraction('reply')}>
-      <Reply />
+      <ReplyIcon />
       <span>{formatCount(replyCount)}</span>
     </button>
   )
@@ -98,7 +128,7 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
   return (
     <div className={cx('-ml-3 mt-1 flex h-9 items-center text-[13px] text-secondary-text', className)}>
       <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
-        <Like className={isLiked ? 'fill-notification stroke-notification' : ''} />
+        <LikeIcon className={isLiked ? 'fill-notification stroke-notification' : ''} />
         <span className={cx('tabular-nums', isLiked && 'text-notification')}>{formatCount(likeCount)}</span>
       </button>
 
@@ -109,12 +139,13 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
       )}
 
       <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
-        <Repost />
-        <span>42</span>
+        {isReposted ? <RepostedIcon /> : <RepostIcon />}
+
+        <span className="tabular-nums">{formatCount(repostCount)}</span>
       </button>
 
       <button type="button" className={iconStyle}>
-        <Share />
+        <ShareIcon />
         <span></span>
       </button>
     </div>

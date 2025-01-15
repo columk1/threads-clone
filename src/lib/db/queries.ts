@@ -5,6 +5,7 @@ import {
   emailVerificationCodeSchema,
   followerSchema,
   likeSchema,
+  type Post,
   postSchema,
   repostSchema,
   type User,
@@ -33,6 +34,8 @@ export const basePostSelect = {
 }
 
 type UserField = keyof User
+
+export type PostData = Post & { isLiked: boolean; isReposted: boolean }
 
 export const findUserByField = async (field: UserField, value: string) => {
   return await db.select().from(userSchema).where(eq(userSchema[field], value)).get()
@@ -204,6 +207,12 @@ export const listAuthPosts = async (userId: string, authorId?: string) => {
           WHERE ${likeSchema.userId} = ${userId} 
             AND ${likeSchema.postId} = ${postSchema.id}
         )`.as('isLiked'),
+        isReposted: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${repostSchema} 
+          WHERE ${repostSchema.userId} = ${userId} 
+            AND ${repostSchema.postId} = ${postSchema.id}
+        )`.as('isReposted'),
       },
       user: {
         ...baseUserSelect,
@@ -239,15 +248,21 @@ export const listFollowingPosts = async (userId: string) => {
           WHERE ${likeSchema.userId} = ${userId} 
             AND ${likeSchema.postId} = ${postSchema.id}
         )`.as('isLiked'),
+        isReposted: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${repostSchema} 
+          WHERE ${repostSchema.userId} = ${userId} 
+            AND ${repostSchema.postId} = ${postSchema.id}
+        )`.as('isReposted'),
       },
       user: {
         ...baseUserSelect,
         isFollowed: sql<boolean>`EXISTS (
-        SELECT 1 
-        FROM ${followerSchema} 
-        WHERE ${followerSchema.userId} = ${userSchema.id} 
-          AND ${followerSchema.followerId} = ${userId}
-      )`.as('isFollowed'),
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userSchema.id} 
+            AND ${followerSchema.followerId} = ${userId}
+        )`.as('isFollowed'),
       },
     })
     .from(postSchema)
@@ -310,6 +325,12 @@ export const getAuthPostWithReplies = async (postId: string, userId: string) => 
           WHERE ${likeSchema.userId} = ${userId} 
             AND ${likeSchema.postId} = ${postSchema.id}
         )`.as('isLiked'),
+        isReposted: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${repostSchema} 
+          WHERE ${repostSchema.userId} = ${userId} 
+            AND ${repostSchema.postId} = ${postSchema.id}
+        )`.as('isReposted'),
       },
       user: {
         ...baseUserSelect,

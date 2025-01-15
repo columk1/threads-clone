@@ -190,7 +190,7 @@ describe('Posts Service', () => {
         ;(validateRequest as any).mockResolvedValue({ user: { id: 'current-user' } })
         const mockAuthPosts: AuthPostsResponse = [
           {
-            post: { ...mockBasePost, isLiked: true },
+            post: { ...mockBasePost, isLiked: true, isReposted: false },
             user: { ...mockUser, isFollowed: true },
           },
         ]
@@ -214,7 +214,7 @@ describe('Posts Service', () => {
         ;(validateRequest as any).mockResolvedValue({ user: { id: 'current-user' } })
         const mockAuthPosts: AuthPostsResponse = [
           {
-            post: { ...mockBasePost, isLiked: true },
+            post: { ...mockBasePost, isLiked: true, isReposted: false },
             user: { ...mockUser, isFollowed: true },
           },
         ]

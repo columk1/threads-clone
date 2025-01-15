@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { EditColorIcon, FollowColorIcon, LikeColor, ReplyColor, RepostColor } from '@/components/icons'
+import { EditColorIcon, FollowColorIcon, LikeColorIcon, ReplyColorIcon, RepostColorIcon } from '@/components/icons'
 import { ModalContext } from '@/context/ModalContext'
 
 export type ProtectedAction = 'post' | 'activity' | 'profile' | 'follow' | 'like' | 'repost' | 'reply' | 'save'
@@ -33,19 +33,19 @@ export function getAuthModalContent(action: ProtectedAction | null): {
       return {
         title: 'Sign up to like',
         caption: 'Join Threads to like and interact with posts.',
-        icon: LikeColor,
+        icon: LikeColorIcon,
       }
     case 'reply':
       return {
         title: 'Sign up to reply',
         caption: 'Join Threads to join the conversation.',
-        icon: ReplyColor,
+        icon: ReplyColorIcon,
       }
     case 'repost':
       return {
         title: 'Sign up to repost',
         caption: 'Join Threads to share this on your profile.',
-        icon: RepostColor,
+        icon: RepostColorIcon,
       }
     case 'follow':
       return {

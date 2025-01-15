@@ -17,7 +17,7 @@ import TimeAgo from './TimeAgo'
 import UserModal from './UserModal'
 
 type ThreadProps = {
-  post: Post
+  post: Post & { isLiked?: boolean; isReposted?: boolean }
   user: PostUser
   currentUser: User | null
   isCurrentUser: boolean
@@ -34,7 +34,7 @@ type PublicThreadProps = {
 }
 
 type ThreadContentProps = {
-  post: Post & { isLiked?: boolean }
+  post: Post & { isLiked?: boolean; isReposted?: boolean }
   user: PostUser
   onToggleFollow?: () => Promise<void>
   validateFollowStatus?: () => Promise<void>
@@ -167,7 +167,6 @@ const AuthThread: FunctionComponent<ThreadProps> = ({
   isParent = false,
 }) => {
   const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser })
-
   // type guard to make sure it's not a PublicUser
   if (!('isFollowed' in user)) {
     return null

@@ -12,20 +12,21 @@ import HamburgerMenuIcon from './HamburgerMenu'
 import HomeIcon from './Home'
 import ImageIcon from './Image'
 import KebabMenuIcon from './KebabMenu'
-import Like from './Like'
-import LikeColor from './LikeColor'
+import LikeIcon from './Like'
+import LikeColorIcon from './LikeColor'
 import LinkIcon from './Link'
 import NotificationsIcon from './Notifications'
 import NotificationsFooterIcon from './NotificationsFooter'
 import PinIcon from './Pin'
 import ProfileIcon from './Profile'
-import Reply from './Reply'
-import ReplyColor from './ReplyColor'
+import ReplyIcon from './Reply'
+import ReplyColorIcon from './ReplyColor'
 import ReportIcon from './Report'
-import Repost from './Repost'
-import RepostColor from './RepostColor'
+import RepostIcon from './Repost'
+import RepostColorIcon from './RepostColor'
+import RepostedIcon from './Reposted'
 import SearchIcon from './Search'
-import Share from './Share'
+import ShareIcon from './Share'
 import UnfollowIcon from './Unfollow'
 
 export {
@@ -43,19 +44,20 @@ export {
   HomeIcon,
   ImageIcon,
   KebabMenuIcon,
-  Like,
-  LikeColor,
+  LikeColorIcon,
+  LikeIcon,
   LinkIcon,
   NotificationsFooterIcon,
   NotificationsIcon,
   PinIcon,
   ProfileIcon,
-  Reply,
-  ReplyColor,
+  ReplyColorIcon,
+  ReplyIcon,
   ReportIcon,
-  Repost,
-  RepostColor,
+  RepostColorIcon,
+  RepostedIcon,
+  RepostIcon,
   SearchIcon,
-  Share,
+  ShareIcon,
   UnfollowIcon,
 }
