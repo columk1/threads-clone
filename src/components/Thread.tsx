@@ -10,6 +10,7 @@ import type { Post } from '@/lib/db/Schema'
 import type { PostUser } from '@/services/users/users.queries'
 
 import Avatar from './Avatar'
+import { RepostIcon } from './icons'
 import PostAuthor from './PostAuthor'
 import PostDropDownMenu from './PostDropDownMenu'
 import ThreadActions from './ThreadActions'
@@ -18,12 +19,14 @@ import UserModal from './UserModal'
 
 type ThreadProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }
+
   user: PostUser
   currentUser: User | null
   isCurrentUser: boolean
   isAuthenticated: boolean
   isTarget?: boolean
   isParent?: boolean
+  reposted?: { username: string; createdAt: number }
 }
 
 type PublicThreadProps = {
@@ -31,10 +34,12 @@ type PublicThreadProps = {
   user: PostUser
   isTarget: boolean
   isParent: boolean
+  reposted?: { username: string; createdAt: number }
 }
 
 type ThreadContentProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }
+
   user: PostUser
   onToggleFollow?: () => Promise<void>
   validateFollowStatus?: () => Promise<void>
@@ -43,6 +48,7 @@ type ThreadContentProps = {
   isAuthenticated?: boolean
   isTarget: boolean
   isParent: boolean
+  reposted?: { username: string; createdAt: number }
 }
 
 const ThreadContent: FunctionComponent<ThreadContentProps> = ({
@@ -55,6 +61,7 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
   isCurrentUser = false,
   isAuthenticated = false,
   isParent,
+  reposted,
 }) => {
   const canFollow = !isCurrentUser && !user.isFollowed
 
@@ -78,6 +85,21 @@ const ThreadContent: FunctionComponent<ThreadContentProps> = ({
         <div className="relative">
           {isParent && <div className="absolute bottom-[-7px] left-[17px] top-[50px] w-[2px] bg-gray-5"></div>}
 
+          {reposted && (
+            <Link href={`/@${user.username}`} className="group relative z-10">
+              <div className="flex h-9 items-center gap-3 text-[13px] text-gray-7">
+                <span className="w-9">
+                  <RepostIcon className="size-4 justify-self-end" />
+                </span>
+                <div>
+                  <span className="font-semibold group-hover:underline">{reposted.username}</span>
+                  <span>&nbsp;reposted&nbsp;</span>
+                  <TimeAgo publishedAt={reposted.createdAt} />
+                  <span>&nbsp;ago</span>
+                </div>
+              </div>
+            </Link>
+          )}
           <div className="grid grid-cols-[48px_minmax(0,1fr)]">
             <div className={cx('col-start-1 pt-[5px]', isTarget ? 'row-span-1' : 'row-span-2')}>
               {/* User Avatar */}
@@ -165,6 +187,7 @@ const AuthThread: FunctionComponent<ThreadProps> = ({
   currentUser,
   isTarget = false,
   isParent = false,
+  reposted,
 }) => {
   const { user, handleToggleFollow, validateFollowStatus } = useFollow({ initialUser })
   // type guard to make sure it's not a PublicUser
@@ -182,12 +205,22 @@ const AuthThread: FunctionComponent<ThreadProps> = ({
       validateFollowStatus={validateFollowStatus}
       isTarget={isTarget}
       isParent={isParent}
+      reposted={reposted}
     />
   )
 }
 
-const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user, isTarget, isParent }) => {
-  return <ThreadContent post={post} user={user} currentUser={null} isTarget={isTarget} isParent={isParent} />
+const PublicThread: FunctionComponent<PublicThreadProps> = ({ post, user, isTarget, isParent, reposted }) => {
+  return (
+    <ThreadContent
+      post={post}
+      user={user}
+      currentUser={null}
+      isTarget={isTarget}
+      isParent={isParent}
+      reposted={reposted}
+    />
+  )
 }
 
 const Thread: FunctionComponent<ThreadProps> = ({
@@ -198,6 +231,7 @@ const Thread: FunctionComponent<ThreadProps> = ({
   isAuthenticated,
   isTarget = false,
   isParent = false,
+  reposted,
 }) => {
   if (isAuthenticated) {
     return (
@@ -209,10 +243,11 @@ const Thread: FunctionComponent<ThreadProps> = ({
         isCurrentUser={isCurrentUser}
         isTarget={isTarget}
         isParent={isParent}
+        reposted={reposted}
       />
     )
   }
-  return <PublicThread post={post} user={user} isTarget={isTarget} isParent={isParent} />
+  return <PublicThread post={post} user={user} isTarget={isTarget} isParent={isParent} reposted={reposted} />
 }
 
 export default Thread

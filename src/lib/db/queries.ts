@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, or, sql } from 'drizzle-orm'
+import { and, desc, eq, isNotNull, isNull, or, sql, type SQLWrapper } from 'drizzle-orm'
 
 import { db } from './Drizzle'
 import {
@@ -150,7 +150,7 @@ export const getFollowStatus = async (targetUserId: string, userId: string) => {
   return Boolean(result?.isFollowed)
 }
 
-export const getAuthUserDetails = async (targetUserId: string, userId: string) => {
+export const getAuthUserDetails = async (targetUsername: string, userId: string) => {
   return await db
     .select({
       ...baseUserSelect,
@@ -163,7 +163,7 @@ export const getAuthUserDetails = async (targetUserId: string, userId: string) =
         )`.as('isFollowed'),
     })
     .from(userSchema)
-    .where(eq(userSchema.id, targetUserId))
+    .where(eq(userSchema.username, targetUsername))
     .get()
 }
 
@@ -196,7 +196,13 @@ export const listPublicPosts = async (authorUsername?: string) => {
   return await query.all()
 }
 
-export const listAuthPosts = async (userId: string, authorId?: string) => {
+export const listAuthPosts = async (authorUsername?: string, userId?: string) => {
+  const filters: SQLWrapper[] = [isNull(postSchema.parentId)]
+
+  if (authorUsername) {
+    filters.push(eq(userSchema.username, authorUsername))
+  }
+
   const query = db
     .select({
       post: {
@@ -226,13 +232,9 @@ export const listAuthPosts = async (userId: string, authorId?: string) => {
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(isNull(postSchema.parentId))
+    .where(and(...filters))
     .orderBy(desc(postSchema.createdAt))
     .$dynamic()
-
-  if (authorId) {
-    query.where(eq(userSchema.id, authorId))
-  }
 
   return await query.all()
 }
@@ -270,6 +272,81 @@ export const listFollowingPosts = async (userId: string) => {
     .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
     .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, userId)))
     .orderBy(desc(postSchema.createdAt))
+    .all()
+}
+
+export const listReplies = async (authorUsername: string, userId?: string) => {
+  return await db
+    .select({
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`EXISTS (
+          SELECT 1
+          FROM ${likeSchema}
+          WHERE ${likeSchema.userId} = ${userId}
+            AND ${likeSchema.postId} = ${postSchema.id}
+        )`.as('isLiked'),
+        isReposted: sql<boolean>`EXISTS (
+          SELECT 1
+          FROM ${repostSchema}
+          WHERE ${repostSchema.userId} = ${userId}
+            AND ${repostSchema.postId} = ${postSchema.id}
+        )`.as('isReposted'),
+      },
+      user: {
+        ...baseUserSelect,
+        isFollowed: sql<boolean>`EXISTS (
+          SELECT 1
+          FROM ${followerSchema}
+          WHERE ${followerSchema.userId} = ${userSchema.id}
+            AND ${followerSchema.followerId} = ${userId}
+        )`.as('isFollowed'),
+      },
+    })
+    .from(postSchema)
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .where(and(isNotNull(postSchema.parentId), eq(userSchema.username, authorUsername)))
+    .orderBy(desc(postSchema.createdAt))
+    .all()
+}
+
+export const listReposts = async (username: string, currentUserId?: string) => {
+  const userId = await findUserByField('username', username).then((user) => user?.id)
+  if (!userId) {
+    throw new Error('User not found')
+  }
+
+  return await db
+    .select({
+      post: {
+        ...basePostSelect,
+        isLiked: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${likeSchema} 
+          WHERE ${likeSchema.userId} = ${currentUserId} 
+            AND ${likeSchema.postId} = ${postSchema.id}
+        )`.as('isLiked'),
+        isReposted: sql<boolean>`true`.as('isReposted'),
+      },
+      user: {
+        ...baseUserSelect,
+        isFollowed: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userSchema.id} 
+            AND ${followerSchema.followerId} = ${currentUserId}
+        )`.as('isFollowed'),
+      },
+      repost: {
+        username: sql<string>`${username}`.as('username'),
+        createdAt: repostSchema.createdAt,
+      },
+    })
+    .from(repostSchema)
+    .innerJoin(postSchema, eq(repostSchema.postId, postSchema.id))
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .where(eq(repostSchema.userId, userId))
+    .orderBy(desc(repostSchema.createdAt))
     .all()
 }
 
@@ -385,38 +462,6 @@ export const deleteLike = async (postId: string, userId: string) => {
       .set({ likeCount: sql`${postSchema.likeCount} - 1` })
       .where(eq(postSchema.id, postId))
   })
-}
-
-export const listReposts = async (userId: string) => {
-  return await db
-    .select({
-      post: {
-        ...basePostSelect,
-        isLiked: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${likeSchema} 
-          WHERE ${likeSchema.userId} = ${userId} 
-            AND ${likeSchema.postId} = ${postSchema.id}
-        )`.as('isLiked'),
-        isReposted: sql<boolean>`true`.as('isReposted'),
-      },
-      user: {
-        ...baseUserSelect,
-        isFollowed: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id} 
-            AND ${followerSchema.followerId} = ${userId}
-        )`.as('isFollowed'),
-      },
-      createdAt: repostSchema.createdAt,
-    })
-    .from(repostSchema)
-    .innerJoin(postSchema, eq(repostSchema.postId, postSchema.id))
-    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(eq(repostSchema.userId, userId))
-    .orderBy(desc(repostSchema.createdAt))
-    .all()
 }
 
 export const insertRepost = async (postId: string, userId: string) => {

@@ -7,11 +7,15 @@ import {
   listAuthPosts,
   listFollowingPosts,
   listPublicPosts,
+  listReplies,
+  listReposts,
 } from '@/lib/db/queries'
 import { validateRequest } from '@/lib/Lucia'
 
 export type AuthPostsResponse = Awaited<ReturnType<typeof listAuthPosts>>
 export type PublicPostsResponse = Awaited<ReturnType<typeof listPublicPosts>>
+export type RepliesResponse = Awaited<ReturnType<typeof listReplies>>
+export type RepostsResponse = Awaited<ReturnType<typeof listReposts>>
 
 /*
  * Helper to format posts data returned from query
@@ -48,8 +52,7 @@ export const getPosts = async (username?: string): Promise<AuthPostsResponse | P
       },
     }))
   }
-
-  const data = await listAuthPosts(user.id, username)
+  const data = await listAuthPosts(username, user.id)
 
   return formatPostsData(data)
 }
@@ -66,6 +69,44 @@ export const getFollowingPosts = async () => {
   const data = await listFollowingPosts(user.id)
 
   return formatPostsData(data)
+}
+
+/*
+ * Get a User's Threads
+ */
+export const getThreads = async (username: string) => {
+  return username
+}
+/*
+ * Get a User's Replies
+ */
+
+export const getReplies = async (username: string) => {
+  const { user } = await validateRequest()
+
+  const data = await listReplies(username, user?.id)
+  return formatPostsData(data)
+}
+
+/*
+ * Get a User's Reposts
+ */
+export const getReposts = async (username: string) => {
+  const { user } = await validateRequest()
+
+  const data = await listReposts(username, user?.id)
+  return data.map((item) => ({
+    ...item,
+    post: {
+      ...item.post,
+      isLiked: Boolean(item.post.isLiked), // Cast 1/0 to true/false
+      isReposted: Boolean(item.post.isReposted),
+    },
+    user: {
+      ...item.user,
+      isFollowed: Boolean(item.user.isFollowed),
+    },
+  }))
 }
 
 /*

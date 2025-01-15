@@ -38,8 +38,10 @@ vi.mock('@conform-to/zod', () => ({
 
 vi.mock('@/lib/db/queries', () => ({
   insertPost: vi.fn().mockResolvedValue({ id: 'new-post-123' }),
-  insertLikeAndUpdateCount: vi.fn(),
-  deleteLikeAndUpdateCount: vi.fn(),
+  insertLike: vi.fn(),
+  deleteLike: vi.fn(),
+  insertRepost: vi.fn(),
+  deleteRepost: vi.fn(),
   listPublicPosts: vi.fn(),
   listAuthPosts: vi.fn(),
   listFollowingPosts: vi.fn(),
