@@ -103,8 +103,12 @@ const ThreadContent: FunctionComponent<{
               }
             />
           ) : (
-            <Link href={`/@${user.username}`}>
-              <Avatar url={user.avatar} />
+            // Override focus styles to allow focus-ring to circle image for keyboard users
+            <Link href={`/@${user.username}`} className="group !ring-0 !ring-offset-0">
+              <Avatar
+                url={user.avatar}
+                className="group-focus-visible:outline-2 group-focus-visible:outline-white group-focus-visible:ring-2 group-focus-visible:ring-blue-500 group-focus-visible:ring-offset-2"
+              />
             </Link>
           )}
         </div>

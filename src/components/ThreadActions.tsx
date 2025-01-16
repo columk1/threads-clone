@@ -6,10 +6,11 @@ import { toast } from 'sonner'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/lib/db/Schema'
-import { handleLikeAction, handleRepostAction } from '@/services/posts/posts.actions'
+import { handleLikeAction, handleRepostAction, handleShareAction } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
 import { formatCount } from '@/utils/format/formatCount'
 
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './DropdownMenu'
 import { LikeIcon, ReplyIcon, RepostedIcon, RepostIcon, ShareIcon } from './icons'
 import ReplyModal from './ReplyModal'
 
@@ -33,17 +34,6 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
   const { openModal } = useModal()
   const updatePost = useAppStore((state) => state.updatePost)
   const cachedPost = useAppStore((state) => state.posts[post.id])
-  // const cachedPost = useAppStore(state => state.posts[post.id])
-  // const [likeState, setLikeState] = useState<LikeState>({
-  //   isLiked: post.isLiked || false,
-  //   count: post.likeCount,
-  // })
-
-  // const cachedPost = useSyncExternalStore(
-  //   useAppStore.subscribe, // Subscribe function for Zustand
-  //   () => useAppStore.getState().posts[post.id], // Selector for the current post
-  //   () => undefined, // Server-side fallback, optional if SSR is needed
-  // )
 
   const likeCount = cachedPost?.likeCount ?? post.likeCount
   const isLiked = cachedPost?.isLiked ?? post.isLiked ?? false
@@ -125,6 +115,16 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
     </button>
   )
 
+  const handleShare = async () => {
+    navigator.clipboard.writeText(`${window.location.origin}/@${author.username}/post/${post.id}`)
+    const result = await handleShareAction(post.id)
+    if (result.error) {
+      toast(result.error)
+      return
+    }
+    toast('Copied')
+  }
+
   return (
     <div className={cx('-ml-3 mt-1 flex h-9 items-center text-[13px] text-secondary-text', className)}>
       <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
@@ -140,14 +140,22 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
 
       <button type="button" className={iconStyle} onClick={() => handleInteraction('repost')}>
         {isReposted ? <RepostedIcon /> : <RepostIcon />}
-
         <span className="tabular-nums">{formatCount(repostCount)}</span>
       </button>
 
-      <button type="button" className={iconStyle}>
-        <ShareIcon />
-        <span></span>
-      </button>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger className={iconStyle}>
+          <ShareIcon />
+          <span className="tabular-nums">{formatCount(post.shareCount)}</span>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-60 origin-top-left text-[15px] font-semibold">
+          <DropdownMenuItem asChild className="leading-none">
+            <button type="button" onClick={handleShare} className="flex w-full justify-between">
+              Copy link
+            </button>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

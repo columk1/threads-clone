@@ -30,6 +30,7 @@ export const basePostSelect = {
   likeCount: postSchema.likeCount,
   replyCount: postSchema.replyCount,
   repostCount: postSchema.repostCount,
+  shareCount: postSchema.shareCount,
   createdAt: postSchema.createdAt,
 }
 
@@ -510,6 +511,13 @@ export const deleteRepost = async (postId: string, userId: string) => {
       .set({ repostCount: sql`${postSchema.repostCount} - 1` })
       .where(eq(postSchema.id, postId))
   })
+}
+
+export const incrementShareCount = async (postId: string) => {
+  await db
+    .update(postSchema)
+    .set({ shareCount: sql`${postSchema.shareCount} + 1` })
+    .where(eq(postSchema.id, postId))
 }
 
 // export const listFollowingPostsAndReposts = async (userId: string, limit = 20) => {

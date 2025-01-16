@@ -71,6 +71,7 @@ export const postSchema = sqliteTable(
     likeCount: integer('like_count').notNull().default(0),
     replyCount: integer('reply_count').notNull().default(0),
     repostCount: integer('repost_count').notNull().default(0),
+    shareCount: integer('share_count').notNull().default(0),
     createdAt: integer('created_at')
       .notNull()
       .default(sql`(cast(unixepoch() as int))`),

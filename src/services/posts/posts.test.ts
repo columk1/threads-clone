@@ -7,6 +7,7 @@ import {
   getAuthPostWithReplies,
   getPostById,
   getPublicPostWithReplies,
+  incrementShareCount,
   insertLike,
   insertPost,
   listFollowingPosts,
@@ -16,7 +17,7 @@ import type { Post } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 
-import { createPost, handleLikeAction } from './posts.actions'
+import { createPost, handleLikeAction, handleShareAction } from './posts.actions'
 import { getAuthPostById, getFollowingPosts, getPosts, getPublicPostById, getSinglePostById } from './posts.queries'
 
 // Mock external dependencies
@@ -40,6 +41,7 @@ vi.mock('@/lib/db/queries', () => ({
   deleteLike: vi.fn(),
   insertRepost: vi.fn(),
   deleteRepost: vi.fn(),
+  incrementShareCount: vi.fn(),
   listPosts: vi.fn(),
   listFollowingPosts: vi.fn(),
   getPublicPostWithReplies: vi.fn(),
@@ -78,6 +80,7 @@ describe('Posts Service', () => {
     likeCount: 0,
     replyCount: 0,
     repostCount: 0,
+    shareCount: 0,
     userId: mockUser.id,
     image: null,
   }
@@ -166,6 +169,24 @@ describe('Posts Service', () => {
         const result = await createPost(null, formData)
 
         expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
+        expect(logger.error).toHaveBeenCalled()
+      })
+    })
+
+    describe('handleShareAction', () => {
+      it('should successfully increment share count', async () => {
+        const result = await handleShareAction(mockBasePost.id)
+
+        expect(incrementShareCount).toHaveBeenCalledWith(mockBasePost.id)
+        expect(result).toEqual({ success: true })
+      })
+
+      it('should handle errors', async () => {
+        ;(incrementShareCount as any).mockRejectedValue(new Error('DB Error'))
+
+        const result = await handleShareAction(mockBasePost.id)
+
+        expect(result).toEqual({ error: 'Something went wrong. Please try again.', success: false })
         expect(logger.error).toHaveBeenCalled()
       })
     })

@@ -3,7 +3,7 @@
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 
-import { deleteLike, deleteRepost, insertLike, insertPost, insertRepost } from '@/lib/db/queries'
+import { deleteLike, deleteRepost, incrementShareCount, insertLike, insertPost, insertRepost } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 import { newPostSchema, replySchema } from '@/lib/schemas/zod.schema'
@@ -107,6 +107,19 @@ export const handleRepostAction = async (actionType: RepostAction, postId: strin
   const repostQuery = repostQueries[actionType]
   try {
     await repostQuery(postId, userId)
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong. Please try again.', success: false }
+  }
+  return { success: true }
+}
+
+/*
+ * Share
+ */
+export const handleShareAction = async (postId: string) => {
+  try {
+    await incrementShareCount(postId)
   } catch (err) {
     logger.error(err)
     return { error: 'Something went wrong. Please try again.', success: false }
