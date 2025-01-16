@@ -55,6 +55,15 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      animation: {
+        glimmer: 'glimmer 2.5s ease-in-out alternate infinite', // 2s duration, loops infinitely
+      },
+      keyframes: {
+        glimmer: {
+          '100%, 0%': { opacity: '1' },
+          '50%': { opacity: '0.3' },
+        },
+      },
     },
   },
   plugins: [

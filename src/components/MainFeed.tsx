@@ -3,6 +3,7 @@ import { type FunctionComponent, Suspense } from 'react'
 
 import { MobileHomeFeedFilter } from './MobileHomeFeedFilter'
 import NewThread from './NewThread'
+import Skeleton from './Skeleton'
 import Threads from './Threads'
 
 type Props = {
@@ -21,7 +22,7 @@ const MainFeed: FunctionComponent<Props> = ({ user, filter }) => {
           {user && <NewThread />}
 
           {/* Posts Here */}
-          <Suspense fallback={<p>Loading...</p>}>
+          <Suspense fallback={<Skeleton />}>
             <Threads filter={filter} />
           </Suspense>
         </div>
