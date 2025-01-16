@@ -4,6 +4,7 @@ import Link from 'next/link'
 import AuthPromptModal from '@/components/AuthPromptModal'
 import MobileHeader from '@/components/MobileHeader'
 import MobileSidebar from '@/components/MobileSidebar'
+import FloatingActionButton from '@/components/NewPostFAB'
 import NewThreadModal from '@/components/NewThreadModal'
 import Sidebar from '@/components/Sidebar'
 import { validateRequest } from '@/lib/Lucia'
@@ -23,7 +24,10 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
       <Sidebar user={user} />
       <MobileSidebar user={user} />
       {user ? (
-        <NewThreadModal username={user.username} avatar={user.avatar} />
+        <>
+          <NewThreadModal username={user.username} avatar={user.avatar} />
+          <FloatingActionButton />
+        </>
       ) : (
         <>
           <AuthPromptModal />
