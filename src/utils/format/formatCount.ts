@@ -1,4 +1,7 @@
 export function formatCount(count: number): string {
+  if (count === 0) {
+    return ''
+  }
   if (count < 1000) {
     return count.toString() // Return as is for numbers less than 1000
   }
