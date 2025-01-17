@@ -2,103 +2,28 @@ import bcrypt from 'bcrypt'
 
 import { logger } from '../Logger.ts'
 import { db } from './Drizzle.ts'
-import { postSchema, repostSchema, userSchema } from './Schema.ts'
+import { generateFakeLikes, generateFakePosts, generateFakeReposts, generateFakeUsers } from './fakerData.ts'
+import { likeSchema, postSchema, repostSchema, userSchema } from './Schema.ts'
+import { updatePostCounts } from './updateCounts.ts'
 
 async function seed() {
-  const users = [
-    {
-      id: '01JBXMJGX3JABF1GQXSW38MXMN',
-      email: 'columk1@gmail.com',
-      password: '123456',
-      name: 'Colum Kelly',
-      username: 'columk1',
-      emailVerified: 1,
-      bio: '"The past is always tense, the future perfect."',
-      followerCount: 0,
-      avatar: 'https://res.cloudinary.com/dsrekt1mo/image/upload/v1735805136/threads-clone/avatars/389b973e.jpg',
-    },
-    {
-      id: '01JC5DJJF5YB7QTWTJH9Z4SAR4',
-      email: 'jeremystrong@gmail.com',
-      password: '123456',
-      name: 'Jeremy Strong',
-      username: 'jeremystrong',
-      emailVerified: 1,
-      bio: 'Actor.',
-      followerCount: 0,
-      avatar: null,
-    },
-    {
-      id: '01JCVFAX0PC4G5P456FEEJ2PMV',
-      email: 'columk.1@gmail.com',
-      password: '123456',
-      name: 'Zadie Smith',
-      username: 'zadiesmith',
-      emailVerified: 1,
-      bio: 'Zadie Smith is a British novelist, essayist and short story writer.',
-      followerCount: 0,
-      avatar: null,
-    },
-  ]
-
-  const posts = [
-    {
-      id: '01JC2P47P0VD0GEGWDZY9QHBNB',
-      text: 'Do you think I’d get yelled at for making an emulated server of a formerly popular game for educational purposes? 🤔',
-      userId: '01JBXMJGX3JABF1GQXSW38MXMN',
-      parentId: null,
-      createdAt: 1730962137,
-      likeCount: 0,
-    },
-    {
-      id: '01JCVGNVNDD355AS194HPHG8Y6',
-      text: 'Next.js is a React framework for building full-stack web applications.',
-      userId: '01JCVFAX0PC4G5P456FEEJ2PMV',
-      parentId: null,
-      createdAt: 1731795283,
-      likeCount: 0,
-      replyCount: 1,
-    },
-    {
-      id: '01JDQVX9Q9G0SRQCKY33B4H9FJ',
-      text: 'Tell me more',
-      userId: '01JBXMJGX3JABF1GQXSW38MXMN',
-      parentId: '01JCVGNVNDD355AS194HPHG8Y6',
-      createdAt: 1732746585,
-      likeCount: 0,
-    },
-    {
-      id: '01JE868F3BBBTQYZF8EDWX6EG4',
-      text: 'Yessir',
-      userId: '01JBXMJGX3JABF1GQXSW38MXMN',
-      parentId: '01JDQVX9Q9G0SRQCKY33B4H9FJ',
-      createdAt: 1733294308,
-      likeCount: 0,
-    },
-    {
-      id: 'KLJE86EF3BBCTQYZG8EDWX6E0D',
-      text: 'interesting',
-      userId: '01JCVFAX0PC4G5P456FEEJ2PMV',
-      parentId: '01JC2P47P0VD0GEGWDZY9QHBNB',
-      createdAt: 1733394308,
-      likeCount: 0,
-    },
-  ]
-
-  const reposts = [
-    {
-      id: '78DRNUQHMT3786WUFECKHSDZ',
-      userId: '01JBXMJGX3JABF1GQXSW38MXMN',
-      postId: '01JCVGNVNDD355AS194HPHG8Y6',
-      createdAt: 1731895283,
-    },
-  ]
-
   // Delete all existing rows
   await db.delete(postSchema)
   await db.delete(userSchema)
+  await db.delete(likeSchema)
+  await db.delete(repostSchema)
 
   try {
+    // Generate fake data
+    const users = generateFakeUsers(10) // Generate 10 users
+    const posts = generateFakePosts(users, 30) // Generate 30 posts
+    const likes = generateFakeLikes(users, posts, 50) // Generate 50 likes
+    const reposts = generateFakeReposts(users, posts, 20) // Generate 20 reposts
+
+    // Update counts based on interactions
+    updatePostCounts(posts, likes, reposts)
+
+    // Hash passwords
     const saltRounds = 10
     const hashedUsers = await Promise.all(
       users.map(async (user) => {
@@ -110,21 +35,29 @@ async function seed() {
       }),
     )
 
-    for (const user of hashedUsers) {
-      await db.insert(userSchema).values(user)
-    }
+    // Insert data
+    await db.insert(userSchema).values(hashedUsers)
+    await db.insert(postSchema).values(posts)
+    await db.insert(likeSchema).values(likes)
+    await db.insert(repostSchema).values(reposts)
 
-    for (const post of posts) {
-      await db.insert(postSchema).values(post)
-    }
-
-    for (const repost of reposts) {
-      await db.insert(repostSchema).values(repost)
-    }
+    // Add my user with hashed password
+    const myHashedPassword = await bcrypt.hash('123456', saltRounds)
+    await db.insert(userSchema).values({
+      id: '01JBXMJGX3JABF1GQXSW38MXMN',
+      email: 'columk1@gmail.com',
+      password: myHashedPassword,
+      name: 'Colum Kelly',
+      username: 'columk1',
+      emailVerified: 1,
+      bio: '"The past is always tense, the future perfect."',
+      followerCount: 0,
+      avatar: 'https://res.cloudinary.com/dsrekt1mo/image/upload/v1735805136/threads-clone/avatars/389b973e.jpg',
+    })
 
     logger.info('Seeding complete!')
   } catch (error) {
-    logger.error('Error seeding database:', error)
+    console.error('Error seeding database:', error)
   }
 }
 

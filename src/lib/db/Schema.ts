@@ -114,6 +114,8 @@ export const followerSchema = sqliteTable(
   },
 )
 
+export type Follower = InferSelectModel<typeof followerSchema>
+
 export const likeSchema = sqliteTable(
   'likes',
   {
@@ -135,6 +137,8 @@ export const likeSchema = sqliteTable(
     return [primaryKey({ columns: [table.userId, table.postId] })]
   },
 )
+
+export type Like = InferSelectModel<typeof likeSchema>
 
 export const repostSchema = sqliteTable(
   'reposts',
@@ -159,6 +163,8 @@ export const repostSchema = sqliteTable(
     return [primaryKey({ columns: [table.userId, table.postId] })]
   },
 )
+
+export type Repost = InferSelectModel<typeof repostSchema>
 
 export const userRelations = relations(userSchema, ({ many }) => ({
   session: many(sessionSchema),
