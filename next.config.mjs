@@ -14,6 +14,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
     ],
   },
   eslint: {
@@ -24,7 +28,7 @@ const nextConfig = {
   serverExternalPackages: ['pino', 'pino-pretty'],
   experimental: {
     // DynamicIO doesn't work with Sentry https://github.com/getsentry/sentry-javascript/issues/14118
-    dynamicIO: true,
+    // dynamicIO: true,
     // serverExternalPackages: ['@libsql/client'],
   },
 }
