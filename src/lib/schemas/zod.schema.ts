@@ -15,6 +15,8 @@ export const newPostSchema = z
   .object({
     text: z.string().trim().optional(),
     image: z.string().url({ message: 'Invalid URL' }).optional(),
+    imageWidth: z.number().optional(),
+    imageHeight: z.number().optional(),
   })
   .refine((data) => data.text || data.image, {
     message: 'Either text or image is required',

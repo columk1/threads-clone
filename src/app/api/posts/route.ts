@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { db } from '@/lib/db/Drizzle'
-import { baseUserSelect } from '@/lib/db/queries'
+import { basePostSelect, baseUserSelect } from '@/lib/db/queries'
 import { followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
 
 // type PostsResponse = {
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
   if (!userId) {
     const query = db
       .select({
-        post: postSchema,
+        post: basePostSelect,
         user: baseUserSelect,
       })
       .from(postSchema)
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 
   const query = db
     .select({
-      post: postSchema,
+      post: basePostSelect,
       user: {
         username: userSchema.username,
         name: userSchema.name,

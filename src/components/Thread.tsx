@@ -2,6 +2,7 @@
 
 import cx from 'clsx'
 import type { User } from 'lucia'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { FunctionComponent } from 'react'
 
@@ -16,6 +17,16 @@ import PostDropDownMenu from './PostDropDownMenu'
 import ThreadActions from './ThreadActions'
 import TimeAgo from './TimeAgo'
 import UserModal from './UserModal'
+
+const applyConstraints = (width: number, height: number, maxWidth = 543, maxHeight = 430) => {
+  const widthRatio = maxWidth / width
+  const heightRatio = maxHeight / height
+  const scale = Math.min(widthRatio, heightRatio, 1) // Scale down if needed, but don't upscale
+  return {
+    width: Math.round(width * scale),
+    height: Math.round(height * scale),
+  }
+}
 
 type ThreadProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }
@@ -86,6 +97,26 @@ const ThreadContent: FunctionComponent<{
 }> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow, validateFollowStatus }) => {
   const canFollow = !isCurrentUser && !user.isFollowed
 
+  const media = () => {
+    if (!post.image) {
+      return null
+    }
+    const { width, height } = applyConstraints(post.imageWidth || 200, post.imageHeight || 430, 543, 430)
+    return (
+      <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
+        <div className="mb-1">
+          <Image
+            src={post.image}
+            alt="preview"
+            width={width}
+            height={height}
+            className="block max-h-[430px] rounded-lg object-contain outline outline-1 outline-offset--1 outline-primary-outline"
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="grid grid-cols-[48px_minmax(0,1fr)]">
       <div className={cx('col-start-1 pt-[5px]', isTarget ? 'row-span-1' : 'row-span-2')}>
@@ -138,18 +169,7 @@ const ThreadContent: FunctionComponent<{
         <div className={cx('row-start-2', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>{post.text}</div>
       )}
 
-      {post.image && (
-        <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
-          <div className="mb-1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={post.image}
-              alt="preview"
-              className="block max-h-[430px] rounded-lg object-contain outline outline-1 outline-offset--1 outline-primary-outline"
-            />
-          </div>
-        </div>
-      )}
+      {media()}
 
       <ThreadActions
         post={post}

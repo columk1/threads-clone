@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { db } from '@/lib/db/Drizzle'
-import { baseUserSelect } from '@/lib/db/queries'
+import { basePostSelect, baseUserSelect } from '@/lib/db/queries'
 import { followerSchema, likeSchema, postSchema, userSchema } from '@/lib/db/Schema'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   // Base query for fetching post and author info
   const baseSelect = {
-    post: postSchema,
+    post: basePostSelect,
     user: baseUserSelect,
   }
 

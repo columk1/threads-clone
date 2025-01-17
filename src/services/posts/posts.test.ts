@@ -31,6 +31,8 @@ vi.mock('@conform-to/zod', () => ({
     value: {
       text: 'Test post content',
       image: 'image-url',
+      imageWidth: 800,
+      imageHeight: 600,
     },
   }),
 }))
@@ -83,6 +85,8 @@ describe('Posts Service', () => {
     shareCount: 0,
     userId: mockUser.id,
     image: null,
+    imageWidth: null,
+    imageHeight: null,
   }
 
   type PostsResponse = {
@@ -143,6 +147,8 @@ describe('Posts Service', () => {
         expect(insertPost).toHaveBeenCalledWith(mockUser.id, {
           text: 'Test post content',
           image: 'image-url',
+          imageWidth: 800,
+          imageHeight: 600,
         })
         expect(result).toEqual({ success: true })
       })

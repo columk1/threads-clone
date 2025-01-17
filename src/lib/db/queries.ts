@@ -25,6 +25,8 @@ export const basePostSelect = {
   id: postSchema.id,
   text: postSchema.text,
   image: postSchema.image,
+  imageWidth: postSchema.imageWidth,
+  imageHeight: postSchema.imageHeight,
   userId: postSchema.userId,
   parentId: postSchema.parentId,
   likeCount: postSchema.likeCount,

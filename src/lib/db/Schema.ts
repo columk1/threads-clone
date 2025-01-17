@@ -61,6 +61,8 @@ export const postSchema = sqliteTable(
       .$defaultFn(() => ulid()),
     text: text('text'),
     image: text('image'),
+    imageWidth: integer('image_width'),
+    imageHeight: integer('image_height'),
     userId: text('user_id')
       .notNull()
       .references(() => userSchema.id, {
@@ -78,6 +80,8 @@ export const postSchema = sqliteTable(
   },
   (table) => {
     return [
+      index('user_idx').on(table.userId),
+      index('parent_idx').on(table.parentId),
       check(
         'text_or_image',
         sql`(${table.text} IS NOT NULL AND TRIM(${table.text}) <> '') 

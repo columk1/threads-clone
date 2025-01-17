@@ -145,17 +145,23 @@ type NewThreadModalProps = {
   handleOpenChange: (open: boolean) => void
 }
 
+type ImageData = {
+  url: string
+  width: string
+  height: string
+} | null
+
 const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar, handleOpenChange }) => {
   const [state, formAction, isPending] = useActionState(createPost, null)
   const [image, setImage] = useState<string | null>(null)
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageData, setImageData] = useState<ImageData>(null)
   const [text, setText] = useState('')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const router = useRouter()
 
-  const isValid = text.trim() !== '' || imageUrl !== null
+  const isValid = text.trim() !== '' || imageData !== null
 
   const handleTextInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const t = e.target
@@ -199,7 +205,12 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
           body: formData,
         })
         const data = await res.json()
-        setImageUrl(data.secure_url)
+        const image: ImageData = {
+          url: data.secure_url,
+          width: data.width,
+          height: data.height,
+        }
+        setImageData(image)
       } catch (err) {
         toast('Oops! Something went wrong. Please try again.')
         setImage(null)
@@ -214,8 +225,10 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     startTransition(() => {
       const formData = new FormData()
       formData.append('text', text)
-      if (imageUrl) {
-        formData.append('image', imageUrl)
+      if (imageData) {
+        formData.append('image', imageData.url)
+        formData.append('imageWidth', imageData.width)
+        formData.append('imageHeight', imageData.height)
       }
       formAction(formData)
     })
