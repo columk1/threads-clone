@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { LikeIcon, ReplyIcon, RepostedIcon, RepostIcon, ShareIcon } from './icons'
 import ReplyModal from './ReplyModal'
 
-const iconStyle = 'flex h-full z-10 items-center gap-1 rounded-full px-3 hover:bg-gray-3 active:scale-85 transition'
+const iconStyle = 'flex h-full z-10 items-center gap-1 rounded-full px-2.5 hover:bg-gray-3 active:scale-85 transition'
 
 type ThreadActionsProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }

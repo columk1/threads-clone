@@ -134,13 +134,19 @@ const ThreadContent: FunctionComponent<{
         />
       </div>
 
-      <div className={cx('row-start-2', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>{post.text}</div>
+      {post.text && (
+        <div className={cx('row-start-2', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>{post.text}</div>
+      )}
 
       {post.image && (
         <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
           <div className="mb-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={post.image} alt="preview" className="block max-h-[430px] rounded-lg object-contain" />
+            <img
+              src={post.image}
+              alt="preview"
+              className="block max-h-[430px] rounded-lg object-contain outline outline-1 outline-offset--1 outline-primary-outline"
+            />
           </div>
         </div>
       )}
@@ -150,7 +156,7 @@ const ThreadContent: FunctionComponent<{
         currentUser={currentUser}
         author={user}
         isAuthenticated={isAuthenticated}
-        className={cx('row-start-3', isTarget ? 'col-span-2' : 'col-start-2')}
+        className={cx(isTarget ? 'col-span-2' : 'col-start-2')}
       />
     </div>
   )
