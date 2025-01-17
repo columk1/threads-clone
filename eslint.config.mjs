@@ -87,6 +87,7 @@ export default antfu(
           printWidth: 120,
           singleQuote: true,
           semi: false,
+          endOfLine: 'auto',
         },
       ],
     },
