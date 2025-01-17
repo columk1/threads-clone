@@ -1,4 +1,7 @@
+import { Buffer } from 'node:buffer'
+
 import { faker } from '@faker-js/faker'
+import sharp from 'sharp'
 
 import type { Like, Post, Repost, User } from './Schema'
 
@@ -51,18 +54,34 @@ function generateTimestampAfter(timestamp: number): number {
     .getTime()
 }
 
-function generatePostContent() {
+async function generatePostContent() {
   const hasImage = faker.datatype.boolean(PROBABILITIES.image)
   const hasText = faker.datatype.boolean(PROBABILITIES.hasText)
 
   // If neither was selected, force text to be true
   const shouldHaveText = hasText || !hasImage
 
+  let imageWidth = null
+  let imageHeight = null
+  let image = null
+
+  if (hasImage) {
+    const photoUrl = faker.image.urlPicsumPhotos()
+    const response = await fetch(photoUrl)
+    const buffer = Buffer.from(await response.arrayBuffer())
+    const metadata = await sharp(buffer).metadata()
+    imageWidth = metadata.width ?? null
+    imageHeight = metadata.height ?? null
+    image = photoUrl
+  }
+
   return {
     text: shouldHaveText
       ? faker.lorem.sentences(faker.number.int({ min: LIMITS.minSentences, max: LIMITS.maxSentences }))
       : '',
-    image: hasImage ? faker.image.urlPicsumPhotos() : null,
+    image,
+    imageWidth,
+    imageHeight,
   }
 }
 
@@ -83,7 +102,7 @@ export function generateFakeUsers(count: number): User[] {
   }))
 }
 
-export function generateFakePosts(users: User[], count: number): Post[] {
+export async function generateFakePosts(users: User[], count: number): Promise<Post[]> {
   const posts: Post[] = []
   const now = Math.floor(Date.now() / 1000)
   const pastDate = now - LIMITS.daysBack * 24 * 60 * 60
@@ -91,7 +110,7 @@ export function generateFakePosts(users: User[], count: number): Post[] {
   // First generate parent posts
   for (let i = 0; i < Math.ceil(count * (1 - PROBABILITIES.reply)); i++) {
     const user = faker.helpers.arrayElement(users)
-    const content = generatePostContent()
+    const content = await generatePostContent()
 
     posts.push({
       id: faker.string.alphanumeric({ length: 26 }).toUpperCase(),
@@ -111,7 +130,7 @@ export function generateFakePosts(users: User[], count: number): Post[] {
   for (let i = 0; i < remainingPosts; i++) {
     const user = faker.helpers.arrayElement(users)
     const parentPost = faker.helpers.arrayElement(posts)
-    const content = generatePostContent()
+    const content = await generatePostContent()
 
     posts.push({
       id: faker.string.alphanumeric({ length: 26 }).toUpperCase(),

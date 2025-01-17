@@ -16,7 +16,7 @@ async function seed() {
   try {
     // Generate fake data
     const users = generateFakeUsers(10) // Generate 10 users
-    const posts = generateFakePosts(users, 30) // Generate 30 posts
+    const posts = await generateFakePosts(users, 30) // Generate 30 posts
     const likes = generateFakeLikes(users, posts, 50) // Generate 50 likes
     const reposts = generateFakeReposts(users, posts, 20) // Generate 20 reposts
 
