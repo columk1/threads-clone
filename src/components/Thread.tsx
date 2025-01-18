@@ -18,13 +18,19 @@ import ThreadActions from './ThreadActions'
 import TimeAgo from './TimeAgo'
 import UserModal from './UserModal'
 
-const applyConstraints = (width: number, height: number, maxWidth = 543, maxHeight = 430) => {
+const applyConstraints = (width: number | null, height: number | null, maxWidth = 543, maxHeight = 430) => {
+  if (!width || !height) {
+    return {
+      containerWidth: 'auto',
+      containerHeight: 'auto',
+    }
+  }
   const widthRatio = maxWidth / width
   const heightRatio = maxHeight / height
   const scale = Math.min(widthRatio, heightRatio, 1) // Scale down if needed, but don't upscale
   return {
-    width: Math.round(width * scale),
-    height: Math.round(height * scale),
+    containerWidth: Math.round(width * scale),
+    containerHeight: Math.round(height * scale),
   }
 }
 
@@ -101,16 +107,23 @@ const ThreadContent: FunctionComponent<{
     if (!post.image) {
       return null
     }
-    const { width, height } = applyConstraints(post.imageWidth || 200, post.imageHeight || 430, 543, 430)
+    const { containerWidth, containerHeight } = applyConstraints(post.imageWidth, post.imageHeight)
+    const { width, height } = { width: post.imageWidth || 543, height: post.imageHeight || 430 }
     return (
       <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
-        <div className="mb-1">
+        <div
+          className={cx('mb-1 max-h-[430px] rounded-lg outline outline-1 outline-offset--1 outline-primary-outline')}
+          style={{
+            width: containerWidth,
+            height: containerHeight,
+          }}
+        >
           <Image
             src={post.image}
             alt="preview"
             width={width}
             height={height}
-            className="block max-h-[430px] rounded-lg object-contain outline outline-1 outline-offset--1 outline-primary-outline"
+            className="block size-full rounded-lg object-contain"
           />
         </div>
       </div>

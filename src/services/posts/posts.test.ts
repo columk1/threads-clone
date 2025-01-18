@@ -18,7 +18,14 @@ import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 
 import { createPost, handleLikeAction, handleShareAction } from './posts.actions'
-import { getAuthPostById, getFollowingPosts, getPosts, getPublicPostById, getSinglePostById } from './posts.queries'
+import {
+  getAuthPostById,
+  getFollowingPosts,
+  getPosts,
+  getPublicPostById,
+  getSinglePostById,
+  QUERY_LIMIT,
+} from './posts.queries'
 
 // Mock external dependencies
 vi.mock('next/navigation', () => ({
@@ -212,9 +219,9 @@ describe('Posts Service', () => {
 
         const result = await getPosts()
 
-        expect(listPosts).toHaveBeenCalledWith(undefined, undefined)
-        expect(result[0]?.user?.isFollowed).toBe(false)
-        expect(result[0]?.post?.isLiked).toBe(false)
+        expect(listPosts).toHaveBeenCalledWith(undefined, undefined, 0, QUERY_LIMIT)
+        expect(result.posts[0]?.user?.isFollowed).toBe(false)
+        expect(result.posts[0]?.post?.isLiked).toBe(false)
       })
 
       it('should return authenticated posts for logged-in users', async () => {
@@ -228,9 +235,9 @@ describe('Posts Service', () => {
         ;(listPosts as any).mockResolvedValue(mockAuthPosts)
 
         const result = await getPosts()
-        const firstPost = result[0]
+        const firstPost = result.posts[0]
 
-        expect(listPosts).toHaveBeenCalledWith(undefined, 'current-user')
+        expect(listPosts).toHaveBeenCalledWith(undefined, 'current-user', 0, QUERY_LIMIT)
 
         if (firstPost && isAuthPost(firstPost)) {
           expect(firstPost.post.isLiked).toBe(true)
@@ -249,9 +256,9 @@ describe('Posts Service', () => {
         ;(listPosts as any).mockResolvedValue(mockAuthPosts)
 
         const result = await getPosts('testuser')
-        const firstPost = result[0]
+        const firstPost = result.posts[0]
 
-        expect(listPosts).toHaveBeenCalledWith('testuser', 'current-user')
+        expect(listPosts).toHaveBeenCalledWith('testuser', 'current-user', 0, QUERY_LIMIT)
 
         if (firstPost && isAuthPost(firstPost)) {
           expect(firstPost.post.isLiked).toBe(true)
@@ -272,9 +279,9 @@ describe('Posts Service', () => {
         ;(listFollowingPosts as any).mockResolvedValue(mockAuthPosts)
 
         const result = await getFollowingPosts()
-        const firstPost = result[0]
+        const firstPost = result.posts[0]
 
-        expect(listFollowingPosts).toHaveBeenCalledWith('current-user')
+        expect(listFollowingPosts).toHaveBeenCalledWith('current-user', 0, QUERY_LIMIT)
 
         if (firstPost && isAuthPost(firstPost)) {
           expect(firstPost.post.isLiked).toBe(true)

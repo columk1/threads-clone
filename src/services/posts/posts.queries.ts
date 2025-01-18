@@ -14,6 +14,8 @@ import { validateRequest } from '@/lib/Lucia'
 export type RepliesResponse = Awaited<ReturnType<typeof listReplies>>
 export type RepostsResponse = Awaited<ReturnType<typeof listReposts>>
 
+export const QUERY_LIMIT = 8
+
 /*
  * Helper to format posts data returned from query
  */
@@ -35,27 +37,33 @@ const formatPostsData = (data: Awaited<ReturnType<typeof listFollowingPosts>>) =
 /*
  * Get Posts
  */
-export const getPosts = async (username?: string) => {
+export const getPosts = async (username?: string, offset: number = 0) => {
   const { user } = await validateRequest()
 
-  const data = await listPosts(username, user?.id)
+  const data = await listPosts(username, user?.id, offset, QUERY_LIMIT)
 
   // Replace 1/0 from Sqlite with boolean
-  return formatPostsData(data)
+  return {
+    posts: formatPostsData(data),
+    nextOffset: data.length >= QUERY_LIMIT ? offset + QUERY_LIMIT : null,
+  }
 }
 
 /*
  * Get Following Posts
  */
-export const getFollowingPosts = async () => {
+export const getFollowingPosts = async (offset: number = 0) => {
   const { user } = await validateRequest()
   if (!user) {
     return redirect('/login')
   }
 
-  const data = await listFollowingPosts(user.id)
+  const data = await listFollowingPosts(user.id, offset, QUERY_LIMIT)
 
-  return formatPostsData(data)
+  return {
+    posts: formatPostsData(data),
+    nextOffset: data.length >= QUERY_LIMIT ? offset + QUERY_LIMIT : null,
+  }
 }
 
 /*

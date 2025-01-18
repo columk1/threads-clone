@@ -6,7 +6,7 @@ import { useAppStore } from '@/hooks/useAppStore'
 import type { getPosts } from '@/services/posts/posts.queries'
 
 type HydrateStoreProps = {
-  initialPosts: Awaited<ReturnType<typeof getPosts>>
+  initialPosts: Awaited<ReturnType<typeof getPosts>>['posts']
 }
 
 const HydrateStore = ({ initialPosts }: HydrateStoreProps) => {

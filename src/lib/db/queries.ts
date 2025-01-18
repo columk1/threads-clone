@@ -210,50 +210,56 @@ export const listPublicPosts = async (authorUsername?: string) => {
   return await query.all()
 }
 
-export const listPosts = async (authorUsername?: string, userId: string = '') => {
+export const listPosts = async (username?: string, userId?: string, offset: number = 0, limit: number = 8) => {
   const filters: SQLWrapper[] = [isNull(postSchema.parentId)]
-
-  if (authorUsername) {
-    filters.push(eq(userSchema.username, authorUsername))
+  if (username) {
+    filters.push(eq(userSchema.username, username))
   }
 
   const query = db
     .select({
       post: {
         ...basePostSelect,
-        isLiked: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${likeSchema} 
-          WHERE ${likeSchema.userId} = ${userId} 
-            AND ${likeSchema.postId} = ${postSchema.id}
-        )`.as('isLiked'),
-        isReposted: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${repostSchema} 
-          WHERE ${repostSchema.userId} = ${userId} 
-            AND ${repostSchema.postId} = ${postSchema.id}
-        )`.as('isReposted'),
+        isLiked: userId
+          ? sql<boolean>`EXISTS (
+            SELECT 1 
+            FROM ${likeSchema} 
+            WHERE ${likeSchema.userId} = ${userId} 
+              AND ${likeSchema.postId} = ${postSchema.id}
+          )`.as('isLiked')
+          : sql<boolean>`false`,
+        isReposted: userId
+          ? sql<boolean>`EXISTS (
+            SELECT 1 
+            FROM ${repostSchema} 
+            WHERE ${repostSchema.userId} = ${userId} 
+              AND ${repostSchema.postId} = ${postSchema.id}
+          )`.as('isReposted')
+          : sql<boolean>`false`,
       },
       user: {
         ...baseUserSelect,
-        isFollowed: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id} 
-            AND ${followerSchema.followerId} = ${userId}
-        )`.as('isFollowed'),
+        isFollowed: userId
+          ? sql<boolean>`EXISTS (
+            SELECT 1 
+            FROM ${followerSchema} 
+            WHERE ${followerSchema.userId} = ${userSchema.id} 
+              AND ${followerSchema.followerId} = ${userId}
+          )`.as('isFollowed')
+          : sql<boolean>`false`,
       },
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     .where(and(...filters))
     .orderBy(desc(postSchema.createdAt))
-    .$dynamic()
+    .offset(offset)
+    .limit(limit)
 
   return await query.all()
 }
 
-export const listFollowingPosts = async (userId: string) => {
+export const listFollowingPosts = async (userId: string, offset: number = 0, limit: number = 10) => {
   return await db
     .select({
       post: {
@@ -286,6 +292,8 @@ export const listFollowingPosts = async (userId: string) => {
     .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
     .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, userId)))
     .orderBy(desc(postSchema.createdAt))
+    .offset(offset)
+    .limit(limit)
     .all()
 }
 

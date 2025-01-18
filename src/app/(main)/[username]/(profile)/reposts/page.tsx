@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 
+import HydrateStore from '@/components/hydrateStore'
 import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
@@ -17,15 +18,20 @@ export default async function RepostsPage({ params }: { params: Promise<{ userna
   const username = result.data
 
   const rows = await getReposts(username)
-  return rows.map((row) => (
-    <Thread
-      key={row.post.id}
-      post={row.post}
-      user={row.user}
-      currentUser={user}
-      isAuthenticated={!!user}
-      isCurrentUser={user ? row.user.username === user.username : false}
-      reposted={row.repost}
-    />
-  ))
+  return (
+    <>
+      <HydrateStore initialPosts={rows} />
+      {rows.map((row) => (
+        <Thread
+          key={row.post.id}
+          post={row.post}
+          user={row.user}
+          currentUser={user}
+          isAuthenticated={!!user}
+          isCurrentUser={user ? row.user.username === user.username : false}
+          reposted={row.repost}
+        />
+      ))}
+    </>
+  )
 }
