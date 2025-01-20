@@ -68,7 +68,7 @@ const LoadMore = ({ children, initialOffset, loadMoreAction }: LoadMoreProps) =>
 
     return () => {
       history.scrollRestoration = scrollRestoration
-      currentOffsetRef.current = undefined
+      currentOffsetRef.current = initialOffset
     }
   }, [loadMore, initialOffset])
 
@@ -113,7 +113,7 @@ const LoadMore = ({ children, initialOffset, loadMoreAction }: LoadMoreProps) =>
         onClick={() => loadMore()}
         className="w-full pb-2 pt-4 text-gray-7"
       >
-        {loading ? <Spinner size={10} /> : disabled ? '' : <Spinner size={10} />}
+        {loading ? <Spinner size={10} /> : disabled ? '' : 'More'}
       </button>
     </>
   )

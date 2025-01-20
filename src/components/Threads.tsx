@@ -53,7 +53,7 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
   return (
     <>
       <HydrateStore initialPosts={posts} />
-      {posts.length > QUERY_LIMIT ? (
+      {posts.length >= QUERY_LIMIT ? (
         <LoadMore loadMoreAction={loadMorePosts} initialOffset={QUERY_LIMIT}>
           <ThreadList posts={posts} currentUser={user} />
         </LoadMore>
