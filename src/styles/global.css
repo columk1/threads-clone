@@ -33,6 +33,7 @@
     --sidebar-width: 76px;
   }
   /* Global focus styles, plus [data-highlighted] styles to override Radix dropdowns */
+  .link:focus-visible:not(:hover),
   button:focus-visible:not(:hover),
   a:focus-visible:not(:hover),
   *[data-highlighted]:not(:hover) {
