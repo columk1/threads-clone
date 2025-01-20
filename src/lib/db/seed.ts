@@ -8,6 +8,7 @@ import { updatePostCounts } from './updateCounts.ts'
 
 async function seed() {
   // Delete all existing rows
+  logger.info('Deleting existing data...')
   await db.delete(postSchema)
   await db.delete(userSchema)
   await db.delete(likeSchema)
@@ -15,6 +16,7 @@ async function seed() {
 
   try {
     // Generate fake data
+    logger.info('Generating synthetic data...')
     const users = generateFakeUsers(10) // Generate 10 users
     const posts = await generateFakePosts(users, 30) // Generate 30 posts
     const likes = generateFakeLikes(users, posts, 50) // Generate 50 likes
@@ -36,6 +38,7 @@ async function seed() {
     )
 
     // Insert data
+    logger.info('Inserting data...')
     await db.insert(userSchema).values(hashedUsers)
     await db.insert(postSchema).values(posts)
     await db.insert(likeSchema).values(likes)
