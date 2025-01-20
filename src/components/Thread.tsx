@@ -157,6 +157,7 @@ const ThreadContent: FunctionComponent<{
           <Image
             src={post.image}
             alt="preview"
+            priority
             width={Number(containerWidth)}
             height={Number(containerHeight)}
             className="block rounded-lg object-contain"

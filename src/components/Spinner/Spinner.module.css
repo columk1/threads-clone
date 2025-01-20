@@ -4,6 +4,7 @@
   position: relative;
   width: 2.5em;
   height: 2.5em; /* Adjusted for relative sizing */
+  margin: 0 auto;
 }
 
 .spinner div {

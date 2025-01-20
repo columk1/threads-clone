@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import Header from '@/components/Header'
+import Spinner from '@/components/spinner/Spinner'
 import Thread from '@/components/Thread'
 import ThreadCacheUpdater from '@/components/ThreadCacheUpdater'
 import { validateRequest } from '@/lib/Lucia'
@@ -69,7 +70,7 @@ export default async function PostPage({ params }: Props) {
       <ThreadCacheUpdater postId={postId} currentUser={currentUser} initialData={initialData}>
         <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
           {parentThread ? (
-            <Suspense fallback={<p>Loading...</p>}>
+            <>
               <Thread
                 key={parentThread.post.id}
                 user={parentThread.user}
@@ -88,7 +89,7 @@ export default async function PostPage({ params }: Props) {
                 isAuthenticated={isAuthenticated}
                 isTarget
               />
-            </Suspense>
+            </>
           ) : (
             <Thread
               key={thread.post.id}
@@ -105,8 +106,8 @@ export default async function PostPage({ params }: Props) {
           <div className="px-6 py-3 text-[15px] font-semibold">Replies</div>
 
           {/* Replies */}
-          {data.map((e) => {
-            return (
+          <Suspense fallback={<Spinner size={10} />}>
+            {data.map((e) => (
               <Thread
                 key={e.post.id}
                 user={e.user}
@@ -115,8 +116,8 @@ export default async function PostPage({ params }: Props) {
                 isCurrentUser={e.user.username === currentUser?.username}
                 isAuthenticated={isAuthenticated}
               />
-            )
-          })}
+            ))}
+          </Suspense>
         </div>
       </ThreadCacheUpdater>
     </>
