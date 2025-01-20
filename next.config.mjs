@@ -40,6 +40,10 @@ const nextConfig = {
         expire: 300, // 5 minutes
       },
     },
+    staleTimes: {
+      dynamic: 300,
+      static: 300,
+    },
     // serverExternalPackages: ['@libsql/client'],
   },
 }
