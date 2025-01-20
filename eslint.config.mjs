@@ -74,6 +74,7 @@ export default antfu(
       'style/quotes': 'off',
       'style/jsx-closing-tag-location': 'off',
       'style/quote-props': 'off',
+      'style/operator-linebreak': 'off',
     },
   },
   {
