@@ -2,7 +2,7 @@
   "name": "threads-clone",
   "author": "Colum Kelly",
   "scripts": {
-    "dev:next": "next dev",
+    "dev:next": "next dev --turbopack",
     "dev": "run-p dev:*",
     "build": "next build",
     "start": "next start",
@@ -38,7 +38,7 @@
     "drizzle-orm": "^0.38.3",
     "lucia": "^3.2.2",
     "lucide-react": "^0.453.0",
-    "next": "15.1.4",
+    "next": "15.2.0-canary.16",
     "next-client-cookies": "^2.0.1",
     "next-themes": "^0.3.0",
     "oslo": "^1.2.1",
