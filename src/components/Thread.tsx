@@ -141,7 +141,7 @@ const ThreadContent: FunctionComponent<{
       return null
     }
     const { containerWidth, containerHeight } = applyConstraints(post.imageWidth, post.imageHeight)
-    const { width, height } = { width: post.imageWidth || 543, height: post.imageHeight || 430 }
+    // const { width, height } = { width: post.imageWidth || 543, height: post.imageHeight || 430 }
     return (
       <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
         <div
@@ -154,9 +154,9 @@ const ThreadContent: FunctionComponent<{
           <Image
             src={post.image}
             alt="preview"
-            width={width}
-            height={height}
-            className="block size-full rounded-lg object-contain"
+            width={Number(containerWidth)}
+            height={Number(containerHeight)}
+            className="block rounded-lg object-contain"
           />
         </div>
       </div>
