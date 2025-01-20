@@ -46,14 +46,63 @@ type ThreadProps = {
   reposted?: { username: string; createdAt: number }
 }
 
+type ThreadCardProps = {
+  onClick: () => void
+  children: React.ReactNode
+}
+
+const ThreadCard: FunctionComponent<ThreadCardProps> = ({ onClick, children }) => {
+  return (
+    <div
+      role="link"
+      onClick={(e) => {
+        if (e.target instanceof HTMLElement && e.target.closest('button, a, [role="button"]')) {
+          return
+        }
+        onClick()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+      tabIndex={0}
+      className="link cursor-pointer"
+    >
+      {children}
+    </div>
+  )
+}
+
 type ThreadLayoutProps = {
   children: React.ReactNode
   isParent: boolean
   isTarget: boolean
   currentUser: User | null
-  user: PostUser
-  post: Post
-  reposted?: { username: string; createdAt: number }
+}
+
+const ThreadLayout: FunctionComponent<ThreadLayoutProps> = ({ children, isParent, isTarget, currentUser }) => {
+  const getYPadding = () => {
+    switch (true) {
+      case isTarget:
+        return 'pt-0 pb-1'
+      case isParent:
+        return 'pt-2'
+      default:
+        return 'pt-3 pb-2'
+    }
+  }
+
+  return (
+    <>
+      {!isParent && !isTarget && <div className={`h-[0.5px] bg-gray-5 ${!currentUser && 'first:hidden'}`}></div>}
+      <div className={cx('relative flex flex-col gap-2 px-6 text-[15px]', getYPadding())}>
+        {isParent && <div className="absolute bottom-[-7px] left-[41px] top-[50px] w-[2px] bg-gray-5"></div>}
+        {children}
+      </div>
+    </>
+  )
 }
 
 const RepostHeader: FunctionComponent<{
@@ -74,60 +123,6 @@ const RepostHeader: FunctionComponent<{
     </div>
   </Link>
 )
-
-const ThreadLayout: FunctionComponent<ThreadLayoutProps> = ({
-  children,
-  isParent,
-  isTarget,
-  currentUser,
-  user,
-  post,
-  reposted,
-}) => {
-  const router = useRouter()
-  const getYPadding = () => {
-    switch (true) {
-      case isTarget:
-        return 'pt-0 pb-1'
-      case isParent:
-        return 'pt-2'
-      default:
-        return 'pt-3 pb-2'
-    }
-  }
-
-  return (
-    <>
-      {!isParent && !isTarget && <div className={`h-[0.5px] bg-gray-5 ${!currentUser && 'first:hidden'}`}></div>}
-      <div
-        role="link"
-        onClick={(e) => {
-          // Don't navigate if the click was on an interactive element
-          if (e.target instanceof HTMLElement && e.target.closest('button, a, [role="button"]')) {
-            return
-          }
-          router.push(`/@${user.username}/post/${post.id}`)
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            router.push(`/@${user.username}/post/${post.id}`)
-          }
-        }}
-        tabIndex={-1}
-        className="link cursor-pointer"
-      >
-        <div className={cx('relative flex flex-col gap-2 px-6 text-[15px]', getYPadding())}>
-          <div className="relative">
-            {isParent && <div className="absolute bottom-[-7px] left-[17px] top-[50px] w-[2px] bg-gray-5"></div>}
-            {reposted && <RepostHeader username={reposted.username} createdAt={reposted.createdAt} />}
-            {children}
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
 
 const ThreadContent: FunctionComponent<{
   post: Post
@@ -243,6 +238,7 @@ export default function Thread({
   isParent = false,
   reposted,
 }: ThreadProps) {
+  const router = useRouter()
   const {
     user: followableUser,
     handleToggleFollow,
@@ -253,24 +249,20 @@ export default function Thread({
   })
 
   return (
-    <ThreadLayout
-      isParent={isParent}
-      isTarget={isTarget}
-      currentUser={currentUser}
-      user={followableUser}
-      post={post}
-      reposted={reposted}
-    >
-      <ThreadContent
-        post={post}
-        user={followableUser}
-        isTarget={isTarget}
-        isAuthenticated={isAuthenticated}
-        isCurrentUser={isCurrentUser}
-        currentUser={currentUser}
-        onToggleFollow={handleToggleFollow}
-        validateFollowStatus={validateFollowStatus}
-      />
+    <ThreadLayout isParent={isParent} isTarget={isTarget} currentUser={currentUser}>
+      <ThreadCard onClick={() => router.push(`/@${followableUser.username}/post/${post.id}`)}>
+        {reposted && <RepostHeader username={reposted.username} createdAt={reposted.createdAt} />}
+        <ThreadContent
+          post={post}
+          user={followableUser}
+          isTarget={isTarget}
+          isAuthenticated={isAuthenticated}
+          isCurrentUser={isCurrentUser}
+          currentUser={currentUser}
+          onToggleFollow={handleToggleFollow}
+          validateFollowStatus={validateFollowStatus}
+        />
+      </ThreadCard>
     </ThreadLayout>
   )
 }
