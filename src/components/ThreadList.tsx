@@ -28,7 +28,7 @@ const ThreadList = ({ posts, currentUser, filter }: ThreadListProps) => {
   }, [interactionState])
 
   // Memoize the current interaction time to use in the hook
-  const currentInteractionTime = useMemo(() => lastInteractionTime.current, [interactionState])
+  const currentInteractionTime = useMemo(() => lastInteractionTime.current, [lastInteractionTime])
 
   useFocusRefresh<PostList>({
     url: `/api/posts?user=${currentUser?.id || ''}${filter ? `&filter=${filter}` : ''}`,
