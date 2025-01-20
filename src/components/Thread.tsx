@@ -56,7 +56,10 @@ const ThreadCard: FunctionComponent<ThreadCardProps> = ({ onClick, children }) =
     <div
       role="link"
       onClick={(e) => {
-        if (e.target instanceof HTMLElement && e.target.closest('button, a, [role="button"]')) {
+        if (
+          e.target instanceof SVGElement ||
+          (e.target instanceof HTMLElement && e.target.closest('button, a, [role="button"]'))
+        ) {
           return
         }
         onClick()
