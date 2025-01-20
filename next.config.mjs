@@ -32,7 +32,14 @@ const nextConfig = {
   serverExternalPackages: ['pino', 'pino-pretty'],
   experimental: {
     // DynamicIO doesn't work with Sentry https://github.com/getsentry/sentry-javascript/issues/14118
-    // dynamicIO: true,
+    dynamicIO: true,
+    cacheLife: {
+      feed: {
+        stale: 120, // 2 minutes
+        revalidate: 60, // 1 minute
+        expire: 300, // 5 minutes
+      },
+    },
     // serverExternalPackages: ['@libsql/client'],
   },
 }
