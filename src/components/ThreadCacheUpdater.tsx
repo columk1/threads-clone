@@ -1,6 +1,7 @@
 'use client'
 
 import type { User } from 'lucia'
+import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { useAppStore } from '@/hooks/useAppStore'
@@ -16,6 +17,7 @@ type ThreadCacheUpdaterProps = {
 }
 
 export default function ThreadCacheUpdater({ postId, currentUser, initialData, children }: ThreadCacheUpdaterProps) {
+  const router = useRouter()
   const setPosts = useAppStore((state) => state.setPosts)
   const lastInteractionTime = useRef<number>(0)
 
@@ -39,9 +41,7 @@ export default function ThreadCacheUpdater({ postId, currentUser, initialData, c
 
   useFocusRefresh<PostList>({
     url: `/api/posts/${postId}?user=${currentUser?.id || ''}&replies=true`,
-    onUpdate: (data) => {
-      setPosts(data)
-    },
+    onUpdate: () => router.refresh(),
     interactionTime: lastInteractionTime.current,
     enabled: true,
   })
