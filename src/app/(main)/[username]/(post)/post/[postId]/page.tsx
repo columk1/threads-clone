@@ -4,7 +4,6 @@ import { Suspense } from 'react'
 import Header from '@/components/Header'
 import Spinner from '@/components/spinner/Spinner'
 import Thread from '@/components/Thread'
-import ThreadCacheUpdater from '@/components/ThreadCacheUpdater'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
 import { getAuthPostById, getPublicPostById, getSinglePostById } from '@/services/posts/posts.queries'
@@ -42,16 +41,12 @@ export default async function PostPage({ params }: Props) {
   //   return notFound()
   // }
 
-  if (!Array.isArray(data)) {
+  if (!Array.isArray(data) || data[0]?.user?.username !== username) {
     return notFound()
   }
 
-  if (!data || data[0]?.user?.username !== username) {
-    return notFound()
-  }
-
-  const thread = data.shift()
-  if (!thread) {
+  const [targetThread, ...replies] = data
+  if (!targetThread) {
     return notFound()
   }
 
@@ -59,67 +54,62 @@ export default async function PostPage({ params }: Props) {
   //   ? await fetch(`${BASE_URL}/api/posts/${thread.post.parentId}?user=${currentUser?.id}`, { cache: 'force-cache', next: { revalidate: 60 } })
   //     .then(res => res.json())
   //   : null
-  const parentThread = thread.post.parentId ? await getSinglePostById(thread.post.parentId) : null
-
-  // Combine thread and replies for initialData
-  const initialData = [thread, ...data]
+  const parentThread = targetThread.post.parentId ? await getSinglePostById(targetThread.post.parentId) : null
 
   return (
     <>
       <Header title="Thread" />
-      <ThreadCacheUpdater postId={postId} currentUser={currentUser} initialData={initialData}>
-        <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
-          {parentThread ? (
-            <>
-              <Thread
-                key={parentThread.post.id}
-                user={parentThread.user}
-                post={parentThread.post}
-                currentUser={currentUser}
-                isCurrentUser={parentThread.user.username === currentUser?.username}
-                isAuthenticated={isAuthenticated}
-                isParent
-              />
-              <Thread
-                key={thread.post.id}
-                user={thread.user}
-                post={thread.post}
-                currentUser={currentUser}
-                isCurrentUser={isCurrentUser}
-                isAuthenticated={isAuthenticated}
-                isTarget
-              />
-            </>
-          ) : (
+      <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+        {parentThread ? (
+          <>
             <Thread
-              key={thread.post.id}
-              user={thread.user}
-              post={thread.post}
+              key={parentThread.post.id}
+              user={parentThread.user}
+              post={parentThread.post}
+              currentUser={currentUser}
+              isCurrentUser={parentThread.user.username === currentUser?.username}
+              isAuthenticated={isAuthenticated}
+              isParent
+            />
+            <Thread
+              key={targetThread.post.id}
+              user={targetThread.user}
+              post={targetThread.post}
               currentUser={currentUser}
               isCurrentUser={isCurrentUser}
               isAuthenticated={isAuthenticated}
               isTarget
             />
-          )}
+          </>
+        ) : (
+          <Thread
+            key={targetThread.post.id}
+            user={targetThread.user}
+            post={targetThread.post}
+            currentUser={currentUser}
+            isCurrentUser={isCurrentUser}
+            isAuthenticated={isAuthenticated}
+            isTarget
+          />
+        )}
 
-          <div className="mx-6 h-[0.5px] bg-gray-5"></div>
-          <div className="px-6 py-3 text-[15px] font-semibold">Replies</div>
+        <div className="mx-6 h-[0.5px] bg-gray-5"></div>
+        <div className="px-6 py-3 text-[15px] font-semibold">Replies</div>
 
-          {/* Replies */}
-          <Suspense fallback={<Spinner size={10} />}>
-            {data.map((e) => (
-              <Thread
-                key={e.post.id}
-                user={e.user}
-                post={e.post}
-                currentUser={currentUser}
-                isCurrentUser={e.user.username === currentUser?.username}
-                isAuthenticated={isAuthenticated}
-              />
-            ))}
-          </Suspense>
-        </div>
-      </ThreadCacheUpdater>
+        {/* Replies */}
+        <Suspense fallback={<Spinner size={10} />}>
+          {replies.map((e) => (
+            <Thread
+              key={e.post.id}
+              user={e.user}
+              post={e.post}
+              currentUser={currentUser}
+              isCurrentUser={e.user.username === currentUser?.username}
+              isAuthenticated={isAuthenticated}
+            />
+          ))}
+        </Suspense>
+      </div>
     </>
   )
 }
