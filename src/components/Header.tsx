@@ -27,7 +27,10 @@ const Header: FunctionComponent<HeaderProps> = async ({ title, children }) => {
         {/* Bottom border between squares */}
         <div className="absolute inset-x-12 bottom-[-0.5px] h-[0.5px] bg-gray-4" />
       </div>
-      <nav className="sticky top-0 z-20 hidden h-[60px] w-full grid-rows-[1fr] place-items-center bg-secondary-bg md:grid md:grid-cols-[1fr_minmax(auto,65%)_1fr]">
+      <nav
+        id="header"
+        className="sticky top-0 z-20 hidden h-[60px] w-full grid-rows-[1fr] place-items-center bg-secondary-bg md:grid md:grid-cols-[1fr_minmax(auto,65%)_1fr]"
+      >
         <div className="col-start-1 flex h-[52px] w-full items-center justify-start pl-6">
           <BackButton referer={referer}>
             <BackIcon />

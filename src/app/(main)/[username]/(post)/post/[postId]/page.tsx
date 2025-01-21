@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import Header from '@/components/Header'
+// Create a separate client component file for ScrollManager
+import ScrollManager from '@/components/ScrollManager'
 import Spinner from '@/components/spinner/Spinner'
 import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
@@ -59,6 +61,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <>
       <Header title="Thread" />
+      <ScrollManager />
       <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
         {parentThread ? (
           <>
@@ -71,15 +74,17 @@ export default async function PostPage({ params }: Props) {
               isAuthenticated={isAuthenticated}
               isParent
             />
-            <Thread
-              key={targetThread.post.id}
-              user={targetThread.user}
-              post={targetThread.post}
-              currentUser={currentUser}
-              isCurrentUser={isCurrentUser}
-              isAuthenticated={isAuthenticated}
-              isTarget
-            />
+            <div id="target-thread">
+              <Thread
+                key={targetThread.post.id}
+                user={targetThread.user}
+                post={targetThread.post}
+                currentUser={currentUser}
+                isCurrentUser={isCurrentUser}
+                isAuthenticated={isAuthenticated}
+                isTarget
+              />
+            </div>
           </>
         ) : (
           <Thread
