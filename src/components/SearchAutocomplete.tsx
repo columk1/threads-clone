@@ -158,34 +158,37 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
     return () => delayedSelect && clearTimeout(delayedSelect)
   }, [])
 
-  const performSearch = useCallback(async (query: string, signal: AbortSignal) => {
-    if (!query.trim()) {
-      setSearchResults([])
-      return
-    }
-    setIsSearching(true)
-    try {
-      const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`, { signal })
-      const data = await response.json()
-      setSearchResults(data.users)
-      // Hydrate the users store with the search results
-      addUsers(
-        data.users.map((user: PostUser) => ({
-          id: user.id,
-          isFollowed: user.isFollowed,
-          followerCount: user.followerCount,
-        })),
-      )
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
+  const performSearch = useCallback(
+    async (query: string, signal: AbortSignal) => {
+      if (!query.trim()) {
+        setSearchResults([])
         return
       }
-      console.error('Search failed:', error)
-      setSearchResults([])
-    } finally {
-      setIsSearching(false)
-    }
-  }, [])
+      setIsSearching(true)
+      try {
+        const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`, { signal })
+        const data = await response.json()
+        setSearchResults(data.users)
+        // Hydrate the users store with the search results
+        addUsers(
+          data.users.map((user: PostUser) => ({
+            id: user.id,
+            isFollowed: user.isFollowed,
+            followerCount: user.followerCount,
+          })),
+        )
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return
+        }
+        console.error('Search failed:', error)
+        setSearchResults([])
+      } finally {
+        setIsSearching(false)
+      }
+    },
+    [addUsers],
+  )
 
   useEffect(() => {
     const controller = new AbortController()
