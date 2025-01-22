@@ -88,7 +88,7 @@ const SearchButton = ({ value, onClick }: { value: string; onClick: () => void }
 }
 
 export default function SearchContent({ currentUser }: { currentUser?: User }) {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<PostUser[]>([])
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -96,17 +96,17 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
 
   const navigateToProfile = useCallback(
     (username: string) => {
-      history.replaceState({ ...history.state, inputValue: searchTerm }, '')
+      history.replaceState({ ...history.state, inputValue: searchQuery }, '')
       router.push(`/@${username}`)
     },
-    [router, searchTerm],
+    [router, searchQuery],
   )
 
   const loadHistoryValue = useCallback((node: HTMLInputElement) => {
     const storedState = history.state?.inputValue
     let delayedSelect: NodeJS.Timeout | undefined
     if (storedState) {
-      setSearchTerm(storedState)
+      setSearchQuery(storedState)
       delayedSelect = setTimeout(() => {
         node?.select()
       }, 0)
@@ -115,7 +115,7 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
   }, [])
 
   const handleSearchClick = (term: string) => {
-    setSearchTerm(term)
+    setSearchQuery(term)
     if (!recentSearches.includes(term)) {
       setRecentSearches((prev) => [term, ...prev].slice(0, 5))
     }
@@ -144,9 +144,9 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
 
   useEffect(() => {
     const controller = new AbortController()
-    performSearch(searchTerm, controller.signal)
+    performSearch(searchQuery, controller.signal)
     return () => controller.abort()
-  }, [searchTerm, performSearch])
+  }, [searchQuery, performSearch])
 
   return (
     <div className="flex flex-1 flex-col pt-[18px] text-[15px]">
@@ -157,14 +157,14 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
             ref={loadHistoryValue}
             type="text"
             placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full rounded-2xl border-[0.5px] border-gray-5 bg-gray-0 py-3 pl-12 pr-4 placeholder:text-gray-7 hover:border-gray-6 focus:border-gray-6 focus:outline-none"
           />
         </div>
       </div>
 
-      {!searchTerm &&
+      {!searchQuery &&
         recentSearches.map((term) => <SearchButton key={term} value={term} onClick={() => handleSearchClick(term)} />)}
 
       {isSearching ? (
@@ -173,7 +173,7 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
         </div>
       ) : (
         <>
-          {searchTerm && <SearchButton value={searchTerm} onClick={() => handleSearchClick(searchTerm)} />}
+          {searchQuery && <SearchButton value={searchQuery} onClick={() => handleSearchClick(searchQuery)} />}
           {searchResults.map((user) => (
             <SearchResult key={user.id} user={user} currentUser={currentUser} navigateToProfile={navigateToProfile} />
           ))}
