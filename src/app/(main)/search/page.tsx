@@ -2,6 +2,7 @@ import type { User } from 'lucia'
 import { Suspense } from 'react'
 
 import Header from '@/components/Header'
+import HydrateStore from '@/components/hydrateStore'
 import SearchAutocomplete from '@/components/SearchAutocomplete'
 import Skeleton from '@/components/Skeleton'
 import Thread from '@/components/Thread'
@@ -17,6 +18,7 @@ const SearchResults = async ({ query, user }: { query: string; user: User | null
 
   return (
     <>
+      <HydrateStore initialPosts={posts} />
       {posts.map((row) => (
         <Thread
           key={row.post.id}

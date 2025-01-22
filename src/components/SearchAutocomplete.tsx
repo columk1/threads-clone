@@ -8,6 +8,7 @@ import Avatar from '@/components/Avatar'
 import FollowButton from '@/components/FollowButton'
 import { SearchIcon } from '@/components/icons'
 import Continue from '@/components/icons/Continue'
+import { useAppStore } from '@/hooks/useAppStore'
 import { useFollow } from '@/hooks/useFollow'
 import type { PostUser } from '@/services/users/users.queries'
 import { handleNestedInteraction } from '@/utils/handleNestedInteraction'
@@ -18,7 +19,7 @@ import Spinner from './spinner/Spinner'
 // Autocomplete search results (user cards)
 
 const SearchResult = ({
-  user,
+  user: initialUser,
   currentUser,
   navigate,
 }: {
@@ -26,7 +27,15 @@ const SearchResult = ({
   currentUser?: User
   navigate: () => void
 }) => {
-  const isCurrentUser = user.id === currentUser?.id
+  const isCurrentUser = initialUser.id === currentUser?.id
+  const storedUser = useAppStore((state) => state.users[initialUser.id])
+  const user = {
+    ...initialUser,
+    ...(storedUser && {
+      isFollowed: storedUser.isFollowed,
+      followerCount: storedUser.followerCount,
+    }),
+  }
   const { handleToggleFollow } = useFollow({ initialUser: user, isAuthenticated: Boolean(currentUser) })
 
   return (
@@ -59,7 +68,7 @@ const SearchResult = ({
           </span>
           <span className="text-placeholder-text">{user.name}</span>
         </div>
-        <div className="w-20">
+        <div className="w-min">
           {!isCurrentUser && (
             <FollowButton
               isFollowed={user.isFollowed}
@@ -95,6 +104,10 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
   const [isSearching, setIsSearching] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
+  const addUsers = useAppStore(
+    (state: { addUsers: (users: Array<{ id: string; isFollowed: boolean; followerCount: number }>) => void }) =>
+      state.addUsers,
+  )
 
   useEffect(() => {
     const stored = sessionStorage.getItem('recentSearches')
@@ -155,6 +168,14 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
       const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`, { signal })
       const data = await response.json()
       setSearchResults(data.users)
+      // Hydrate the users store with the search results
+      addUsers(
+        data.users.map((user: PostUser) => ({
+          id: user.id,
+          isFollowed: user.isFollowed,
+          followerCount: user.followerCount,
+        })),
+      )
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         return
