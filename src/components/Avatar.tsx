@@ -9,6 +9,7 @@ type AvatarProps = {
   size?: 'sm' | 'md' | 'lg' | 'xl'
   isFollowed?: boolean
   priority?: boolean
+  responsive?: boolean
   className?: string
 }
 
@@ -27,13 +28,13 @@ const sizeClass = {
 //   xl: 84,
 // }
 
-const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, priority, className }) => {
+const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, priority, responsive, className }) => {
   return (
     <div
       className={cx(
         `relative bg-gray-1 rounded-full outline outline-[0.5px] outline-offset-[0.5px] outline-primary-outline border-white/20 ${className}`,
         sizeClass[size],
-        { 'lg:size-[84px]': size === 'lg' }, // Scale lg up to xl on large screens
+        { 'lg:size-[84px]': size === 'lg' && responsive }, // Scale lg up to xl on large screens
       )}
     >
       <div className="inline-block overflow-hidden rounded-full">

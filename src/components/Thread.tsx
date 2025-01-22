@@ -10,6 +10,7 @@ import type { FunctionComponent } from 'react'
 import { useFollow } from '@/hooks/useFollow'
 import type { Post } from '@/lib/db/Schema'
 import type { PostUser } from '@/services/users/users.queries'
+import { handleNestedInteraction } from '@/utils/handleNestedInteraction'
 
 import Avatar from './Avatar'
 import { RepostIcon } from './icons'
@@ -55,15 +56,7 @@ const ThreadCard: FunctionComponent<ThreadCardProps> = ({ onClick, children }) =
   return (
     <div
       role="link"
-      onClick={(e) => {
-        if (
-          e.target instanceof SVGElement ||
-          (e.target instanceof HTMLElement && e.target.closest('button, a, [role="button"]'))
-        ) {
-          return
-        }
-        onClick()
-      }}
+      onClick={(e) => handleNestedInteraction(e, onClick)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()

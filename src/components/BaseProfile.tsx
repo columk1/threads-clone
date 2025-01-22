@@ -18,7 +18,7 @@ export default function BaseProfile({ user, children, actions }: BaseProfileProp
             <span className="text-2xl font-semibold">{user.name}</span>
             <span>{user.username}</span>
           </div>
-          <Avatar size="lg" url={user.avatar} priority />
+          <Avatar size="lg" url={user.avatar} priority responsive />
         </div>
         <div className="flex flex-col gap-1.5 self-start">
           <div>{user.bio}</div>

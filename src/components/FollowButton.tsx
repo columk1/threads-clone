@@ -6,12 +6,14 @@ import type { FunctionComponent } from 'react'
 import { useModal } from '@/hooks/useModal'
 
 type FollowButtonProps = {
+  variant?: 'light' | 'dark'
   isAuthenticated?: boolean
   isFollowed?: boolean
   onToggleFollow?: () => Promise<void>
 }
 
 const FollowButton: FunctionComponent<FollowButtonProps> = ({
+  variant = 'light',
   isAuthenticated = false,
   isFollowed,
   onToggleFollow,
@@ -31,7 +33,7 @@ const FollowButton: FunctionComponent<FollowButtonProps> = ({
       onClick={handleFollow}
       className={cx(
         'w-full h-9 rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30',
-        !isFollowed ? 'bg-white text-black' : 'text-primary-text',
+        !isFollowed && variant !== 'dark' ? 'bg-white text-black' : 'text-primary-text',
       )}
     >
       {isFollowed ? 'Unfollow' : 'Follow'}

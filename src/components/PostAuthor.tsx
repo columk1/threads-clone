@@ -28,7 +28,7 @@ const PostAuthor: FunctionComponent<PostAuthorProps> = ({
             {user.username}
           </a>
         </TooltipTrigger>
-        <TooltipContent className="w-72">
+        <TooltipContent className="w-80">
           <UserCard
             user={user}
             isAuthenticated={isAuthenticated}
