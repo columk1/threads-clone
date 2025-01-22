@@ -566,6 +566,49 @@ export const searchUsers = async (query: string, userId?: string, limit: number 
     .all()
 }
 
+export const searchPosts = (searchTerm: string, userId?: string, limit: number = 8) => {
+  const query = db
+    .select({
+      post: {
+        ...basePostSelect,
+        isLiked: userId
+          ? sql<boolean>`EXISTS (
+            SELECT 1 
+            FROM ${likeSchema} 
+            WHERE ${likeSchema.userId} = ${userId} 
+              AND ${likeSchema.postId} = ${postSchema.id}
+          )`.as('isLiked')
+          : sql<boolean>`false`,
+        isReposted: userId
+          ? sql<boolean>`EXISTS (
+            SELECT 1 
+            FROM ${repostSchema} 
+            WHERE ${repostSchema.userId} = ${userId} 
+              AND ${repostSchema.postId} = ${postSchema.id}
+          )`.as('isReposted')
+          : sql<boolean>`false`,
+      },
+      user: {
+        ...baseUserSelect,
+        isFollowed: userId
+          ? sql<boolean>`EXISTS (
+            SELECT 1 
+            FROM ${followerSchema} 
+            WHERE ${followerSchema.userId} = ${userSchema.id} 
+              AND ${followerSchema.followerId} = ${userId}
+          )`.as('isFollowed')
+          : sql<boolean>`false`,
+      },
+    })
+    .from(postSchema)
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .where(and(isNull(postSchema.parentId), sql`LOWER(${postSchema.text}) LIKE LOWER(${`%${searchTerm}%`})`))
+    .orderBy(desc(postSchema.createdAt))
+    .limit(limit)
+
+  return query.all()
+}
+
 // export const listFollowingPostsAndReposts = async (userId: string, limit = 20) => {
 //   // First, create a CTE (Common Table Expression) that unions posts and reposts
 //   const postsAndReposts = db.$with('posts_and_reposts').as(

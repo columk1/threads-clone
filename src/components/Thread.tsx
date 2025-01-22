@@ -189,7 +189,7 @@ const ThreadContent: FunctionComponent<{
       </div>
       <div className="flex w-full items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="font-semibold" onMouseEnter={() => validateFollowStatus?.()}>
+          <div className="font-semibold" onMouseEnter={() => (isAuthenticated ? validateFollowStatus?.() : {})}>
             <PostAuthor
               user={user}
               isAuthenticated={isAuthenticated}

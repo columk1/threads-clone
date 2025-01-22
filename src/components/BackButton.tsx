@@ -1,7 +1,7 @@
 'use client'
 
 import cx from 'clsx'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { type FunctionComponent, useEffect, useState } from 'react'
 
 type BackButtonUiProps = {
@@ -14,7 +14,8 @@ const BackButtonUi: FunctionComponent<BackButtonUiProps> = ({ referer, children 
 
   const router = useRouter()
   const pathname = usePathname()
-  const showBackButton = isAnimating || pathname.includes('@')
+  const hasQuery = useSearchParams().get('q')
+  const showBackButton = isAnimating || pathname.includes('@') || hasQuery
 
   const handleBack = () => {
     setIsAnimating(true)

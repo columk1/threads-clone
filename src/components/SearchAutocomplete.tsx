@@ -1,9 +1,8 @@
 'use client'
 
 import type { User } from 'lucia'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Avatar from '@/components/Avatar'
 import FollowButton from '@/components/FollowButton'
@@ -16,14 +15,16 @@ import { handleNestedInteraction } from '@/utils/handleNestedInteraction'
 import PostAuthor from './PostAuthor'
 import Spinner from './spinner/Spinner'
 
+// Autocomplete search results (user cards)
+
 const SearchResult = ({
   user,
   currentUser,
-  navigateToProfile,
+  navigate,
 }: {
   user: PostUser
   currentUser?: User
-  navigateToProfile: (username: string) => void
+  navigate: () => void
 }) => {
   const isCurrentUser = user.id === currentUser?.id
   const { handleToggleFollow } = useFollow({ initialUser: user, isAuthenticated: Boolean(currentUser) })
@@ -31,20 +32,20 @@ const SearchResult = ({
   return (
     <div
       role="link"
-      onClick={(e) => handleNestedInteraction(e, () => navigateToProfile(user.username))}
+      onClick={(e) => handleNestedInteraction(e, navigate)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          navigateToProfile(user.username)
+          navigate()
         }
       }}
       tabIndex={0}
       className="flex cursor-pointer gap-3"
     >
       <div className="py-[16px] pl-6">
-        <Link href={`/@${user.username}`} tabIndex={-1}>
+        <button type="button" onClick={() => navigate()} tabIndex={-1}>
           <Avatar url={user.avatar} className="mt-0.5" />
-        </Link>
+        </button>
       </div>
       <div className="flex w-full border-b-[0.5px] border-primary-outline py-[16px] pr-6">
         <div className="flex flex-1 flex-col">
@@ -87,19 +88,49 @@ const SearchButton = ({ value, onClick }: { value: string; onClick: () => void }
   )
 }
 
-export default function SearchContent({ currentUser }: { currentUser?: User }) {
+export default function SearchAutocomplete({ currentUser }: { currentUser?: User }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<PostUser[]>([])
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('recentSearches')
+    if (stored) {
+      setRecentSearches(JSON.parse(stored))
+    }
+  }, [])
+
+  const addQueryToHistory = useCallback(
+    () => history.replaceState({ ...history.state, inputValue: searchQuery }, ''),
+    [searchQuery],
+  )
+
+  const saveToRecentSearches = useCallback(
+    (term: string) => {
+      if (!recentSearches.includes(term)) {
+        const newSearches = [term, ...recentSearches].slice(0, 5)
+        setRecentSearches(newSearches)
+        sessionStorage.setItem('recentSearches', JSON.stringify(newSearches))
+      }
+    },
+    [recentSearches],
+  )
+
+  const handleSubmit = useCallback(() => {
+    saveToRecentSearches(searchQuery)
+    addQueryToHistory()
+    formRef.current?.submit()
+  }, [saveToRecentSearches, addQueryToHistory, searchQuery])
 
   const navigateToProfile = useCallback(
     (username: string) => {
-      history.replaceState({ ...history.state, inputValue: searchQuery }, '')
+      addQueryToHistory()
       router.push(`/@${username}`)
     },
-    [router, searchQuery],
+    [router, addQueryToHistory],
   )
 
   const loadHistoryValue = useCallback((node: HTMLInputElement) => {
@@ -113,13 +144,6 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
     }
     return () => delayedSelect && clearTimeout(delayedSelect)
   }, [])
-
-  const handleSearchClick = (term: string) => {
-    setSearchQuery(term)
-    if (!recentSearches.includes(term)) {
-      setRecentSearches((prev) => [term, ...prev].slice(0, 5))
-    }
-  }
 
   const performSearch = useCallback(async (query: string, signal: AbortSignal) => {
     if (!query.trim()) {
@@ -153,19 +177,21 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
       <div className="px-6 pb-1">
         <div className="relative">
           <SearchIcon className="absolute left-6 top-1/2 size-[16px] -translate-y-1/2 text-gray-6" />
-          <input
-            ref={loadHistoryValue}
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-2xl border-[0.5px] border-gray-5 bg-gray-0 py-3 pl-12 pr-4 placeholder:text-gray-7 hover:border-gray-6 focus:border-gray-6 focus:outline-none"
-          />
+          <form ref={formRef} action="/search" onSubmit={handleSubmit}>
+            <input
+              ref={loadHistoryValue}
+              type="text"
+              name="q"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-2xl border-[0.5px] border-gray-5 bg-gray-0 py-3 pl-12 pr-4 placeholder:text-gray-7 hover:border-gray-6 focus:border-gray-6 focus:outline-none"
+            />
+          </form>
         </div>
       </div>
-
-      {!searchQuery &&
-        recentSearches.map((term) => <SearchButton key={term} value={term} onClick={() => handleSearchClick(term)} />)}
+      {/* Show a list of previous queries that can be clicked when input is empty */}
+      {!searchQuery && recentSearches.map((term) => <SearchButton key={term} value={term} onClick={handleSubmit} />)}
 
       {isSearching ? (
         <div className="my-auto flex justify-center text-gray-8">
@@ -173,9 +199,15 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
         </div>
       ) : (
         <>
-          {searchQuery && <SearchButton value={searchQuery} onClick={() => handleSearchClick(searchQuery)} />}
+          {/* Button to search for posts using the search term followed by a list of users returned by the autocomplete */}
+          {searchQuery && <SearchButton value={searchQuery} onClick={handleSubmit} />}
           {searchResults.map((user) => (
-            <SearchResult key={user.id} user={user} currentUser={currentUser} navigateToProfile={navigateToProfile} />
+            <SearchResult
+              key={user.id}
+              user={user}
+              currentUser={currentUser}
+              navigate={() => navigateToProfile(user.username)}
+            />
           ))}
         </>
       )}

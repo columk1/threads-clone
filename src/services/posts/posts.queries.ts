@@ -8,6 +8,7 @@ import {
   listPosts,
   listReplies,
   listReposts,
+  searchPosts as searchPostsQuery,
 } from '@/lib/db/queries'
 import { validateRequest } from '@/lib/Lucia'
 
@@ -158,5 +159,19 @@ export const getSinglePostById = async (id: string) => {
   return {
     ...post,
     user: { ...post.user, isFollowed: false },
+  }
+}
+
+/*
+ * Search Posts
+ */
+export const searchPosts = async (searchTerm: string, offset: number = 0) => {
+  const { user } = await validateRequest()
+  const data = await searchPostsQuery(searchTerm, user?.id, QUERY_LIMIT)
+
+  // Replace 1/0 from Sqlite with boolean
+  return {
+    posts: formatPostsData(data),
+    nextOffset: data.length >= QUERY_LIMIT ? offset + QUERY_LIMIT : null,
   }
 }
