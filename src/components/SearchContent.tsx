@@ -16,21 +16,26 @@ import { handleNestedInteraction } from '@/utils/handleNestedInteraction'
 import PostAuthor from './PostAuthor'
 import Spinner from './spinner/Spinner'
 
-const SearchResult = ({ user, currentUser }: { user: PostUser; currentUser?: User }) => {
+const SearchResult = ({
+  user,
+  currentUser,
+  navigateToProfile,
+}: {
+  user: PostUser
+  currentUser?: User
+  navigateToProfile: (username: string) => void
+}) => {
   const isCurrentUser = user.id === currentUser?.id
   const { handleToggleFollow } = useFollow({ initialUser: user, isAuthenticated: Boolean(currentUser) })
-  const router = useRouter()
-
-  const navigateToProfile = useCallback(() => router.push(`/@${user.username}`), [router, user.username])
 
   return (
     <div
       role="link"
-      onClick={(e) => handleNestedInteraction(e, navigateToProfile)}
+      onClick={(e) => handleNestedInteraction(e, () => navigateToProfile(user.username))}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          navigateToProfile()
+          navigateToProfile(user.username)
         }
       }}
       tabIndex={0}
@@ -87,6 +92,34 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
   const [searchResults, setSearchResults] = useState<PostUser[]>([])
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const router = useRouter()
+
+  const navigateToProfile = useCallback(
+    (username: string) => {
+      history.replaceState({ ...history.state, inputValue: searchTerm }, '')
+      router.push(`/@${username}`)
+    },
+    [router, searchTerm],
+  )
+
+  const loadHistoryValue = useCallback((node: HTMLInputElement) => {
+    const storedState = history.state?.inputValue
+    let delayedSelect: NodeJS.Timeout | undefined
+    if (storedState) {
+      setSearchTerm(storedState)
+      delayedSelect = setTimeout(() => {
+        node?.select()
+      }, 0)
+    }
+    return () => delayedSelect && clearTimeout(delayedSelect)
+  }, [])
+
+  const handleSearchClick = (term: string) => {
+    setSearchTerm(term)
+    if (!recentSearches.includes(term)) {
+      setRecentSearches((prev) => [term, ...prev].slice(0, 5))
+    }
+  }
 
   const performSearch = useCallback(async (query: string, signal: AbortSignal) => {
     if (!query.trim()) {
@@ -115,19 +148,13 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
     return () => controller.abort()
   }, [searchTerm, performSearch])
 
-  const handleSearchClick = (term: string) => {
-    setSearchTerm(term)
-    if (!recentSearches.includes(term)) {
-      setRecentSearches((prev) => [term, ...prev].slice(0, 5))
-    }
-  }
-
   return (
     <div className="flex flex-1 flex-col pt-[18px] text-[15px]">
       <div className="px-6 pb-1">
         <div className="relative">
           <SearchIcon className="absolute left-6 top-1/2 size-[16px] -translate-y-1/2 text-gray-6" />
           <input
+            ref={loadHistoryValue}
             type="text"
             placeholder="Search"
             value={searchTerm}
@@ -148,7 +175,7 @@ export default function SearchContent({ currentUser }: { currentUser?: User }) {
         <>
           {searchTerm && <SearchButton value={searchTerm} onClick={() => handleSearchClick(searchTerm)} />}
           {searchResults.map((user) => (
-            <SearchResult key={user.id} user={user} currentUser={currentUser} />
+            <SearchResult key={user.id} user={user} currentUser={currentUser} navigateToProfile={navigateToProfile} />
           ))}
         </>
       )}
