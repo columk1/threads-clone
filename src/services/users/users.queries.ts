@@ -1,7 +1,12 @@
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
-import { findUserByField, getAuthUserDetails, getPublicUserDetails } from '@/lib/db/queries'
+import {
+  findUserByField,
+  getAuthUserDetails,
+  getPublicUserDetails,
+  searchUsers as searchUsersDb,
+} from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 
@@ -85,3 +90,22 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: 
 })
 
 export const getPublicUserInfo = getPublicUserInfoCached
+
+/*
+ * Search Users
+ */
+export const searchUsers = async (query: string) => {
+  try {
+    const { user } = await validateRequest()
+    const results = await searchUsersDb(query, user?.id)
+    return {
+      users: results.map((user) => ({
+        ...user,
+        isFollowed: Boolean(user.isFollowed),
+      })),
+    }
+  } catch (err) {
+    logger.error(err)
+    return { error: 'Something went wrong' }
+  }
+}

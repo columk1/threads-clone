@@ -530,6 +530,42 @@ export const incrementShareCount = async (postId: string) => {
     .where(eq(postSchema.id, postId))
 }
 
+export const searchUsers = async (query: string, userId?: string, limit: number = 10) => {
+  const searchTerm = `%${query}%`
+  const startsWithTerm = `${query}%`
+
+  return await db
+    .select({
+      ...baseUserSelect,
+      isFollowed: userId
+        ? sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userSchema.id} 
+            AND ${followerSchema.followerId} = ${userId}
+        )`.as('isFollowed')
+        : sql<boolean>`false`,
+      priority: sql<number>`
+        CASE 
+          WHEN lower(${userSchema.username}) LIKE lower(${startsWithTerm}) THEN 1
+          WHEN lower(${userSchema.name}) LIKE lower(${startsWithTerm}) THEN 2
+          WHEN lower(${userSchema.username}) LIKE lower(${searchTerm}) THEN 3
+          WHEN lower(${userSchema.name}) LIKE lower(${searchTerm}) THEN 4
+          ELSE 5
+        END`.as('priority'),
+    })
+    .from(userSchema)
+    .where(
+      or(
+        sql`lower(${userSchema.username}) LIKE lower(${searchTerm})`,
+        sql`lower(${userSchema.name}) LIKE lower(${searchTerm})`,
+      ),
+    )
+    .orderBy(sql`priority`)
+    .limit(limit)
+    .all()
+}
+
 // export const listFollowingPostsAndReposts = async (userId: string, limit = 20) => {
 //   // First, create a CTE (Common Table Expression) that unions posts and reposts
 //   const postsAndReposts = db.$with('posts_and_reposts').as(
