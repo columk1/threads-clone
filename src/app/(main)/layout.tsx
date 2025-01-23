@@ -33,7 +33,7 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
           <AuthPromptModal />
           <Link
             href="/login"
-            className="absolute right-5 top-5 z-30 flex h-[34px] items-center justify-center rounded-lg border border-gray-5 bg-white px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30"
+            className="fixed right-5 top-5 z-30 flex h-[34px] items-center justify-center rounded-lg border border-gray-5 bg-white px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30"
           >
             Log in
           </Link>
