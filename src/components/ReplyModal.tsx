@@ -15,6 +15,7 @@ import {
 } from 'react'
 import { toast } from 'sonner'
 
+import { useAppStore } from '@/hooks/useAppStore'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { IMG_UPLOAD_URL } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
@@ -69,6 +70,8 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
   const [image, setImage] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [text, setText] = useState('')
+  const updatePost = useAppStore((state) => state.updatePost)
+  const cachedPost = useAppStore((state) => state.posts[post.id])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -155,11 +158,18 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
       toast(state.error)
     } else {
       if (state?.data) {
+        // Update the parent post's reply count in the app store
+        if (cachedPost) {
+          updatePost(post.id, {
+            ...cachedPost,
+            replyCount: (cachedPost.replyCount ?? post.replyCount) + 1,
+          })
+        }
         router.refresh()
         closeModal()
       }
     }
-  }, [state, router, closeModal, resetForm])
+  }, [state, router, closeModal, resetForm, post.id, updatePost, cachedPost, post.replyCount])
 
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
@@ -167,7 +177,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="min-w-[620px] max-md:hidden">
+        <DialogContent className="min-w-[620px] max-md:hidden">
           <div className="sr-only">
             <DialogDescription>Reply to a thread</DialogDescription>
           </div>
