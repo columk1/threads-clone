@@ -1,6 +1,6 @@
 import cx from 'clsx'
 import type { User } from 'lucia'
-import type { FunctionComponent } from 'react'
+import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useAppStore } from '@/hooks/useAppStore'
@@ -10,11 +10,13 @@ import { handleLikeAction, handleRepostAction, handleShareAction } from '@/servi
 import type { PostUser } from '@/services/users/users.queries'
 import { formatCount } from '@/utils/format/formatCount'
 
+import CountWheel from './CountWheel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './DropdownMenu'
 import { LikeIcon, ReplyIcon, RepostedIcon, RepostIcon, ShareIcon } from './icons'
 import ReplyModal from './ReplyModal'
 
-const iconStyle = 'flex h-full z-10 items-center gap-1 rounded-full px-2.5 hover:bg-gray-3 active:scale-85 transition'
+const iconStyle =
+  'flex h-full z-10 items-center gap-1 rounded-full px-2.5 hover:bg-gray-3 active:scale-85 transition overflow-y-hidden'
 
 type ThreadActionsProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }
@@ -31,6 +33,7 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
   isAuthenticated,
   className,
 }) => {
+  const [hasLikeIconBeenToggled, setHasLikeIconBeenToggled] = useState(false)
   const { openModal } = useModal()
   const updatePost = useAppStore((state) => state.updatePost)
   const cachedPost = useAppStore((state) => state.posts[post.id])
@@ -68,6 +71,7 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
   }
 
   const handleToggleLike = async () => {
+    setHasLikeIconBeenToggled(true)
     toggleLike()
     const likeAction = isLiked ? 'unlike' : 'like'
     const result = await handleLikeAction(likeAction, post.id)
@@ -129,7 +133,9 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
     <div className={cx('-ml-3 mt-1 flex h-9 items-center text-[13px] text-secondary-text', className)}>
       <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
         <LikeIcon className={isLiked ? 'fill-notification stroke-notification' : ''} />
-        <span className={cx('tabular-nums', isLiked && 'text-notification')}>{formatCount(likeCount)}</span>
+        <span className={cx('tabular-nums', isLiked && 'text-notification')}>
+          <CountWheel likeCount={likeCount} isLiked={isLiked} hasBeenToggled={hasLikeIconBeenToggled} />
+        </span>
       </button>
 
       {isAuthenticated && currentUser ? (
