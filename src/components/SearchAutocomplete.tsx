@@ -8,6 +8,7 @@ import Avatar from '@/components/Avatar'
 import FollowButton from '@/components/FollowButton'
 import { SearchIcon } from '@/components/icons'
 import Continue from '@/components/icons/Continue'
+import { useSearch } from '@/contexts/SearchContext'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useFollow } from '@/hooks/useFollow'
 import type { PostUser } from '@/services/users/users.queries'
@@ -98,9 +99,8 @@ const SearchButton = ({ value, onClick }: { value: string; onClick: () => void }
 }
 
 export default function SearchAutocomplete({ currentUser }: { currentUser?: User }) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const { searchHistory, currentQuery, setCurrentQuery, addToHistory } = useSearch()
   const [searchResults, setSearchResults] = useState<PostUser[]>([])
-  const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
@@ -109,54 +109,24 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
       state.addUsers,
   )
 
-  useEffect(() => {
-    const stored = sessionStorage.getItem('recentSearches')
-    if (stored) {
-      setRecentSearches(JSON.parse(stored))
-    }
-  }, [])
-
-  const addQueryToHistory = useCallback(
-    () => history.replaceState({ ...history.state, inputValue: searchQuery }, ''),
-    [searchQuery],
-  )
-
-  const saveToRecentSearches = useCallback(
-    (term: string) => {
-      if (!recentSearches.includes(term)) {
-        const newSearches = [term, ...recentSearches].slice(0, 5)
-        setRecentSearches(newSearches)
-        sessionStorage.setItem('recentSearches', JSON.stringify(newSearches))
+  const handleSubmit = useCallback(
+    (e?: React.FormEvent) => {
+      e?.preventDefault()
+      const trimmedTerm = currentQuery.trim()
+      if (trimmedTerm) {
+        addToHistory(trimmedTerm)
+        router.push(`/search?q=${encodeURIComponent(trimmedTerm)}`)
       }
     },
-    [recentSearches],
+    [addToHistory, currentQuery, router],
   )
-
-  const handleSubmit = useCallback(() => {
-    saveToRecentSearches(searchQuery)
-    addQueryToHistory()
-    formRef.current?.submit()
-  }, [saveToRecentSearches, addQueryToHistory, searchQuery])
 
   const navigateToProfile = useCallback(
     (username: string) => {
-      addQueryToHistory()
       router.push(`/@${username}`)
     },
-    [router, addQueryToHistory],
+    [router],
   )
-
-  const loadHistoryValue = useCallback((node: HTMLInputElement) => {
-    const storedState = history.state?.inputValue
-    let delayedSelect: NodeJS.Timeout | undefined
-    if (storedState) {
-      setSearchQuery(storedState)
-      delayedSelect = setTimeout(() => {
-        node?.select()
-      }, 0)
-    }
-    return () => delayedSelect && clearTimeout(delayedSelect)
-  }, [])
 
   const performSearch = useCallback(
     async (query: string, signal: AbortSignal) => {
@@ -169,7 +139,6 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
         const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`, { signal })
         const data = await response.json()
         setSearchResults(data.users)
-        // Hydrate the users store with the search results
         addUsers(
           data.users.map((user: PostUser) => ({
             id: user.id,
@@ -190,11 +159,15 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
     [addUsers],
   )
 
+  const selectInput = useCallback((node: HTMLInputElement | null) => {
+    node?.select()
+  }, [])
+
   useEffect(() => {
     const controller = new AbortController()
-    performSearch(searchQuery, controller.signal)
+    performSearch(currentQuery, controller.signal)
     return () => controller.abort()
-  }, [searchQuery, performSearch])
+  }, [currentQuery, performSearch])
 
   return (
     <div className="flex flex-1 flex-col pt-[18px] text-[15px]">
@@ -203,19 +176,29 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
           <SearchIcon className="absolute left-6 top-1/2 size-[16px] -translate-y-1/2 text-gray-6" />
           <form ref={formRef} action="/search" onSubmit={handleSubmit}>
             <input
-              ref={loadHistoryValue}
+              ref={selectInput}
               type="text"
               name="q"
               placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={currentQuery}
+              onChange={(e) => setCurrentQuery(e.target.value)}
               className="w-full rounded-2xl border-[0.5px] border-gray-5 bg-gray-0 py-3 pl-12 pr-4 placeholder:text-gray-7 hover:border-gray-6 focus:border-gray-6 focus:outline-none"
             />
           </form>
         </div>
       </div>
       {/* Show a list of previous queries that can be clicked when input is empty */}
-      {!searchQuery && recentSearches.map((term) => <SearchButton key={term} value={term} onClick={handleSubmit} />)}
+      {!currentQuery &&
+        searchHistory.map((term) => (
+          <SearchButton
+            key={term}
+            value={term}
+            onClick={() => {
+              setCurrentQuery(term)
+              handleSubmit()
+            }}
+          />
+        ))}
 
       {isSearching ? (
         <div className="my-auto flex justify-center text-gray-8">
@@ -224,7 +207,7 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
       ) : (
         <>
           {/* Button to search for posts using the search term followed by a list of users returned by the autocomplete */}
-          {searchQuery && <SearchButton value={searchQuery} onClick={handleSubmit} />}
+          {currentQuery && <SearchButton value={currentQuery} onClick={handleSubmit} />}
           {searchResults.map((user) => (
             <SearchResult
               key={user.id}

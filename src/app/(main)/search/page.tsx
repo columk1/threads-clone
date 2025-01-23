@@ -16,7 +16,7 @@ export const metadata = {
 const SearchResults = async ({ query, user }: { query: string; user: User | null }) => {
   const { posts } = await searchPosts(query)
 
-  return (
+  return posts.length > 0 ? (
     <>
       <HydrateStore initialPosts={posts} />
       {posts.map((row) => (
@@ -30,6 +30,8 @@ const SearchResults = async ({ query, user }: { query: string; user: User | null
         />
       ))}
     </>
+  ) : (
+    <div className="mx-auto py-3 text-gray-8">No results</div>
   )
 }
 
