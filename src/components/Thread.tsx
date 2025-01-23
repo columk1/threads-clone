@@ -59,8 +59,7 @@ const ThreadCard: FunctionComponent<ThreadCardProps> = ({ onClick, children }) =
       onClick={(e) => handleNestedInteraction(e, onClick)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick()
+          handleNestedInteraction(e, onClick)
         }
       }}
       tabIndex={0}
