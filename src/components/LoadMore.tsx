@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { useAppStore } from '@/hooks/useAppStore'
 
@@ -55,7 +55,7 @@ const LoadMore = ({ children, initialOffset, loadMoreAction }: LoadMoreProps) =>
     [loadMoreAction, addPosts],
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Disable browser's scroll restoration behavior
     const { scrollRestoration } = history
     history.scrollRestoration = 'manual'

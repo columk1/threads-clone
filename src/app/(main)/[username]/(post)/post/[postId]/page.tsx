@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import Header from '@/components/Header'
-// Create a separate client component file for ScrollManager
 import ScrollManager from '@/components/ScrollManager'
+// Create a separate client component file for ScrollManager
 import Spinner from '@/components/spinner/Spinner'
 import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
