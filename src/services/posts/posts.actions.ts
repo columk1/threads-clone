@@ -2,6 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
 
 import { deleteLike, deleteRepost, incrementShareCount, insertLike, insertPost, insertRepost } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
@@ -21,7 +22,10 @@ export const createPost = async (_: unknown, formData: FormData) => {
     schema: newPostSchema,
   })
   if (submission.status !== 'success') {
-    logger.info('error submitting new thread')
+    logger.info('error submitting new thread:', submission.error)
+    if (submission.error instanceof z.ZodError) {
+      return { error: submission.error.errors[0]?.message || 'Invalid input' }
+    }
     return { error: 'Something went wrong. Please try again.' }
   }
   try {
@@ -47,7 +51,10 @@ export async function createReply(_: unknown, formData: FormData) {
   })
 
   if (submission.status !== 'success') {
-    logger.info('error submitting reply')
+    logger.info('error submitting reply:', submission.error)
+    if (submission.error instanceof z.ZodError) {
+      return { error: submission.error.errors[0]?.message || 'Invalid input' }
+    }
     return { error: 'Something went wrong. Please try again.' }
   }
 

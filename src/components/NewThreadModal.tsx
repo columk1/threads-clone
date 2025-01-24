@@ -13,11 +13,13 @@ import {
   useState,
 } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod'
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
 import { IMG_UPLOAD_URL } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
+import { imageSchema } from '@/lib/schemas/zod.schema'
 import { createPost } from '@/services/posts/posts.actions'
 
 import Avatar from './Avatar'
@@ -63,6 +65,13 @@ export const ThreadMediaContent = ({ image, children }: { image: string | null; 
         {children}
       </div>
     </div>
+  )
+}
+
+export const RemainingCharacters = ({ currentCount, limit }: { currentCount: number; limit: number }) => {
+  const remainingCount = limit - currentCount
+  return (
+    <span className={remainingCount < 0 ? 'text-error-text' : ''}>{remainingCount > 50 ? '' : remainingCount}</span>
   )
 }
 
@@ -123,16 +132,21 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
       </div>
       <div className={cx(`flex items-center justify-between text-[15px] text-gray-7 py-4`, !isDrawer && `p-6`)}>
         Anyone can reply & quote
-        <button
-          type="submit"
-          disabled={!isValid || isPending}
-          className={cx(
-            'ml-auto h-9 px-4 font-semibold transition active:scale-95 disabled:opacity-30',
-            isDrawer ? 'rounded-full bg-primary-text text-gray-0' : 'rounded-lg border border-gray-5 text-primary-text',
-          )}
-        >
-          Post
-        </button>
+        <div className="flex items-center gap-3">
+          <RemainingCharacters currentCount={text.length} limit={500} />
+          <button
+            type="submit"
+            disabled={!isValid || isPending}
+            className={cx(
+              'ml-auto h-9 px-4 font-semibold transition active:scale-95 disabled:opacity-30',
+              isDrawer
+                ? 'rounded-full bg-primary-text text-gray-0'
+                : 'rounded-lg border border-gray-5 text-primary-text',
+            )}
+          >
+            Post
+          </button>
+        </div>
       </div>
       <input ref={fileInputRef} type="file" name="image" onChange={handleFileChange} className="hidden" />
     </form>
@@ -183,23 +197,26 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const optimisticUrl = URL.createObjectURL(file)
-      setImage(optimisticUrl)
-
-      const options = { eager: 'c_fit,h_430,w_508', folder: 'threads-clone/content' }
-
-      const signData = await signUploadForm(options)
-
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('api_key', signData.apiKey)
-      formData.append('timestamp', signData.timestamp)
-      formData.append('signature', signData.signature)
-      Object.entries(options).forEach(([key, value]) => {
-        formData.append(key, value)
-      })
-
       try {
+        // Validate file
+        await imageSchema.parseAsync(file)
+
+        const optimisticUrl = URL.createObjectURL(file)
+        setImage(optimisticUrl)
+
+        const options = { eager: 'c_fit,h_430,w_508', folder: 'threads-clone/content' }
+
+        const signData = await signUploadForm(options)
+
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('api_key', signData.apiKey)
+        formData.append('timestamp', signData.timestamp)
+        formData.append('signature', signData.signature)
+        Object.entries(options).forEach(([key, value]) => {
+          formData.append(key, value)
+        })
+
         const res = await fetch(IMG_UPLOAD_URL, {
           method: 'POST',
           body: formData,
@@ -212,10 +229,15 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
         }
         setImageData(image)
       } catch (err) {
-        toast('Oops! Something went wrong. Please try again.')
+        if (err instanceof z.ZodError) {
+          toast(err.issues[0]?.message)
+        } else {
+          toast('Oops! Something went wrong. Please try again.')
+        }
         setImage(null)
-        // eslint-disable-next-line no-console
-        console.log(err)
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
       }
     }
   }

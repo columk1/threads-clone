@@ -14,12 +14,14 @@ import {
   useState,
 } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod'
 
 import { useAppStore } from '@/hooks/useAppStore'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { IMG_UPLOAD_URL } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
 import type { Post } from '@/lib/db/Schema'
+import { imageSchema } from '@/lib/schemas/zod.schema'
 import { createReply } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
 
@@ -108,23 +110,26 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const optimisticUrl = URL.createObjectURL(file)
-      setImage(optimisticUrl)
-
-      const options = { eager: 'c_fit,h_430,w_508', folder: 'threads-clone/content' }
-
-      const signData = await signUploadForm(options)
-
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('api_key', signData.apiKey)
-      formData.append('timestamp', signData.timestamp)
-      formData.append('signature', signData.signature)
-      Object.entries(options).forEach(([key, value]) => {
-        formData.append(key, value)
-      })
-
       try {
+        // Validate file
+        await imageSchema.parseAsync(file)
+
+        const optimisticUrl = URL.createObjectURL(file)
+        setImage(optimisticUrl)
+
+        const options = { eager: 'c_fit,h_430,w_508', folder: 'threads-clone/content' }
+
+        const signData = await signUploadForm(options)
+
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('api_key', signData.apiKey)
+        formData.append('timestamp', signData.timestamp)
+        formData.append('signature', signData.signature)
+        Object.entries(options).forEach(([key, value]) => {
+          formData.append(key, value)
+        })
+
         const res = await fetch(IMG_UPLOAD_URL, {
           method: 'POST',
           body: formData,
@@ -132,10 +137,15 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
         const data = await res.json()
         setImageUrl(data.secure_url)
       } catch (err) {
-        toast('Oops! Something went wrong. Please try again.')
+        if (err instanceof z.ZodError) {
+          toast(err.issues[0]?.message)
+        } else {
+          toast('Oops! Something went wrong. Please try again.')
+        }
         setImage(null)
-        // eslint-disable-next-line no-console
-        console.log(err)
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
       }
     }
   }

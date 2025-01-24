@@ -1,5 +1,8 @@
 import { z } from 'zod'
 
+const MAX_FILE_SIZE = 10000000 // 10MB
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+
 // import { isUniqueEmail, isUniqueUsername } from '@/services/users/users.client.queries'
 
 export const verifyEmailSchema = z.object({
@@ -11,10 +14,28 @@ export const loginSchema = z.object({
   password: z.string({ required_error: 'Password is required' }),
 })
 
+// Client-side file validation
+export const imageSchema = z
+  .custom<File>()
+  .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is ${MAX_FILE_SIZE / 1000000}MB.`)
+  .refine(
+    (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+    'Only .jpg, .jpeg, .png, and .webp formats are supported.',
+  )
+
+// Server-side URL validation
+export const imageUrlSchema = z
+  .string()
+  .url()
+  .refine((url) => {
+    const extension = url.split('.').pop()?.toLowerCase()
+    return extension ? ['jpg', 'jpeg', 'png', 'webp', 'heic'].includes(extension) : false
+  }, 'Invalid image format. Only jpg, jpeg, png, webp and heic are supported.')
+
 export const newPostSchema = z
   .object({
     text: z.string().trim().optional(),
-    image: z.string().url({ message: 'Invalid URL' }).optional(),
+    image: imageUrlSchema.optional(),
     imageWidth: z.number().optional(),
     imageHeight: z.number().optional(),
   })
@@ -26,7 +47,7 @@ export const newPostSchema = z
 export const replySchema = z
   .object({
     text: z.string().trim().optional(),
-    image: z.string().url({ message: 'Invalid URL' }).optional(),
+    image: imageUrlSchema.optional(),
     parentId: z.string({ required_error: 'Parent ID is required' }),
   })
   .refine((data) => data.text || data.image, {
