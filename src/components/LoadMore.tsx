@@ -60,17 +60,19 @@ const LoadMore = ({ children, initialOffset, loadMoreAction }: LoadMoreProps) =>
     const { scrollRestoration } = history
     history.scrollRestoration = 'manual'
 
-    // On mount, load a second section
-    // if (currentOffsetRef.current) {
-    //   currentOffsetRef.current = initialOffset
-    //   loadMore()
-    // }
-
     return () => {
       history.scrollRestoration = scrollRestoration
       currentOffsetRef.current = initialOffset
     }
   }, [loadMore, initialOffset])
+
+  // useEffect(() => {
+  //   //  On mount, load a second section
+  //   if (currentOffsetRef.current) {
+  //     currentOffsetRef.current = initialOffset
+  //     loadMore()
+  //   }
+  // })
 
   useEffect(() => {
     const signal = new AbortController()

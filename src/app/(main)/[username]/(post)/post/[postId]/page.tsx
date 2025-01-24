@@ -2,10 +2,9 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import Header from '@/components/Header'
-import ScrollManager from '@/components/ScrollManager'
-// Create a separate client component file for ScrollManager
 import Spinner from '@/components/spinner/Spinner'
 import Thread from '@/components/Thread'
+import ThreadView from '@/components/ThreadView'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
 import { getAuthPostById, getPublicPostById, getSinglePostById } from '@/services/posts/posts.queries'
@@ -61,42 +60,14 @@ export default async function PostPage({ params }: Props) {
   return (
     <>
       <Header title="Thread" />
-      <ScrollManager />
       <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
-        {parentThread ? (
-          <>
-            <Thread
-              key={parentThread.post.id}
-              user={parentThread.user}
-              post={parentThread.post}
-              currentUser={currentUser}
-              isCurrentUser={parentThread.user.username === currentUser?.username}
-              isAuthenticated={isAuthenticated}
-              isParent
-            />
-            <div id="target-thread">
-              <Thread
-                key={targetThread.post.id}
-                user={targetThread.user}
-                post={targetThread.post}
-                currentUser={currentUser}
-                isCurrentUser={isCurrentUser}
-                isAuthenticated={isAuthenticated}
-                isTarget
-              />
-            </div>
-          </>
-        ) : (
-          <Thread
-            key={targetThread.post.id}
-            user={targetThread.user}
-            post={targetThread.post}
-            currentUser={currentUser}
-            isCurrentUser={isCurrentUser}
-            isAuthenticated={isAuthenticated}
-            isTarget
-          />
-        )}
+        <ThreadView
+          parentThread={parentThread}
+          targetThread={targetThread}
+          currentUser={currentUser}
+          isCurrentUser={isCurrentUser}
+          isAuthenticated={isAuthenticated}
+        />
 
         <div className="mx-6 h-[0.5px] bg-gray-5"></div>
         <div className="px-6 py-3 text-[15px] font-semibold">Replies</div>

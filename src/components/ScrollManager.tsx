@@ -1,11 +1,15 @@
 'use client'
 
-import { useLayoutEffect } from 'react'
+import { type RefObject, useEffect } from 'react'
+
+type ScrollManagerProps = {
+  targetRef: RefObject<HTMLDivElement | null>
+}
 
 // If there is a parent thread, this will scroll so it's out of view above the post
-export default function ScrollManager() {
-  useLayoutEffect(() => {
-    const targetThread = document.getElementById('target-thread')
+export default function ScrollManager({ targetRef }: ScrollManagerProps) {
+  useEffect(() => {
+    const targetThread = targetRef?.current
     // Return to the top of the post if there's no parent/target
     if (!targetThread) {
       return window.scrollTo({
@@ -22,6 +26,6 @@ export default function ScrollManager() {
       top: offsetPosition,
       behavior: 'instant',
     })
-  }, [])
+  }, [targetRef])
   return null
 }
