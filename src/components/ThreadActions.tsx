@@ -1,5 +1,6 @@
 import cx from 'clsx'
 import type { User } from 'lucia'
+import { useRouter } from 'next/navigation'
 import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -44,6 +45,8 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
   const replyCount = cachedPost?.replyCount ?? post.replyCount
   const repostCount = cachedPost?.repostCount ?? post.repostCount
 
+  const router = useRouter()
+
   const toggleLike = () => {
     const newLikeCount = likeCount + (isLiked ? -1 : 1)
     if (cachedPost) {
@@ -87,6 +90,7 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
     const repostAction = isReposted ? 'unrepost' : 'repost'
     const successMessage = isReposted ? 'Removed' : 'Reposted'
     const result = await handleRepostAction(repostAction, post.id)
+    router.refresh()
     if (result.error) {
       // revert optimistic update
       toggleRepost()
