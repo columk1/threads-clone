@@ -171,7 +171,7 @@ describe('Posts Service', () => {
 
         expect(insertPost).not.toHaveBeenCalled()
         expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
-        expect(logger.info).toHaveBeenCalled()
+        expect(logger.error).toHaveBeenCalled()
       })
 
       it('should handle database errors', async () => {

@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     }
     return NextResponse.json(users)
   } catch (error) {
-    logger.error('Search failed:', error)
+    logger.error(error, 'Search failed')
     return NextResponse.json({ users: [] })
   }
 }

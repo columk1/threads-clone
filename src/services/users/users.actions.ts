@@ -22,7 +22,7 @@ export const updateAvatar = async (url: string) => {
     revalidatePath('/', 'page')
     return { success: true }
   } catch (err) {
-    logger.error('Error uploading profile image:', err)
+    logger.error(err, 'Error updating profile image')
     return { success: false, error: 'Failed to upload image' }
   }
 }
@@ -49,7 +49,7 @@ export const handleFollowAction = async (userId: string, action: FollowActionTyp
       success: action === 'follow' ? FollowStatus.Followed : FollowStatus.Unfollowed,
     }
   } catch (err) {
-    logger.error(err)
+    logger.error(err, 'Error following/unfollowing user')
     return { error: 'Something went wrong. Please try again.' }
   }
 }

@@ -66,7 +66,7 @@ export async function signup(_: unknown, formData: FormData) {
     throw new Error('Failed to create user')
   }
 
-  logger.info('User created successfully:', user)
+  logger.info(user, 'User created successfully:')
 
   try {
     sendEmailVerificationCode(userId, email)
@@ -81,7 +81,7 @@ export async function signup(_: unknown, formData: FormData) {
     cookieStore.set(sessionCookie)
     logger.info(`Session created successfully for user: ${userId}`)
   } catch (err) {
-    logger.error(`Signup error for user ${userId}:`, err)
+    logger.error(err, `Signup error for user ${userId}`)
     throw new Error('Something went wrong. Please try again.')
   }
 
