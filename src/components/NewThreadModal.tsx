@@ -21,6 +21,7 @@ import { IMG_UPLOAD_URL, MAX_CHARACTERS } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
 import { type ImageData, imageSchema } from '@/lib/schemas/zod.schema'
 import { createPost } from '@/services/posts/posts.actions'
+import { preloadNextImage } from '@/utils/image/preloadNextImage'
 import { isTextWithinRange } from '@/utils/string/isWithinRange'
 
 import Avatar from './Avatar'
@@ -91,6 +92,8 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
     if (!node) {
       return
     }
+    // 75 is quite arbitrary but it is the smallest value that I found to work consistently,
+    // it could be trying a callback on the image component to scroll this container
     const delayScroll = setTimeout(() => {
       node.scrollTop = node.scrollHeight
     }, 75)
@@ -234,6 +237,10 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
           height: data.height,
         }
         setImageData(image)
+        preloadNextImage(image.url, Number(image.width), Number(image.height))
+        // TODO: Stop using next/image to preload images in a simpler way (but must use Cloudinary transformations)
+        // const img = new Image()
+        // img.src = image.url
       } catch (err) {
         if (err instanceof z.ZodError) {
           toast(err.issues[0]?.message)
