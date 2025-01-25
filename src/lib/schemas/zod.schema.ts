@@ -1,8 +1,13 @@
 import { z } from 'zod'
 
+export type ImageData = {
+  url: string
+  width: string
+  height: string
+} | null
+
 const MAX_FILE_SIZE = 10000000 // 10MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-
 // import { isUniqueEmail, isUniqueUsername } from '@/services/users/users.client.queries'
 
 export const verifyEmailSchema = z.object({
@@ -34,23 +39,25 @@ export const imageUrlSchema = z
 
 export const newPostSchema = z
   .object({
-    text: z.string().trim().optional(),
+    text: z.string().trim().max(500, { message: 'Maximum 500 characters' }).optional(),
     image: imageUrlSchema.optional(),
     imageWidth: z.number().optional(),
     imageHeight: z.number().optional(),
   })
-  .refine((data) => data.text || data.image, {
+  .refine((data) => data.text || (data.image && data.imageWidth && data.imageHeight), {
     message: 'Either text or image is required',
     path: ['text'],
   })
 
 export const replySchema = z
   .object({
-    text: z.string().trim().optional(),
+    text: z.string().trim().max(500, { message: 'Maximum 500 characters' }).optional(),
     image: imageUrlSchema.optional(),
+    imageWidth: z.number().optional(),
+    imageHeight: z.number().optional(),
     parentId: z.string({ required_error: 'Parent ID is required' }),
   })
-  .refine((data) => data.text || data.image, {
+  .refine((data) => data.text || (data.image && data.imageWidth && data.imageHeight), {
     message: 'Either text or image is required',
     path: ['text'],
   })

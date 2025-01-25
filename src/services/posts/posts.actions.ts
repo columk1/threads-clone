@@ -2,7 +2,6 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
-import { z } from 'zod'
 
 import { deleteLike, deleteRepost, incrementShareCount, insertLike, insertPost, insertRepost } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
@@ -22,17 +21,14 @@ export const createPost = async (_: unknown, formData: FormData) => {
     schema: newPostSchema,
   })
   if (submission.status !== 'success') {
-    logger.info('error submitting new thread:', submission.error)
-    if (submission.error instanceof z.ZodError) {
-      return { error: submission.error.errors[0]?.message || 'Invalid input' }
-    }
-    return { error: 'Something went wrong. Please try again.' }
+    logger.error(submission.error, 'Error submitting new thread')
+    return { error: submission.error?.text || 'Something went wrong. Please try again.' }
   }
   try {
     await insertPost(userId, submission.value)
     return { success: true }
   } catch (err) {
-    logger.error(err)
+    logger.error(err, 'Error creating new thread')
     return { error: 'Something went wrong. Please try again.' }
   }
 }
@@ -51,18 +47,15 @@ export async function createReply(_: unknown, formData: FormData) {
   })
 
   if (submission.status !== 'success') {
-    logger.info('error submitting reply:', submission.error)
-    if (submission.error instanceof z.ZodError) {
-      return { error: submission.error.errors[0]?.message || 'Invalid input' }
-    }
-    return { error: 'Something went wrong. Please try again.' }
+    logger.error(submission.error, 'Error submitting reply')
+    return { error: submission.error?.text || 'Something went wrong. Please try again.' }
   }
 
   try {
     const reply = await insertPost(user.id, submission.value)
     return { data: reply }
   } catch (error) {
-    logger.error('Error creating reply:', error)
+    logger.error(error, 'Error creating reply')
     return { error: 'Something went wrong. Please try again.' }
   }
 }
@@ -88,7 +81,7 @@ export const handleLikeAction = async (actionType: LikeAction, postId: string) =
   try {
     await likeQuery(postId, userId)
   } catch (err) {
-    logger.error(err)
+    logger.error(err, 'Error toggling like')
     return { error: 'Something went wrong. Please try again.', success: false }
   }
   return { success: true }
@@ -115,7 +108,7 @@ export const handleRepostAction = async (actionType: RepostAction, postId: strin
   try {
     await repostQuery(postId, userId)
   } catch (err) {
-    logger.error(err)
+    logger.error(err, 'Error toggling repost')
     return { error: 'Something went wrong. Please try again.', success: false }
   }
   return { success: true }
@@ -128,7 +121,7 @@ export const handleShareAction = async (postId: string) => {
   try {
     await incrementShareCount(postId)
   } catch (err) {
-    logger.error(err)
+    logger.error(err, 'Error incrementing share count')
     return { error: 'Something went wrong. Please try again.', success: false }
   }
   return { success: true }

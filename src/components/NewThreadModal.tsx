@@ -17,10 +17,11 @@ import { z } from 'zod'
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
-import { IMG_UPLOAD_URL } from '@/lib/constants'
+import { IMG_UPLOAD_URL, MAX_CHARACTERS } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
-import { imageSchema } from '@/lib/schemas/zod.schema'
+import { type ImageData, imageSchema } from '@/lib/schemas/zod.schema'
 import { createPost } from '@/services/posts/posts.actions'
+import { isTextWithinRange } from '@/utils/string/isWithinRange'
 
 import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
@@ -86,12 +87,22 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
     }
   }, [])
 
+  const contentRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node) {
+      return
+    }
+    const delayScroll = setTimeout(() => {
+      node.scrollTop = node.scrollHeight
+    }, 75)
+    return () => clearTimeout(delayScroll)
+  }, [])
+
   return (
     <form
       onSubmit={handleSubmit}
       className={cx('flex h-full flex-col justify-between', isDrawer && 'max-h-[calc(100vh-56px)]')}
     >
-      <div className={cx('overflow-y-auto', !isDrawer && `max-h-[calc(100vh-200px)]`)}>
+      <div ref={contentRef} className={cx('overflow-y-auto', !isDrawer && `max-h-[calc(100vh-200px)]`)}>
         <div className={cx(`pt-2`, !isDrawer && `px-6 pb-1 pt-2`)}>
           {children}
           <div className="relative">
@@ -133,7 +144,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
       <div className={cx(`flex items-center justify-between text-[15px] text-gray-7 py-4`, !isDrawer && `p-6`)}>
         Anyone can reply & quote
         <div className="flex items-center gap-3">
-          <RemainingCharacters currentCount={text.length} limit={500} />
+          <RemainingCharacters currentCount={text.length} limit={MAX_CHARACTERS} />
           <button
             type="submit"
             disabled={!isValid || isPending}
@@ -159,12 +170,6 @@ type NewThreadModalProps = {
   handleOpenChange: (open: boolean) => void
 }
 
-type ImageData = {
-  url: string
-  width: string
-  height: string
-} | null
-
 const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar, handleOpenChange }) => {
   const [state, formAction, isPending] = useActionState(createPost, null)
   const [image, setImage] = useState<string | null>(null)
@@ -175,7 +180,8 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
 
   const router = useRouter()
 
-  const isValid = text.trim() !== '' || imageData !== null
+  const isTextValid = isTextWithinRange(text, MAX_CHARACTERS)
+  const isValid = isTextValid || imageData !== null
 
   const handleTextInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const t = e.target

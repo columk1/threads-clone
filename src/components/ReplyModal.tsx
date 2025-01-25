@@ -18,12 +18,13 @@ import { z } from 'zod'
 
 import { useAppStore } from '@/hooks/useAppStore'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { IMG_UPLOAD_URL } from '@/lib/constants'
+import { IMG_UPLOAD_URL, MAX_CHARACTERS } from '@/lib/constants'
 import { signUploadForm } from '@/lib/data'
 import type { Post } from '@/lib/db/Schema'
-import { imageSchema } from '@/lib/schemas/zod.schema'
+import { type ImageData, imageSchema } from '@/lib/schemas/zod.schema'
 import { createReply } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
+import { isTextWithinRange } from '@/utils/string/isWithinRange'
 
 import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './Dialog'
@@ -70,7 +71,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
   const [open, setOpen] = useState(false)
   const [state, formAction, isPending] = useActionState(createReply, null)
   const [image, setImage] = useState<string | null>(null)
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageData, setImageData] = useState<ImageData | null>(null)
   const [text, setText] = useState('')
   const updatePost = useAppStore((state) => state.updatePost)
   const cachedPost = useAppStore((state) => state.posts[post.id])
@@ -79,7 +80,8 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
 
   const router = useRouter()
 
-  const isValid = text.trim() !== '' || imageUrl !== null
+  const isTextValid = isTextWithinRange(text, MAX_CHARACTERS)
+  const isValid = isTextValid || imageData !== null
 
   const handleTextInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const t = e.target
@@ -96,7 +98,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
 
   const resetForm = useCallback(() => {
     setImage(null)
-    setImageUrl(null)
+    setImageData(null)
     setText('')
     delete state?.data
     delete state?.error
@@ -135,7 +137,12 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
           body: formData,
         })
         const data = await res.json()
-        setImageUrl(data.secure_url)
+        const image: ImageData = {
+          url: data.secure_url,
+          width: data.width,
+          height: data.height,
+        }
+        setImageData(image)
       } catch (err) {
         if (err instanceof z.ZodError) {
           toast(err.issues[0]?.message)
@@ -156,8 +163,10 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
       const formData = new FormData()
       formData.append('text', text)
       formData.append('parentId', post.id)
-      if (imageUrl) {
-        formData.append('image', imageUrl)
+      if (imageData) {
+        formData.append('image', imageData.url)
+        formData.append('imageWidth', imageData.width)
+        formData.append('imageHeight', imageData.height)
       }
       formAction(formData)
     })
