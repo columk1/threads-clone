@@ -72,6 +72,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
   const [state, formAction, isPending] = useActionState(createReply, null)
   const [image, setImage] = useState<string | null>(null)
   const [imageData, setImageData] = useState<ImageData | null>(null)
+  const [loading, setLoading] = useState(false)
   const [text, setText] = useState('')
   const updatePost = useAppStore((state) => state.updatePost)
   const cachedPost = useAppStore((state) => state.posts[post.id])
@@ -119,6 +120,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
         const optimisticUrl = URL.createObjectURL(file)
         setImage(optimisticUrl)
 
+        setLoading(true)
         const options = { eager: 'c_fit,h_430,w_508', folder: 'threads-clone/content' }
 
         const signData = await signUploadForm(options)
@@ -142,6 +144,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
           width: data.width,
           height: data.height,
         }
+        setLoading(false)
         setImageData(image)
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -223,6 +226,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
               text,
               isValid,
               isPending,
+              loading,
               fileInputRef,
             }}
             actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
@@ -262,6 +266,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
             text,
             isValid,
             isPending,
+            loading,
             fileInputRef,
           }}
           actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}

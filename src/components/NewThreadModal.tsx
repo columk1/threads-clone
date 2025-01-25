@@ -28,6 +28,7 @@ import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
 import { ImageIcon } from './icons'
+import Spinner from './spinner/Spinner'
 
 type ModalActions = {
   closeModal?: () => void
@@ -45,6 +46,7 @@ type ModalState = {
   text: string
   isValid: boolean
   isPending: boolean
+  loading: boolean
   fileInputRef: React.RefObject<HTMLInputElement | null>
 }
 
@@ -78,7 +80,7 @@ export const RemainingCharacters = ({ currentCount, limit }: { currentCount: num
 }
 
 export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children }) => {
-  const { isDrawer, avatar, username, image, text, isValid, isPending, fileInputRef } = state
+  const { isDrawer, avatar, username, image, text, isValid, isPending, loading, fileInputRef } = state
   const { handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit } = actions
 
   const textInputRef = useCallback((node: HTMLTextAreaElement | null) => {
@@ -158,7 +160,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
                 : 'rounded-lg border border-gray-5 text-primary-text',
             )}
           >
-            Post
+            {loading ? <Spinner /> : 'Post'}
           </button>
         </div>
       </div>
@@ -175,6 +177,7 @@ type NewThreadModalProps = {
 
 const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar, handleOpenChange }) => {
   const [state, formAction, isPending] = useActionState(createPost, null)
+  const [loading, setLoading] = useState(false)
   const [image, setImage] = useState<string | null>(null)
   const [imageData, setImageData] = useState<ImageData>(null)
   const [text, setText] = useState('')
@@ -213,6 +216,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
         const optimisticUrl = URL.createObjectURL(file)
         setImage(optimisticUrl)
 
+        setLoading(true)
         const options = { eager: 'c_fit,h_430,w_508', folder: 'threads-clone/content' }
 
         const signData = await signUploadForm(options)
@@ -236,6 +240,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
           width: data.width,
           height: data.height,
         }
+        setLoading(false)
         setImageData(image)
         preloadNextImage(image.url, Number(image.width), Number(image.height))
         // TODO: Stop using next/image to preload images in a simpler way (but must use Cloudinary transformations)
@@ -304,7 +309,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
             <div className="h-[0.25px] bg-gray-6"></div>
           </DialogHeader>
           <ModalContent
-            state={{ avatar, username, image, text, isValid, isPending, fileInputRef }}
+            state={{ avatar, username, text, image, isValid, isPending, loading, fileInputRef }}
             actions={{ closeModal, handleUploadButtonClick, handleFileChange, handleTextInput, handleSubmit }}
           />
         </DialogContent>
@@ -329,7 +334,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
           <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">New thread</DialogTitle>
         </DialogHeader>
         <ModalContent
-          state={{ isDrawer: true, avatar, text, username, image, fileInputRef, isValid, isPending }}
+          state={{ isDrawer: true, avatar, username, text, image, isValid, isPending, loading, fileInputRef }}
           actions={{ closeModal, handleUploadButtonClick, handleFileChange, handleTextInput, handleSubmit }}
         />
       </DrawerContent>
