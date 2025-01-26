@@ -4,27 +4,16 @@ import { DialogDescription } from '@radix-ui/react-dialog'
 import type { User } from 'lucia'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import {
-  type FunctionComponent,
-  startTransition,
-  useActionState,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { type FunctionComponent, startTransition, useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { z } from 'zod'
 
 import { useAppStore } from '@/hooks/useAppStore'
+import { useImageForm } from '@/hooks/useImageForm'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { IMG_UPLOAD_URL, MAX_CHARACTERS } from '@/lib/constants'
-import { signUploadForm } from '@/lib/data'
+import { usePostForm } from '@/hooks/usePostForm'
 import type { Post } from '@/lib/db/Schema'
-import { type ImageData, imageSchema } from '@/lib/schemas/zod.schema'
 import { createReply } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
-import { isTextWithinRange } from '@/utils/string/isWithinRange'
 
 import Avatar from './Avatar'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './Dialog'
@@ -70,95 +59,18 @@ type ReplyModalProps = {
 const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, trigger }) => {
   const [open, setOpen] = useState(false)
   const [state, formAction, isPending] = useActionState(createReply, null)
-  const [image, setImage] = useState<string | null>(null)
-  const [imageData, setImageData] = useState<ImageData | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [text, setText] = useState('')
+  const { text, handleTextInput, isTextValid } = usePostForm()
+  const { image, imageData, uploading, fileInputRef, handleFileChange, handleUploadButtonClick } = useImageForm()
   const updatePost = useAppStore((state) => state.updatePost)
   const cachedPost = useAppStore((state) => state.posts[post.id])
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
   const router = useRouter()
 
-  const isTextValid = isTextWithinRange(text, MAX_CHARACTERS)
   const isValid = isTextValid || imageData !== null
-
-  const handleTextInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const t = e.target
-    if (t instanceof HTMLTextAreaElement) {
-      t.style.height = 'auto' // Reset height
-      t.style.height = `${t.scrollHeight}px` // Set to scroll height
-    }
-    setText(t.value)
-  }, [])
-
-  const handleUploadButtonClick = () => {
-    fileInputRef?.current?.click()
-  }
-
-  const resetForm = useCallback(() => {
-    setImage(null)
-    setImageData(null)
-    setText('')
-    delete state?.data
-    delete state?.error
-  }, [state])
 
   const closeModal = useCallback(() => {
     setOpen(false)
-    resetForm()
-  }, [setOpen, resetForm])
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      try {
-        // Validate file
-        await imageSchema.parseAsync(file)
-
-        const optimisticUrl = URL.createObjectURL(file)
-        setImage(optimisticUrl)
-
-        setLoading(true)
-        const options = { eager: 'c_fit,h_430,w_508', folder: 'threads-clone/content' }
-
-        const signData = await signUploadForm(options)
-
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('api_key', signData.apiKey)
-        formData.append('timestamp', signData.timestamp)
-        formData.append('signature', signData.signature)
-        Object.entries(options).forEach(([key, value]) => {
-          formData.append(key, value)
-        })
-
-        const res = await fetch(IMG_UPLOAD_URL, {
-          method: 'POST',
-          body: formData,
-        })
-        const data = await res.json()
-        const image: ImageData = {
-          url: data.secure_url,
-          width: data.width,
-          height: data.height,
-        }
-        setLoading(false)
-        setImageData(image)
-      } catch (err) {
-        if (err instanceof z.ZodError) {
-          toast(err.issues[0]?.message)
-        } else {
-          toast('Oops! Something went wrong. Please try again.')
-        }
-        setImage(null)
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''
-        }
-      }
-    }
-  }
+  }, [setOpen])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -191,7 +103,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
         closeModal()
       }
     }
-  }, [state, router, closeModal, resetForm, post.id, updatePost, cachedPost, post.replyCount])
+  }, [state, router, closeModal, post.id, updatePost, cachedPost, post.replyCount])
 
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
@@ -226,7 +138,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
               text,
               isValid,
               isPending,
-              loading,
+              uploading,
               fileInputRef,
             }}
             actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
@@ -266,7 +178,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
             text,
             isValid,
             isPending,
-            loading,
+            uploading,
             fileInputRef,
           }}
           actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
