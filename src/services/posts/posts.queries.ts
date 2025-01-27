@@ -68,12 +68,6 @@ export const getFollowingPosts = async (offset: number = 0) => {
 }
 
 /*
- * Get a User's Threads
- */
-export const getThreads = async (username: string) => {
-  return username
-}
-/*
  * Get a User's Replies
  */
 

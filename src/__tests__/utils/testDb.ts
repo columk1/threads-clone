@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -30,5 +31,7 @@ export async function setupTestDb() {
 
 export async function teardownTestDb() {
   await client.close()
-  await unlink('test.db')
+  if (existsSync('test.db')) {
+    await unlink('test.db')
+  }
 }
