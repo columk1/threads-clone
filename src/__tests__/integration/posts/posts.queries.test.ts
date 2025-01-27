@@ -188,7 +188,7 @@ describe('Posts Service Tests', () => {
       })
 
       // Act & Assert
-      await expect(getFollowingPosts()).rejects.toThrow()
+      await expect(getFollowingPosts()).rejects.toThrow('NEXT_REDIRECT')
     })
   })
 

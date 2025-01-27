@@ -1,4 +1,3 @@
-import { parseWithZod } from '@conform-to/zod'
 import type { Session } from 'lucia'
 import { redirect } from 'next/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -7,7 +6,6 @@ import { createTestPost, createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
 import { likeSchema, repostSchema } from '@/lib/db/Schema'
-import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 import {
   createPost,
@@ -22,19 +20,6 @@ setupIntegrationTest()
 // Mock external dependencies
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
-}))
-
-vi.mock('@conform-to/zod', () => ({
-  parseWithZod: vi.fn((formData: FormData) => ({
-    status: 'success',
-    value: {
-      text: formData.get('text'),
-      parentId: formData.get('parentId'),
-      image: formData.get('image'),
-      imageWidth: formData.get('imageWidth'),
-      imageHeight: formData.get('imageHeight'),
-    },
-  })),
 }))
 
 vi.mock('@/lib/Lucia', () => ({
@@ -88,15 +73,15 @@ describe('Posts Actions', () => {
 
       const newPost = posts[1]
 
-      expect(newPost).toBeDefined()
-      // After this point we know newPost exists
-      expect(newPost!.text).toBe('Test post content')
+      expect(newPost?.text).toBe('Test post content')
     })
 
     it('should create a post with text and image', async () => {
       const formData = new FormData()
       formData.append('text', 'Test post content')
-      formData.append('image', 'image-url')
+      formData.append('image', 'https://example.com/image.jpg')
+      formData.append('imageWidth', '800')
+      formData.append('imageHeight', '600')
 
       const result = await createPost(null, formData)
 
@@ -111,23 +96,23 @@ describe('Posts Actions', () => {
 
       const newPost = posts[1]
 
-      expect(newPost).toBeDefined()
-      // After this point we know newPost exists
-      expect(newPost!.text).toBe('Test post content')
-      expect(newPost!.image).toBe('image-url')
+      expect(newPost?.text).toBe('Test post content')
+      expect(newPost?.image).toBe('https://example.com/image.jpg')
+      expect(newPost?.imageWidth).toBe(800)
+      expect(newPost?.imageHeight).toBe(600)
     })
 
-    it('should handle validation errors', async () => {
-      vi.mocked(parseWithZod).mockReturnValueOnce({
-        status: 'error',
-        error: new Error('Validation failed'),
-      } as any)
-
+    it('should handle text exceeding max length', async () => {
       const formData = new FormData()
+      formData.append('text', 'x'.repeat(501))
+
       const result = await createPost(null, formData)
 
-      expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
-      expect(logger.error).toHaveBeenCalled()
+      expect(result).toEqual(
+        expect.objectContaining({
+          error: expect.any(Array),
+        }),
+      )
 
       // Verify no post was created
       const posts = await testDb.query.postSchema.findMany({
@@ -135,6 +120,67 @@ describe('Posts Actions', () => {
       })
 
       expect(posts).toHaveLength(1) // Only the testPost from beforeEach
+    })
+
+    it('should handle missing text and image', async () => {
+      const formData = new FormData()
+
+      const result = await createPost(null, formData)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          error: expect.any(Array),
+        }),
+      )
+
+      // Verify no post was created
+      const posts = await testDb.query.postSchema.findMany({
+        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+      })
+
+      expect(posts).toHaveLength(1)
+    })
+
+    it('should handle invalid image URL', async () => {
+      const formData = new FormData()
+      formData.append('image', 'not-a-url')
+      formData.append('imageWidth', '800')
+      formData.append('imageHeight', '600')
+
+      const result = await createPost(null, formData)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          error: expect.anything(),
+        }),
+      )
+
+      // Verify no post was created
+      const posts = await testDb.query.postSchema.findMany({
+        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+      })
+
+      expect(posts).toHaveLength(1)
+    })
+
+    it('should handle missing image dimensions', async () => {
+      const formData = new FormData()
+      formData.append('image', 'https://example.com/image.jpg')
+
+      const result = await createPost(null, formData)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          error: expect.any(Array),
+        }),
+      )
+
+      // Verify no post was created
+      const posts = await testDb.query.postSchema.findMany({
+        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+      })
+
+      expect(posts).toHaveLength(1)
     })
 
     it('should redirect if user is not authenticated', async () => {
@@ -171,16 +217,15 @@ describe('Posts Actions', () => {
     })
 
     it('should handle validation errors', async () => {
-      vi.mocked(parseWithZod).mockReturnValueOnce({
-        status: 'error',
-        error: new Error('Validation failed'),
-      } as any)
-
       const formData = new FormData()
+      // Don't add required text or parentId
       const result = await createReply(null, formData)
 
-      expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
-      expect(logger.error).toHaveBeenCalled()
+      expect(result).toEqual(
+        expect.objectContaining({
+          error: expect.anything(),
+        }),
+      )
 
       // Verify no reply was created
       const replies = await testDb.query.postSchema.findMany({
