@@ -1,8 +1,10 @@
+import path from 'node:path'
+
 import { createClient } from '@libsql/client'
 import { drizzle as drizzleLibSql } from 'drizzle-orm/libsql'
+import { migrate as migrateLibSql } from 'drizzle-orm/libsql/migrator'
 
 import { Env } from '../Env.ts'
-// import { migrate as migrateLibSql } from 'drizzle-orm/libsql/migrator'
 import * as schema from './Schema.ts'
 
 if (!Env.DATABASE_URL) {
@@ -20,9 +22,8 @@ const client = createClient({
 
 const drizzle = drizzleLibSql(client, { schema })
 
-// TODO: Start migrations after prototype is stable
-// await migrateLibSql(drizzle, {
-//   migrationsFolder: path.join(process.cwd(), 'migrations'),
-// })
+await migrateLibSql(drizzle, {
+  migrationsFolder: path.join(process.cwd(), 'migrations'),
+})
 
 export const db = drizzle
