@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
-import { sidebarLinks } from '@/constants/navigation'
 import { useModal } from '@/hooks/useModal'
+import { sidebarLinks } from '@/lib/constants/navigation'
 
 import Logo from './Logo'
 import SidebarDropdown from './SidebarDropdown'

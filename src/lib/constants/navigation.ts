@@ -1,5 +1,4 @@
-import type { FunctionComponent } from 'react'
-import type React from 'react'
+import type { FunctionComponent, SVGProps } from 'react'
 
 import {
   CreateIcon,
@@ -17,7 +16,7 @@ type IconProps = {
 }
 
 export type NavigationLink = {
-  icon: FunctionComponent<IconProps & React.SVGProps<SVGSVGElement>>
+  icon: FunctionComponent<IconProps & SVGProps<SVGSVGElement>>
   route: string
   label: string
   classNames?: string

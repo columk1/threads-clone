@@ -9,6 +9,8 @@ import { redirect } from 'next/navigation'
 import { Env } from '@/lib/Env'
 import { validateRequest } from '@/lib/Lucia'
 
+import { ROUTES } from './constants'
+
 type uploadOptions = {
   [key: string]: string | undefined
 }
@@ -17,7 +19,7 @@ export const signUploadForm = async (options: uploadOptions) => {
   const { user } = await validateRequest()
 
   if (!user) {
-    redirect('/login')
+    redirect(ROUTES.LOGIN)
   }
 
   if (!Env.CLOUDINARY_API_SECRET || !Env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || !Env.NEXT_PUBLIC_CLOUDINARY_API_KEY) {

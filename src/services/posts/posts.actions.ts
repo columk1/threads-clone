@@ -3,6 +3,7 @@
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 
+import { ROUTES } from '@/lib/constants'
 import { deleteLike, deleteRepost, incrementShareCount, insertLike, insertPost, insertRepost } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
@@ -14,7 +15,7 @@ import { newPostSchema, replySchema } from '@/lib/schemas/zod.schema'
 export const createPost = async (_: unknown, formData: FormData) => {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
   const userId = user.id
   const submission = parseWithZod(formData, {
@@ -39,7 +40,7 @@ export const createPost = async (_: unknown, formData: FormData) => {
 export async function createReply(_: unknown, formData: FormData) {
   const { user } = await validateRequest()
   if (!user) {
-    redirect('/login')
+    redirect(ROUTES.LOGIN)
   }
 
   const submission = parseWithZod(formData, {
@@ -73,7 +74,7 @@ const likeQueries = {
 export const handleLikeAction = async (actionType: LikeAction, postId: string) => {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
 
   const userId = user.id
@@ -100,7 +101,7 @@ const repostQueries = {
 export const handleRepostAction = async (actionType: RepostAction, postId: string) => {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
 
   const userId = user.id

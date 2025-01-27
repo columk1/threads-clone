@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
+import { ROUTES } from '@/lib/constants'
 import { handleFollow, updateUserAvatar } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
@@ -14,7 +15,7 @@ import { type FollowActionType, followSchema } from '@/lib/schemas/zod.schema'
 export const updateAvatar = async (url: string) => {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
   const userId = user.id
   try {
@@ -39,7 +40,7 @@ enum FollowStatus {
 export const handleFollowAction = async (userId: string, action: FollowActionType) => {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
 
   try {

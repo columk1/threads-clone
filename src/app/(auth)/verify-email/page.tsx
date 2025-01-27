@@ -2,12 +2,13 @@ import Image from 'next/image'
 import { redirect } from 'next/navigation'
 
 import VerifyEmailForm from '@/components/VerifyEmailForm'
+import { ROUTES } from '@/lib/constants'
 import { validateRequest } from '@/lib/Lucia'
 
 export default async function VerifyEmailPage() {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
 
   if (user.emailVerified) {

@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
-import { footerLinks } from '@/constants/navigation'
 import { useModal } from '@/hooks/useModal'
+import { footerLinks } from '@/lib/constants/navigation'
 
 type MobileSidebarProps = {
   user: User | null

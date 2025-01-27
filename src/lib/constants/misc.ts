@@ -1,4 +1,4 @@
-import { Env } from './Env'
+import { Env } from '@/lib/Env'
 
 export const VERIFIED_EMAIL_ALERT = 'VERIFIED_EMAIL_ALERT'
 

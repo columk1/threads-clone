@@ -8,7 +8,7 @@ import { isWithinExpirationDate } from 'oslo'
 import { ulid } from 'ulidx'
 import { z } from 'zod'
 
-import { VERIFIED_EMAIL_ALERT } from '@/lib/constants'
+import { ROUTES, VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 import {
   createEmailVerificationCode,
   createUser,
@@ -85,7 +85,7 @@ export async function signup(_: unknown, formData: FormData) {
     throw new Error('Something went wrong. Please try again.')
   }
 
-  return redirect('/verify-email')
+  return redirect(ROUTES.VERIFY_EMAIL)
 }
 
 /*
@@ -167,7 +167,7 @@ export async function resendVerificationEmail(): Promise<{
 }> {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
 
   const lastSent = await getLatestVerificationCode(user.id)
@@ -231,7 +231,7 @@ export async function login(_: unknown, formData: FormData) {
 
   if (!user.emailVerified) {
     await sendEmailVerificationCode(user.id, user.email)
-    return redirect('/verify-email')
+    return redirect(ROUTES.VERIFY_EMAIL)
   }
 
   return redirect('/')
@@ -256,5 +256,5 @@ export const logout = async () => {
 
   cookieStore.delete(VERIFIED_EMAIL_ALERT)
 
-  return redirect('/login')
+  return redirect(ROUTES.LOGIN)
 }

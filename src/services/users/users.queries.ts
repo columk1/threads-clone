@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
+import { ROUTES } from '@/lib/constants'
 import {
   findUserByField,
   getAuthUserDetails,
@@ -35,7 +36,7 @@ const getAuthUserInfoCached = cache(async (username: string): Promise<{ user: Po
   try {
     const { user } = await validateRequest()
     if (!user) {
-      return redirect('/login')
+      return redirect(ROUTES.LOGIN)
     }
     const userInfo = await getAuthUserDetails(username, user.id)
 

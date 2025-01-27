@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 
+import { ROUTES } from '@/lib/constants'
 import {
   getAuthPostWithReplies,
   getPostById,
@@ -56,7 +57,7 @@ export const getPosts = async (username?: string, offset: number = 0) => {
 export const getFollowingPosts = async (offset: number = 0) => {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
 
   const data = await listFollowingPosts(user.id, offset, QUERY_LIMIT)
@@ -128,7 +129,7 @@ export const getPublicPostById = async (id: string) => {
 export const getAuthPostById = async (id: string) => {
   const { user } = await validateRequest()
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
 
   const results = await getAuthPostWithReplies(id, user.id)
