@@ -3,33 +3,13 @@
 import Link from 'next/link'
 import { type FunctionComponent, useActionState, useCallback, useRef, useState } from 'react'
 
-import { isUniqueEmail, isUniqueUsername } from '@/helpers/formHelpers'
+import { validateUniqueEmail, validateUniqueUsername } from '@/helpers/formHelpers'
 import { signup } from '@/services/auth/auth.actions'
 
 import AuthInput from './AuthInput'
 import FacebookAuthButton from './FacebookAuthButton'
 
 const VALIDATION_DELAY = 300
-
-const validateEmail = async (email: string) => {
-  const isUnique = await isUniqueEmail(email)
-  if (!isUnique) {
-    return {
-      error: 'Another account is using the same email.',
-    }
-  }
-  return Promise.resolve({ error: '' })
-}
-
-const validateUsername = async (username: string) => {
-  const isUnique = await isUniqueUsername(username)
-  if (!isUnique) {
-    return {
-      error: 'A user with that username already exists.',
-    }
-  }
-  return Promise.resolve({ error: '' })
-}
 
 const SignupForm: FunctionComponent = () => {
   const [state, formAction, isPending] = useActionState(signup, null)
@@ -77,7 +57,7 @@ const SignupForm: FunctionComponent = () => {
             autoCapitalize="none"
             required
             error={state?.error?.email && state?.error?.email[0]}
-            customValidator={validateEmail}
+            customValidator={validateUniqueEmail}
             delay={VALIDATION_DELAY}
             icons
             validateForm={setCustomValidity}
@@ -119,7 +99,7 @@ const SignupForm: FunctionComponent = () => {
             autoComplete="new-username"
             required
             error={state?.error?.username && state?.error?.username[0]}
-            customValidator={validateUsername}
+            customValidator={validateUniqueUsername}
             validateForm={setCustomValidity}
             delay={VALIDATION_DELAY}
             icons

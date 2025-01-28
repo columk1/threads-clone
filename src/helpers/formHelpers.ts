@@ -1,3 +1,4 @@
+import type { ValidateUserFieldResponse } from '@/app/api/users/validate/route'
 import { getBaseUrl } from '@/utils/getBaseUrl'
 
 type ValidationMessageFunction = (field: HTMLInputElement) => string
@@ -35,16 +36,31 @@ export const getError = (field: HTMLInputElement, errorMessages: ErrorMessages):
   return errorMessages.defaultMessage
 }
 
+type UniqueField = 'email' | 'username'
+
+const validateUniqueUserField = async (field: UniqueField, value: string): Promise<ValidateUserFieldResponse> => {
+  const response = await fetch(`${getBaseUrl()}/api/users/validate?${field}=${encodeURIComponent(value)}`)
+  return response.json()
+}
+
 /*
- * Is Unique Email
+ * Validate Email and Username
  */
+export const validateUniqueField = async (field: UniqueField, value: string) => {
+  const errorMessages = {
+    email: 'Another account is using the same email.',
+    username: 'A user with that username already exists.',
+  }
 
-export const isUniqueEmail = async (email: string) =>
-  await fetch(`${getBaseUrl()}/api/users/validate?email=${encodeURIComponent(email)}`).then((res) => res.ok)
+  const { isUnique } = await validateUniqueUserField(field, value)
+  if (isUnique === false) {
+    return {
+      error: errorMessages[field],
+    }
+  }
+  return Promise.resolve({ error: '' })
+}
 
-/*
- * Is Unique Email
- */
-
-export const isUniqueUsername = async (username: string) =>
-  await fetch(`${getBaseUrl()}/api/users/validate?username=${encodeURIComponent(username)}`).then((res) => res.ok)
+// Convenience functions to maintain backwards compatibility
+export const validateUniqueEmail = (email: string) => validateUniqueField('email', email)
+export const validateUniqueUsername = (username: string) => validateUniqueField('username', username)
