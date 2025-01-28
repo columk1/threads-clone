@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
+import { DEFAULT_ERROR, NOT_AUTHORIZED_ERROR } from '@/lib/constants'
 import { getFollowStatus } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
@@ -12,7 +13,7 @@ import { validateRequest } from '@/lib/Lucia'
 export async function GET(_: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
   const { user } = await validateRequest()
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: NOT_AUTHORIZED_ERROR }, { status: 401 })
   }
 
   try {
@@ -21,7 +22,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ userId
     return NextResponse.json(followStatus)
   } catch (err) {
     logger.error(err)
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
+    return NextResponse.json({ error: DEFAULT_ERROR }, { status: 500 })
   }
 }
 

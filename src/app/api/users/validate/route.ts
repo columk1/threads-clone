@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
+import { logger } from '@/lib/Logger'
 import { isUniqueUserField } from '@/services/users/users.queries'
 
 export const GET = async (req: NextRequest) => {
@@ -19,12 +20,12 @@ export const GET = async (req: NextRequest) => {
     }
     return NextResponse.json({ error: 'Invalid field.' }, { status: 400 })
   } catch (error) {
-    console.error('Error checking email uniqueness:', error)
+    logger.error('Error checking email uniqueness:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
 
-export type ValidateEmailResponse = {
+export type ValidateUserFieldResponse = {
   isUnique: boolean
   error?: string
 }

@@ -2,6 +2,7 @@ import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { DEFAULT_ERROR } from '@/lib/constants/errors'
 import {
   deleteLike,
   getAuthPostWithReplies,
@@ -138,7 +139,7 @@ describe('Posts Service', () => {
 
         const result = await handleLikeAction('like', mockBasePost.id)
 
-        expect(result).toEqual({ error: 'Something went wrong. Please try again.', success: false })
+        expect(result).toEqual({ error: DEFAULT_ERROR, success: false })
         expect(logger.error).toHaveBeenCalled()
       })
     })
@@ -170,7 +171,7 @@ describe('Posts Service', () => {
         const result = await createPost(null, formData)
 
         expect(insertPost).not.toHaveBeenCalled()
-        expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
+        expect(result).toEqual({ error: DEFAULT_ERROR })
         expect(logger.error).toHaveBeenCalled()
       })
 
@@ -181,7 +182,7 @@ describe('Posts Service', () => {
 
         const result = await createPost(null, formData)
 
-        expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
+        expect(result).toEqual({ error: DEFAULT_ERROR })
         expect(logger.error).toHaveBeenCalled()
       })
     })
@@ -199,7 +200,7 @@ describe('Posts Service', () => {
 
         const result = await handleShareAction(mockBasePost.id)
 
-        expect(result).toEqual({ error: 'Something went wrong. Please try again.', success: false })
+        expect(result).toEqual({ error: DEFAULT_ERROR, success: false })
         expect(logger.error).toHaveBeenCalled()
       })
     })

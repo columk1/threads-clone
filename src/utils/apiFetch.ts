@@ -2,8 +2,6 @@ import { cookies } from 'next/headers'
 
 import { getBaseUrl } from './getBaseUrl'
 
-// import type { ResponseData } from '@/app/api/posts/[postId]/route'
-
 type FetchOptions = RequestInit & {
   headers?: Record<string, string>
 }
@@ -32,11 +30,3 @@ export const apiFetch = async (endpoint: string, options: FetchOptions = {}) => 
 
   return response.json()
 }
-
-// const data: ResponseData = await fetch(`${BASE_URL}/api/posts/${postId}?user=${currentUser?.id}&replies=true`, {
-//   cache: 'force-cache',
-//   next: { revalidate: 60 },
-//   headers: {
-//     Cookie: `${authCookie?.name}=${authCookie?.value}`,
-//   },
-// }).then(res => res.json())

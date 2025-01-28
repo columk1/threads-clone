@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-import { ROUTES } from '@/lib/constants'
+import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
 import { handleFollow, updateUserAvatar } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
@@ -51,6 +51,6 @@ export const handleFollowAction = async (userId: string, action: FollowActionTyp
     }
   } catch (err) {
     logger.error(err, 'Error following/unfollowing user')
-    return { error: 'Something went wrong. Please try again.' }
+    return { error: DEFAULT_ERROR }
   }
 }

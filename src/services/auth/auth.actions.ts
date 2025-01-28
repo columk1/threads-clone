@@ -8,7 +8,7 @@ import { isWithinExpirationDate } from 'oslo'
 import { ulid } from 'ulidx'
 import { z } from 'zod'
 
-import { ROUTES, VERIFIED_EMAIL_ALERT } from '@/lib/constants'
+import { NOT_AUTHORIZED_ERROR, ROUTES, VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 import {
   createEmailVerificationCode,
   createUser,
@@ -244,7 +244,7 @@ export const logout = async () => {
   const { session } = await validateRequest()
 
   if (!session) {
-    return { error: 'Unauthorized' }
+    return { error: NOT_AUTHORIZED_ERROR }
   }
 
   await lucia.invalidateSession(session.id)

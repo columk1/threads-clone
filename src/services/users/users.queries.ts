@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
-import { ROUTES } from '@/lib/constants'
+import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
 import {
   findUserByField,
   getAuthUserDetails,
@@ -107,6 +107,6 @@ export const searchUsers = async (query: string) => {
     }
   } catch (err) {
     logger.error(err)
-    return { error: 'Something went wrong' }
+    return { error: DEFAULT_ERROR }
   }
 }

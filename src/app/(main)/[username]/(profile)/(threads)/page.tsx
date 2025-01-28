@@ -20,11 +20,6 @@ export default async function UserProfileThreads({ params }: { params: Promise<{
   }
   const username = result.data
 
-  // const rows: PostsResponse
-  //   = await fetch(`${BASE_URL}/api/posts?user=${user?.id}&username=${username}`, { next: { revalidate: 60, tags: ['profile'] } })
-  //   // = await fetch(`${BASE_URL}/api/posts?user=${user?.id}&username=${username}`)
-  //     .then(res => res.json())
-
   const { posts: initialPosts } = await getPosts(username, 0)
 
   return (

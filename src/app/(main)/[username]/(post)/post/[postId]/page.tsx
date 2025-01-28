@@ -31,9 +31,6 @@ export default async function PostPage({ params }: Props) {
   const isAuthenticated = !!currentUser
   const isCurrentUser = currentUser?.username === username
 
-  // const data: ResponseData = await fetch(`${BASE_URL}/api/posts/${postId}?user=${currentUser?.id}&replies=true`, { next: { revalidate: 60 } })
-  //   .then(res => res.json())
-
   const getPostById = currentUser ? getAuthPostById : getPublicPostById
 
   const data = await getPostById(postId)
@@ -51,10 +48,6 @@ export default async function PostPage({ params }: Props) {
     return notFound()
   }
 
-  // const parentThread = thread.post.parentId
-  //   ? await fetch(`${BASE_URL}/api/posts/${thread.post.parentId}?user=${currentUser?.id}`, { cache: 'force-cache', next: { revalidate: 60 } })
-  //     .then(res => res.json())
-  //   : null
   const parentThread = targetThread.post.parentId ? await getSinglePostById(targetThread.post.parentId) : null
 
   return (

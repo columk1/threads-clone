@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { DEFAULT_ERROR } from '@/lib/constants/errors'
 import {
   findUserByField,
   getAuthUserDetails,
@@ -113,7 +114,7 @@ describe('User Actions', () => {
       const result = await handleFollowAction(targetUserId, 'follow')
 
       expect(logger.error).toHaveBeenCalled()
-      expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
+      expect(result).toEqual({ error: DEFAULT_ERROR })
     })
   })
 })

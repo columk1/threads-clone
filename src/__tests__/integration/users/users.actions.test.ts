@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
+import { DEFAULT_ERROR } from '@/lib/constants/errors'
 import { followerSchema, userSchema } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
@@ -168,7 +169,7 @@ describe('User Actions', () => {
 
       const result = await handleFollowAction('invalid-id', 'follow')
 
-      expect(result).toEqual({ error: 'Something went wrong. Please try again.' })
+      expect(result).toEqual({ error: DEFAULT_ERROR })
       expect(logger.error).toHaveBeenCalled()
     })
 
