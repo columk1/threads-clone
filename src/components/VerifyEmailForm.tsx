@@ -16,29 +16,24 @@ const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
   const [resendState, resendFormAction, isResendPending] = useActionState(resendVerificationEmail, null)
   const cookies = useCookies()
 
+  // Toast verified email status based on cookie
   useEffect(() => {
-    let toastShown = false
-
-    // Check for successful resend
-    if (resendState?.success && !toastShown) {
-      toast(`We sent the confirmation code to your email ${userEmail}.`)
-      toastShown = true
-    }
-
-    // Check for failed resend
-    if (resendState?.error && !toastShown) {
-      toast(resendState.error)
-      toastShown = true
-    }
-
-    // Check for cookie set by initial email action
     const emailSent = cookies.get(VERIFIED_EMAIL_ALERT)
-
-    if (emailSent && !toastShown) {
+    if (emailSent) {
       toast(`We sent the confirmation code to your email ${userEmail}.`)
-      toastShown = true
+      cookies.remove(VERIFIED_EMAIL_ALERT)
     }
-  }, [resendState?.error, resendState?.success, cookies, userEmail])
+  }, [cookies, userEmail])
+
+  // Toast resend status
+  useEffect(() => {
+    if (resendState?.success) {
+      toast(`We sent the confirmation code to your email ${userEmail}.`)
+    }
+    if (resendState?.error) {
+      toast(resendState.error)
+    }
+  }, [resendState?.error, resendState?.success, userEmail])
 
   const [form, fields] = useForm({
     id: 'verify-email-form',
