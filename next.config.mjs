@@ -32,14 +32,15 @@ const nextConfig = {
   serverExternalPackages: ['pino', 'pino-pretty'],
   experimental: {
     // DynamicIO doesn't work with Sentry https://github.com/getsentry/sentry-javascript/issues/14118
-    dynamicIO: true,
-    cacheLife: {
-      post: {
-        stale: 30, // 30 seconds
-        revalidate: 15, // 15 seconds
-        expire: 60, // 1 minute
-      },
-    },
+    // DynamicIO doesn't work with next-test-api-route-handler
+    // dynamicIO: true,
+    // cacheLife: {
+    //   post: {
+    //     stale: 30, // 30 seconds
+    //     revalidate: 15, // 15 seconds
+    //     expire: 60, // 1 minute
+    //   },
+    // },
     staleTimes: {
       dynamic: 300,
       static: 300,

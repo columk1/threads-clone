@@ -3,8 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
-import { GET as followingRoute } from '@/app/api/users/[userId]/following/route'
-import { GET as validateRoute } from '@/app/api/users/validate/route'
+import { GET as followingRouteHandler } from '@/app/api/users/[userId]/following/route'
+import { GET as validateRouteHandler } from '@/app/api/users/validate/route'
+import { NOT_AUTHORIZED_ERROR } from '@/lib/constants'
 import { getFollowStatus } from '@/lib/db/queries'
 import { validateRequest } from '@/lib/Lucia'
 import { isUniqueUserField } from '@/services/users/users.queries'
@@ -24,24 +25,19 @@ vi.mock('@/lib/db/queries', () => ({
 
 setupIntegrationTest()
 
-describe.skip('User API Routes', () => {
+describe('User API Routes', () => {
   describe('GET /api/users/validate', () => {
     it('should check if email is unique', async () => {
       const mockEmail = 'test@example.com'
       vi.mocked(isUniqueUserField).mockResolvedValueOnce(true)
 
       await testApiHandler({
-        appHandler: { GET: validateRoute },
-        requestPatcher: (req) => {
-          return new Request(`${req.url}?email=${mockEmail}`, req)
+        appHandler: {
+          GET: validateRouteHandler,
         },
+        url: `/api/users/validate?email=${mockEmail}`,
         test: async ({ fetch }) => {
-          const res = await fetch({
-            method: 'GET',
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
+          const res = await fetch()
           const json = await res.json()
 
           expect(res.status).toBe(200)
@@ -56,17 +52,12 @@ describe.skip('User API Routes', () => {
       vi.mocked(isUniqueUserField).mockResolvedValueOnce(false)
 
       await testApiHandler({
-        appHandler: { GET: validateRoute },
-        requestPatcher: (req) => {
-          return new Request(`${req.url}?username=${mockUsername}`, req)
+        appHandler: {
+          GET: validateRouteHandler,
         },
+        url: `/api/users/validate?username=${mockUsername}`,
         test: async ({ fetch }) => {
-          const res = await fetch({
-            method: 'GET',
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
+          const res = await fetch()
           const json = await res.json()
 
           expect(res.status).toBe(200)
@@ -78,14 +69,12 @@ describe.skip('User API Routes', () => {
 
     it('should return 400 for invalid field', async () => {
       await testApiHandler({
-        appHandler: { GET: validateRoute },
+        appHandler: {
+          GET: validateRouteHandler,
+        },
+        url: '/api/users/validate',
         test: async ({ fetch }) => {
-          const res = await fetch({
-            method: 'GET',
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
+          const res = await fetch()
           const json = await res.json()
 
           expect(res.status).toBe(400)
@@ -112,21 +101,16 @@ describe.skip('User API Routes', () => {
       vi.mocked(getFollowStatus).mockResolvedValueOnce(true)
 
       await testApiHandler({
-        appHandler: { GET: followingRoute },
-        paramsPatcher: (params) => {
-          params.userId = targetUserId
+        appHandler: {
+          GET: followingRouteHandler,
         },
+        params: { userId: targetUserId },
         test: async ({ fetch }) => {
-          const res = await fetch({
-            method: 'GET',
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
+          const res = await fetch()
           const json = await res.json()
 
           expect(res.status).toBe(200)
-          expect(json).toEqual({ isFollowing: true })
+          expect(json).toBe(true)
           expect(getFollowStatus).toHaveBeenCalledWith(targetUserId, testUser.id)
         },
       })
@@ -136,21 +120,16 @@ describe.skip('User API Routes', () => {
       vi.mocked(validateRequest).mockResolvedValueOnce({ user: null, session: null })
 
       await testApiHandler({
-        appHandler: { GET: followingRoute },
-        paramsPatcher: (params) => {
-          params.userId = 'any-user-id'
+        appHandler: {
+          GET: followingRouteHandler,
         },
+        params: { userId: 'any-user-id' },
         test: async ({ fetch }) => {
-          const res = await fetch({
-            method: 'GET',
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
+          const res = await fetch()
           const json = await res.json()
 
           expect(res.status).toBe(401)
-          expect(json).toEqual({ error: 'Not authorized' })
+          expect(json).toEqual({ error: NOT_AUTHORIZED_ERROR })
         },
       })
     })
