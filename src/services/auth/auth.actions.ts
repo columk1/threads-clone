@@ -19,6 +19,7 @@ import {
   getUserById,
   updateEmailVerified,
 } from '@/lib/db/queries'
+import { sendVerificationEmail } from '@/lib/email'
 import { logger } from '@/lib/Logger'
 import { lucia, validateRequest } from '@/lib/Lucia'
 import { loginSchema, verifyEmailSchema } from '@/lib/schemas/zod.schema'
@@ -40,9 +41,16 @@ const generateEmailVerificationCode = async (userId: string): Promise<string> =>
 /*
  * Send Email Verification Code
  */
-export async function sendEmailVerificationCode(userId: string, email: string) {
-  const code = await generateEmailVerificationCode(userId)
-  logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // send an email to user with this OTP
+export async function sendEmailVerificationCode(userId: string, name: string, email: string) {
+  try {
+    const code = await generateEmailVerificationCode(userId)
+    logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // log OTP for local development
+    await sendVerificationEmail({ name, email, code })
+    logger.info(`Verification email sent to ${email}`)
+  } catch (err) {
+    logger.error(err, `Failed to send verification email to ${email}`)
+    throw new Error('Failed to send verification email')
+  }
 }
 
 /*
@@ -69,7 +77,8 @@ export async function signup(_: unknown, formData: FormData) {
   logger.info(user, 'User created successfully:')
 
   try {
-    sendEmailVerificationCode(userId, email)
+    const firstName = name.split(' ')[0] || name
+    sendEmailVerificationCode(userId, firstName, email)
 
     const cookieStore = await cookies()
     cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
@@ -178,7 +187,9 @@ export async function resendVerificationEmail(): Promise<{
     }
   }
 
-  await sendEmailVerificationCode(user.id, user.email)
+  const fullUser = await getUserById(user.id)
+  const name = fullUser?.name || user.username
+  await sendEmailVerificationCode(user.id, name, user.email)
 
   return { success: true }
 }
@@ -230,7 +241,7 @@ export async function login(_: unknown, formData: FormData) {
   cookieStore.set(sessionCookie)
 
   if (!user.emailVerified) {
-    await sendEmailVerificationCode(user.id, user.email)
+    await sendEmailVerificationCode(user.id, user.name, user.email)
     return redirect(ROUTES.VERIFY_EMAIL)
   }
 
