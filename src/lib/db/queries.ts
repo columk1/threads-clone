@@ -1,4 +1,5 @@
 import { and, desc, eq, isNotNull, isNull, or, sql, type SQLWrapper } from 'drizzle-orm'
+import { ulid } from 'ulidx'
 
 import { db } from './Drizzle'
 import {
@@ -607,6 +608,35 @@ export const searchPosts = (searchTerm: string, userId?: string, limit: number =
     .limit(limit)
 
   return query.all()
+}
+
+export const getUserByGoogleId = async (googleId: string) => {
+  return await db.select().from(userSchema).where(eq(userSchema.googleId, googleId)).get()
+}
+
+export const getUserByUsername = async (username: string) => {
+  return await db.select().from(userSchema).where(eq(userSchema.username, username)).get()
+}
+
+type NewGoogleUserParams = {
+  googleId: string
+  email: string
+  name: string
+  username: string
+  emailVerified: number
+  avatar?: string
+}
+
+export const createGoogleUser = async (user: NewGoogleUserParams) => {
+  return await db
+    .insert(userSchema)
+    .values({
+      ...user,
+      id: ulid(),
+      password: '', // Google users don't need a password
+    })
+    .returning()
+    .get()
 }
 
 // export const listFollowingPostsAndReposts = async (userId: string, limit = 20) => {

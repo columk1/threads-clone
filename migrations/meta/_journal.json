@@ -8,6 +8,13 @@
       "when": 1737939132771,
       "tag": "0000_foamy_lockjaw",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1738107198374,
+      "tag": "0001_stale_magma",
+      "breakpoints": true
     }
   ]
 }

@@ -7,7 +7,7 @@ import { validateUniqueEmail, validateUniqueUsername } from '@/helpers/formHelpe
 import { signup } from '@/services/auth/auth.actions'
 
 import AuthInput from './AuthInput'
-import FacebookAuthButton from './FacebookAuthButton'
+import GoogleAuthButton from './GoogleAuthButton'
 
 const VALIDATION_DELAY = 300
 
@@ -39,9 +39,9 @@ const SignupForm: FunctionComponent = () => {
             ))}
           </div>
         )} */}
-        <FacebookAuthButton iconSize="30" className="h-[3.25rem]">
-          Log in with Facebook
-        </FacebookAuthButton>
+        <GoogleAuthButton iconSize="30" className="h-[3.25rem]">
+          Log in with Google
+        </GoogleAuthButton>
         <div className="flex items-center justify-center space-x-4 text-gray-7">
           <hr className="w-full border-[0.5px] border-primary-outline" />
           <span className="px-4">or</span>

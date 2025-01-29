@@ -14,6 +14,7 @@ export const userSchema = sqliteTable(
     id: text('id')
       .primaryKey()
       .$defaultFn(() => ulid()),
+    googleId: text('google_id').unique(),
     email: text('email').unique().notNull(),
     password: text('password').notNull(),
     name: text('name').notNull(),

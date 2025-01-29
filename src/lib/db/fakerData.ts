@@ -88,6 +88,7 @@ async function generatePostContent() {
 export function generateFakeUsers(count: number): User[] {
   return Array.from({ length: count }, () => ({
     id: faker.string.alphanumeric({ length: 26 }).toUpperCase(),
+    googleId: null,
     email: faker.internet.email().toLowerCase(),
     password: '123456', // Simple password for testing
     name: faker.person.fullName(),

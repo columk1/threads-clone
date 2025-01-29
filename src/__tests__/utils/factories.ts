@@ -10,6 +10,7 @@ export async function createTestUser(overrides: Partial<User> = {}): Promise<Use
   const id = ulid()
   const defaultUser = {
     id,
+    googleId: null,
     email: `${id}@example.com`,
     password: 'password123',
     name: `Test User ${id}`,

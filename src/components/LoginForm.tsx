@@ -7,7 +7,7 @@ import Spinner from '@/components/spinner/Spinner'
 import { login } from '@/services/auth/auth.actions'
 
 import AuthInput from './AuthInput'
-import FacebookAuthButton from './FacebookAuthButton'
+import GoogleAuthButton from './GoogleAuthButton'
 
 const LoginForm = () => {
   const [state, formAction, isPending] = useActionState(login, null)
@@ -76,7 +76,7 @@ const LoginForm = () => {
             <span className="px-4">or</span>
             <hr className="w-full border-t border-primary-outline" />
           </div>
-          <FacebookAuthButton>Continue with Facebook</FacebookAuthButton>
+          <GoogleAuthButton>Continue with Google</GoogleAuthButton>
         </div>
       </div>
     </form>

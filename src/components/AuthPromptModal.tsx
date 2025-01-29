@@ -8,7 +8,7 @@ import { getAuthModalContent, useModal } from '@/hooks/useModal'
 
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
-import FacebookAuthButton from './FacebookAuthButton'
+import GoogleAuthButton from './GoogleAuthButton'
 import { CloseIcon } from './icons'
 
 type AuthPromptModalProps = {
@@ -34,9 +34,9 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
             <DialogTitle className="flex place-self-center text-3xl font-bold">{title}</DialogTitle>
             <DialogDescription className="w-[21rem] text-center text-[15px] text-gray-8">{caption}</DialogDescription>
           </div>
-          <FacebookAuthButton iconSize="45" className="h-20">
-            Log in with Facebook
-          </FacebookAuthButton>
+          <GoogleAuthButton iconSize="45" className="h-20">
+            Log in with Google
+          </GoogleAuthButton>
         </DialogContent>
       </Dialog>
     )
@@ -65,9 +65,9 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
             <DialogTitle className="flex place-self-center text-2xl font-bold">{title}</DialogTitle>
             <DialogDescription className="w-[21rem] text-center text-[15px] text-gray-8">{caption}</DialogDescription>
           </div>
-          <FacebookAuthButton iconSize="45" className="h-20">
-            Log in with Facebook
-          </FacebookAuthButton>
+          <GoogleAuthButton iconSize="45" className="h-20">
+            Log in with Google
+          </GoogleAuthButton>
         </div>
       </DrawerContent>
     </Drawer>

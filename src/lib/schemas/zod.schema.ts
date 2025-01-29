@@ -73,3 +73,13 @@ export const followSchema = z.object({
 })
 
 export type FollowActionType = z.infer<typeof followSchema>['action']
+
+export const googleClaimsSchema = z.object({
+  sub: z.string(),
+  given_name: z.string(),
+  family_name: z.string(),
+  picture: z.string().optional(),
+  email: z.string().email(),
+})
+
+export type GoogleClaims = z.infer<typeof googleClaimsSchema>
