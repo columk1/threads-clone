@@ -82,7 +82,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     // Generate base username
-    let username = usernamePart.toLowerCase().replace(/[^a-z0-9]/g, '')
+    let username = usernamePart.toLowerCase()
 
     // Check if username exists and append random number if it does
     const existingUsername = await getUserByUsername(username)

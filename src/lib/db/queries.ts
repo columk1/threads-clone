@@ -639,6 +639,17 @@ export const createGoogleUser = async (user: NewGoogleUserParams) => {
     .get()
 }
 
+export const deleteUser = async (userId: string) => {
+  // This should cascade to delete: sessions, email verification codes,
+  // posts (which will cascade to likes and reposts) and followers
+  return await db.delete(userSchema).where(eq(userSchema.id, userId))
+}
+
+export const deletePost = async (postId: string) => {
+  // This should cascade to delete the  posts's likes and reposts
+  return await db.delete(postSchema).where(eq(postSchema.id, postId))
+}
+
 // export const listFollowingPostsAndReposts = async (userId: string, limit = 20) => {
 //   // First, create a CTE (Common Table Expression) that unions posts and reposts
 //   const postsAndReposts = db.$with('posts_and_reposts').as(
