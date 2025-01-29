@@ -21,7 +21,7 @@ import Spinner from './spinner/Spinner'
 
 type ModalActions = {
   closeModal?: () => void
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  handleSubmit: () => void
   handleTextInput: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   handleUploadButtonClick: () => void
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>
@@ -91,9 +91,17 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
     return () => clearTimeout(delayScroll)
   }, [])
 
+  const submitForm = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      handleSubmit()
+    },
+    [handleSubmit],
+  )
+
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={submitForm}
       className={cx('flex h-full flex-col justify-between', isDrawer && 'max-h-[calc(100vh-56px)]')}
     >
       <div ref={contentRef} className={cx('overflow-y-auto', !isDrawer && `max-h-[calc(100vh-200px)]`)}>
@@ -121,6 +129,11 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
                 rows={1}
                 value={text}
                 onInput={handleTextInput}
+                onKeyDown={(e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && isValid && !isPending) {
+                    handleSubmit()
+                  }
+                }}
               />
             </div>
             <ThreadMediaContent image={image}>
@@ -182,8 +195,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
   // const img = new Image()
   // img.src = image.url
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     startTransition(() => {
       const formData = new FormData()
       formData.append('text', text)

@@ -72,8 +72,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
     setOpen(false)
   }, [setOpen])
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     startTransition(() => {
       const formData = new FormData()
       formData.append('text', text)
