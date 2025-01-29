@@ -70,7 +70,10 @@ export const postSchema = sqliteTable(
         onUpdate: 'cascade',
         onDelete: 'cascade',
       }),
-    parentId: text('parent_id').references((): SQLiteColumn => postSchema.id, {}),
+    parentId: text('parent_id').references((): SQLiteColumn => postSchema.id, {
+      onUpdate: 'cascade',
+      onDelete: 'cascade',
+    }),
     likeCount: integer('like_count').notNull().default(0),
     replyCount: integer('reply_count').notNull().default(0),
     repostCount: integer('repost_count').notNull().default(0),

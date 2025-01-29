@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm'
 import type { Session } from 'lucia'
 import { redirect } from 'next/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -5,11 +6,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createTestPost, createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
-import { likeSchema, repostSchema } from '@/lib/db/Schema'
+import { likeSchema, postSchema, repostSchema } from '@/lib/db/Schema'
 import { validateRequest } from '@/lib/Lucia'
 import {
   createPost,
   createReply,
+  handleDeleteAction,
   handleLikeAction,
   handleRepostAction,
   handleShareAction,
@@ -26,12 +28,12 @@ vi.mock('@/lib/Lucia', () => ({
   validateRequest: vi.fn(),
 }))
 
-vi.mock('@/lib/Logger', () => ({
-  logger: {
-    error: vi.fn(),
-    info: vi.fn(),
-  },
-}))
+// vi.mock('@/lib/Logger', () => ({
+//   logger: {
+//     error: vi.fn(),
+//     info: vi.fn(),
+//   },
+// }))
 
 describe('Posts Actions', () => {
   let testUser: Awaited<ReturnType<typeof createTestUser>>
@@ -346,6 +348,104 @@ describe('Posts Actions', () => {
 
       expect(updatedPost).toBeDefined()
       expect(updatedPost!.shareCount).toBe(initialShareCount + 1)
+    })
+  })
+
+  describe('handleDeleteAction', () => {
+    it('should successfully delete a post', async () => {
+      const result = await handleDeleteAction(testPost.id)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify post was deleted from DB
+      const post = await testDb.query.postSchema.findFirst({
+        where: (posts, { eq }) => eq(posts.id, testPost.id),
+      })
+
+      expect(post).toBeUndefined()
+    })
+
+    it('should delete associated likes and reposts when deleting a post', async () => {
+      // Create a like and repost first
+      await testDb.insert(likeSchema).values({
+        userId: testUser.id,
+        postId: testPost.id,
+        createdAt: Math.floor(Date.now() / 1000),
+      })
+      await testDb.insert(repostSchema).values({
+        userId: testUser.id,
+        postId: testPost.id,
+        createdAt: Math.floor(Date.now() / 1000),
+      })
+
+      const result = await handleDeleteAction(testPost.id)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify likes were deleted
+      const likes = await testDb.query.likeSchema.findMany({
+        where: (likes, { eq }) => eq(likes.postId, testPost.id),
+      })
+
+      expect(likes).toHaveLength(0)
+
+      // Verify reposts were deleted
+      const reposts = await testDb.query.repostSchema.findMany({
+        where: (reposts, { eq }) => eq(reposts.postId, testPost.id),
+      })
+
+      expect(reposts).toHaveLength(0)
+    })
+
+    it('should delete replies when deleting a post', async () => {
+      // Create a reply first
+      await testDb.insert(postSchema).values({
+        id: 'reply-1',
+        userId: testUser.id,
+        text: 'Test reply',
+        parentId: testPost.id,
+        createdAt: Math.floor(Date.now() / 1000),
+      })
+
+      const result = await handleDeleteAction(testPost.id)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify replies were deleted
+      const replies = await testDb.query.postSchema.findMany({
+        where: (posts, { eq }) => eq(posts.parentId, testPost.id),
+      })
+
+      expect(replies).toHaveLength(0)
+    })
+
+    it('should redirect if user is not authenticated', async () => {
+      vi.mocked(validateRequest).mockResolvedValueOnce({ user: null, session: null })
+
+      await handleDeleteAction(testPost.id)
+
+      expect(redirect).toHaveBeenCalledWith('/login')
+    })
+
+    it('should succeed when deleting a non-existant posts', async () => {
+      // Delete the test post first so we know it doesn't exist
+      const result = await handleDeleteAction('non-existant-post-id')
+
+      expect(result).toEqual({
+        success: true,
+      })
+    })
+
+    it('should handle database errors', async () => {
+      // Drop the posts table to simulate a database error
+      await testDb.run(sql`DROP TABLE posts`)
+
+      const result = await handleDeleteAction(testPost.id)
+
+      expect(result).toEqual({
+        error: expect.any(String),
+        success: false,
+      })
     })
   })
 })
