@@ -4,6 +4,7 @@ import CaretIcon from './Caret'
 import CheckmarkIcon from './Checkmark'
 import CloseIcon from './Close'
 import CreateIcon from './Create'
+import DeleteIcon from './Delete'
 import EditIcon from './Edit'
 import EditColorIcon from './EditColor'
 import FollowIcon from './Follow'
@@ -36,6 +37,7 @@ export {
   CheckmarkIcon,
   CloseIcon,
   CreateIcon,
+  DeleteIcon,
   EditColorIcon,
   EditIcon,
   FollowColorIcon,

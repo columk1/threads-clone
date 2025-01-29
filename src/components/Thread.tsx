@@ -204,6 +204,8 @@ const ThreadContent: FunctionComponent<{
           isFollowed={user.isFollowed}
           onToggleFollow={onToggleFollow}
           isAuthenticated={isAuthenticated}
+          isCurrentUser={isCurrentUser}
+          postId={post.id}
         />
       </div>
 

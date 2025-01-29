@@ -646,7 +646,7 @@ export const deleteUser = async (userId: string) => {
 }
 
 export const deletePost = async (postId: string) => {
-  // This should cascade to delete the  posts's likes and reposts
+  // All related records (replies, likes, reposts) will be deleted automatically via cascade
   return await db.delete(postSchema).where(eq(postSchema.id, postId))
 }
 

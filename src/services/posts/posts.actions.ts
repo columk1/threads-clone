@@ -4,7 +4,15 @@ import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
-import { deleteLike, deleteRepost, incrementShareCount, insertLike, insertPost, insertRepost } from '@/lib/db/queries'
+import {
+  deleteLike,
+  deletePost,
+  deleteRepost,
+  incrementShareCount,
+  insertLike,
+  insertPost,
+  insertRepost,
+} from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 import { newPostSchema, replySchema } from '@/lib/schemas/zod.schema'
@@ -126,4 +134,24 @@ export const handleShareAction = async (postId: string) => {
     return { error: DEFAULT_ERROR, success: false }
   }
   return { success: true }
+}
+
+/*
+ * Delete Post
+ */
+export const handleDeleteAction = async (postId: string) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect(ROUTES.LOGIN)
+  }
+  try {
+    if (typeof postId !== 'string') {
+      throw new TypeError('Invalid post ID')
+    }
+    await deletePost(postId)
+    return { success: true }
+  } catch (err) {
+    logger.error(err, 'Error deleting post')
+    return { error: DEFAULT_ERROR, success: false }
+  }
 }
