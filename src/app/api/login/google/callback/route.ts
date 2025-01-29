@@ -2,12 +2,13 @@ import type { OAuth2Tokens } from 'arctic'
 import { decodeIdToken } from 'arctic'
 import { cookies } from 'next/headers'
 
-import { createGoogleUser, getUserByGoogleId, getUserByUsername } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { lucia } from '@/lib/Lucia'
 import { google } from '@/lib/oauth'
 import type { GoogleClaims } from '@/lib/schemas/zod.schema'
 import { googleClaimsSchema } from '@/lib/schemas/zod.schema'
+import { getUserByGoogleId } from '@/repositories/auth.repository'
+import { createGoogleUser, getUserByUsername } from '@/repositories/users.repository'
 
 function isGoogleClaims(claims: unknown): claims is GoogleClaims {
   return googleClaimsSchema.safeParse(claims).success

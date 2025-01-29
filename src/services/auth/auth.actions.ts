@@ -9,21 +9,20 @@ import { ulid } from 'ulidx'
 import { z } from 'zod'
 
 import { NOT_AUTHORIZED_ERROR, ROUTES, VERIFIED_EMAIL_ALERT } from '@/lib/constants'
-import {
-  createEmailVerificationCode,
-  createUser,
-  deleteEmailVerificationCode,
-  getEmailVerificationCode,
-  getLatestVerificationCode,
-  getUserByEmail,
-  getUserById,
-  updateEmailVerified,
-} from '@/lib/db/queries'
 import { sendVerificationEmail } from '@/lib/email'
 import { logger } from '@/lib/Logger'
 import { lucia, validateRequest } from '@/lib/Lucia'
 import { loginSchema, verifyEmailSchema } from '@/lib/schemas/zod.schema'
 import { signupSchema } from '@/lib/schemas/zod.schema.server'
+import {
+  createEmailVerificationCode,
+  deleteEmailVerificationCode,
+  getEmailVerificationCode,
+  getLatestVerificationCode,
+  getUserByEmail,
+  updateEmailVerified,
+} from '@/repositories/auth.repository'
+import { createUser, getUserById } from '@/repositories/users.repository'
 import { generateRandomString } from '@/utils/string/generateRandomString'
 
 /*

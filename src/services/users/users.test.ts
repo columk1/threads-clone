@@ -2,16 +2,16 @@ import { redirect } from 'next/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { DEFAULT_ERROR } from '@/lib/constants/errors'
+import { logger } from '@/lib/Logger'
+import { validateRequest } from '@/lib/Lucia'
+import type { FollowActionType } from '@/lib/schemas/zod.schema'
 import {
   findUserByField,
   getAuthUserDetails,
   getPublicUserDetails,
   handleFollow,
   updateUserAvatar,
-} from '@/lib/db/queries'
-import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
-import type { FollowActionType } from '@/lib/schemas/zod.schema'
+} from '@/repositories/users.repository'
 
 import { handleFollowAction, updateAvatar } from './users.actions'
 import { getPublicUserInfo, getUserInfo, isUniqueUserField } from './users.queries'
@@ -21,7 +21,7 @@ vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
 }))
 
-vi.mock('@/lib/db/queries', () => ({
+vi.mock('@/repositories/users.repository', () => ({
   handleFollow: vi.fn(),
   updateUserAvatar: vi.fn(),
   findUserByField: vi.fn(),

@@ -4,10 +4,10 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
-import { handleFollow, updateUserAvatar } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 import { type FollowActionType, followSchema } from '@/lib/schemas/zod.schema'
+import { handleFollow, updateUserAvatar } from '@/repositories/users.repository'
 
 /*
  * Update Avatar

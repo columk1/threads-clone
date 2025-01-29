@@ -28,12 +28,12 @@ vi.mock('@/lib/Lucia', () => ({
   validateRequest: vi.fn(),
 }))
 
-// vi.mock('@/lib/Logger', () => ({
-//   logger: {
-//     error: vi.fn(),
-//     info: vi.fn(),
-//   },
-// }))
+vi.mock('@/lib/Logger', () => ({
+  logger: {
+    error: vi.fn(),
+    info: vi.fn(),
+  },
+}))
 
 describe('Posts Actions', () => {
   let testUser: Awaited<ReturnType<typeof createTestUser>>

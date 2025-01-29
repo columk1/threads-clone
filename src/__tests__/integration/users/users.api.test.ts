@@ -6,8 +6,8 @@ import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { GET as followingRouteHandler } from '@/app/api/users/[userId]/following/route'
 import { GET as validateRouteHandler } from '@/app/api/users/validate/route'
 import { NOT_AUTHORIZED_ERROR } from '@/lib/constants'
-import { getFollowStatus } from '@/lib/db/queries'
 import { validateRequest } from '@/lib/Lucia'
+import { getFollowStatus } from '@/repositories/users.repository'
 import { isUniqueUserField } from '@/services/users/users.queries'
 
 // Mock dependencies
@@ -19,7 +19,7 @@ vi.mock('@/services/users/users.queries', () => ({
   isUniqueUserField: vi.fn(),
 }))
 
-vi.mock('@/lib/db/queries', () => ({
+vi.mock('@/repositories/users.repository', () => ({
   getFollowStatus: vi.fn(),
 }))
 

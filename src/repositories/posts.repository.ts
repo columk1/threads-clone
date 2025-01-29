@@ -1,26 +1,9 @@
-import { and, desc, eq, isNotNull, isNull, or, sql, type SQLWrapper } from 'drizzle-orm'
-import { ulid } from 'ulidx'
+import type { SQLWrapper } from 'drizzle-orm'
+import { and, desc, eq, isNotNull, isNull, or, sql } from 'drizzle-orm'
 
-import { db } from './Drizzle'
-import {
-  emailVerificationCodeSchema,
-  followerSchema,
-  likeSchema,
-  type Post,
-  postSchema,
-  repostSchema,
-  type User,
-  userSchema,
-} from './Schema'
-
-export const baseUserSelect = {
-  id: userSchema.id,
-  username: userSchema.username,
-  name: userSchema.name,
-  avatar: userSchema.avatar,
-  bio: userSchema.bio,
-  followerCount: userSchema.followerCount,
-}
+import { db } from '../lib/db/Drizzle'
+import { followerSchema, likeSchema, type Post, postSchema, repostSchema, userSchema } from '../lib/db/Schema'
+import { baseUserSelect } from './users.repository'
 
 export const basePostSelect = {
   id: postSchema.id,
@@ -37,154 +20,7 @@ export const basePostSelect = {
   createdAt: postSchema.createdAt,
 }
 
-type UserField = keyof User
-
 export type PostData = Post & { isLiked: boolean; isReposted: boolean }
-
-export const findUserByField = async (field: UserField, value: string) => {
-  return await db.select().from(userSchema).where(eq(userSchema[field], value)).get()
-}
-
-export const getUserById = async (id: string) => {
-  return await db.select().from(userSchema).where(eq(userSchema.id, id)).get()
-}
-
-type NewUserParams = {
-  id: string
-  email: string
-  emailVerified: number
-  password: string
-  name: string
-  username: string
-}
-
-export const createUser = async (user: NewUserParams) => {
-  return await db.insert(userSchema).values(user).returning().get()
-}
-
-export const getLatestVerificationCode = async (userId: string) => {
-  const lastSent = await db.query.emailVerificationCodeSchema.findFirst({
-    where: (Schema, { eq }) => eq(Schema.userId, userId),
-    columns: { expiresAt: true },
-  })
-  return lastSent
-}
-
-export const createEmailVerificationCode = async (userId: string, code: string, expiresAt: number) => {
-  await db.delete(emailVerificationCodeSchema).where(eq(emailVerificationCodeSchema.userId, userId))
-
-  await db.insert(emailVerificationCodeSchema).values({
-    code,
-    expiresAt,
-    userId,
-  })
-}
-
-export const getEmailVerificationCode = async (code: string) => {
-  return await db.select().from(emailVerificationCodeSchema).where(eq(emailVerificationCodeSchema.code, code)).get()
-}
-
-export const updateEmailVerified = async (userId: string) => {
-  await db.update(userSchema).set({ emailVerified: 1 }).where(eq(userSchema.id, userId))
-}
-
-export const deleteEmailVerificationCode = async (id: string) => {
-  await db.delete(emailVerificationCodeSchema).where(eq(emailVerificationCodeSchema.id, id))
-}
-
-export const getUserByEmail = async (email: string) => {
-  return await db.select().from(userSchema).where(eq(userSchema.email, email)).get()
-}
-
-export const getFollowerCount = async (userId: string) => {
-  return await db
-    .select({ followerCount: userSchema.followerCount })
-    .from(userSchema)
-    .where(eq(userSchema.id, userId))
-    .get()
-}
-
-export const handleFollow = async (userId: string, followerId: string, action: 'follow' | 'unfollow') => {
-  const targetUser = await getFollowerCount(userId)
-  if (!targetUser) {
-    throw new Error('User not found')
-  }
-  await db.transaction(async (tx) => {
-    if (action === 'follow') {
-      await tx.insert(followerSchema).values({
-        userId,
-        followerId,
-      })
-      // Update follower count
-      await tx
-        .update(userSchema)
-        .set({ followerCount: targetUser.followerCount + 1 })
-        .where(eq(userSchema.id, userId))
-    } else {
-      // unfollow branch
-      await tx
-        .delete(followerSchema)
-        .where(and(eq(followerSchema.userId, userId), eq(followerSchema.followerId, followerId)))
-      // Update follower count
-      await tx
-        .update(userSchema)
-        .set({ followerCount: targetUser.followerCount - 1 })
-        .where(eq(userSchema.id, userId))
-    }
-  })
-}
-
-export const getFollowStatus = async (targetUserId: string, userId: string) => {
-  const result = await db
-    .select({
-      isFollowed: sql<boolean>`EXISTS (
-      SELECT 1 
-      FROM ${followerSchema} 
-      WHERE ${followerSchema.userId} = (
-        SELECT id FROM ${userSchema} WHERE id = ${targetUserId}
-      )
-      AND ${followerSchema.followerId} = ${userId}
-      LIMIT 1
-    )`.as('isFollowed'),
-    })
-    .from(userSchema)
-    .where(eq(userSchema.id, targetUserId))
-    .get()
-
-  return Boolean(result?.isFollowed)
-}
-
-export const getAuthUserDetails = async (targetUsername: string, userId: string) => {
-  return await db
-    .select({
-      ...baseUserSelect,
-      isFollowed: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id}
-          AND ${followerSchema.followerId} = ${userId}
-          LIMIT 1
-        )`.as('isFollowed'),
-    })
-    .from(userSchema)
-    .where(eq(userSchema.username, targetUsername))
-    .get()
-}
-
-export const getPublicUserDetails = async (username: string) => {
-  return await db
-    .select({
-      ...baseUserSelect,
-      isFollowed: sql<boolean>`false`,
-    })
-    .from(userSchema)
-    .where(eq(userSchema.username, username))
-    .get()
-}
-
-export const updateUserAvatar = async (userId: string, url: string) => {
-  await db.update(userSchema).set({ avatar: url }).where(eq(userSchema.id, userId))
-}
 
 export const listPublicPosts = async (authorUsername?: string) => {
   const query = db
@@ -334,7 +170,13 @@ export const listReplies = async (authorUsername: string, userId: string = '') =
 }
 
 export const listReposts = async (username: string, currentUserId: string = '') => {
-  const userId = await findUserByField('username', username).then((user) => user?.id)
+  const userId = await db
+    .select({ id: userSchema.id })
+    .from(userSchema)
+    .where(eq(userSchema.username, username))
+    .get()
+    .then((user) => user?.id)
+
   if (!userId) {
     throw new Error('User not found')
   }
@@ -531,42 +373,6 @@ export const incrementShareCount = async (postId: string) => {
     .where(eq(postSchema.id, postId))
 }
 
-export const searchUsers = async (query: string, userId?: string, limit: number = 10) => {
-  const searchTerm = `%${query}%`
-  const startsWithTerm = `${query}%`
-
-  return await db
-    .select({
-      ...baseUserSelect,
-      isFollowed: userId
-        ? sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id} 
-            AND ${followerSchema.followerId} = ${userId}
-        )`.as('isFollowed')
-        : sql<boolean>`false`,
-      priority: sql<number>`
-        CASE 
-          WHEN lower(${userSchema.username}) LIKE lower(${startsWithTerm}) THEN 1
-          WHEN lower(${userSchema.name}) LIKE lower(${startsWithTerm}) THEN 2
-          WHEN lower(${userSchema.username}) LIKE lower(${searchTerm}) THEN 3
-          WHEN lower(${userSchema.name}) LIKE lower(${searchTerm}) THEN 4
-          ELSE 5
-        END`.as('priority'),
-    })
-    .from(userSchema)
-    .where(
-      or(
-        sql`lower(${userSchema.username}) LIKE lower(${searchTerm})`,
-        sql`lower(${userSchema.name}) LIKE lower(${searchTerm})`,
-      ),
-    )
-    .orderBy(sql`priority`)
-    .limit(limit)
-    .all()
-}
-
 export const searchPosts = (searchTerm: string, userId?: string, limit: number = 8) => {
   const query = db
     .select({
@@ -610,115 +416,7 @@ export const searchPosts = (searchTerm: string, userId?: string, limit: number =
   return query.all()
 }
 
-export const getUserByGoogleId = async (googleId: string) => {
-  return await db.select().from(userSchema).where(eq(userSchema.googleId, googleId)).get()
-}
-
-export const getUserByUsername = async (username: string) => {
-  return await db.select().from(userSchema).where(eq(userSchema.username, username)).get()
-}
-
-type NewGoogleUserParams = {
-  googleId: string
-  email: string
-  name: string
-  username: string
-  emailVerified: number
-  avatar?: string
-}
-
-export const createGoogleUser = async (user: NewGoogleUserParams) => {
-  return await db
-    .insert(userSchema)
-    .values({
-      ...user,
-      id: ulid(),
-      password: '', // Google users don't need a password
-    })
-    .returning()
-    .get()
-}
-
-export const deleteUser = async (userId: string) => {
-  // This should cascade to delete: sessions, email verification codes,
-  // posts (which will cascade to likes and reposts) and followers
-  return await db.delete(userSchema).where(eq(userSchema.id, userId))
-}
-
 export const deletePost = async (postId: string) => {
   // All related records (replies, likes, reposts) will be deleted automatically via cascade
   return await db.delete(postSchema).where(eq(postSchema.id, postId))
 }
-
-// export const listFollowingPostsAndReposts = async (userId: string, limit = 20) => {
-//   // First, create a CTE (Common Table Expression) that unions posts and reposts
-//   const postsAndReposts = db.$with('posts_and_reposts').as(
-//     db.select({
-//       id: postSchema.id,
-//       activityTime: postSchema.createdAt,
-//       actorId: postSchema.userId,
-//       isRepost: sql<boolean>`false`,
-//     })
-//     .from(postSchema)
-//     .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
-//     .where(eq(followerSchema.followerId, userId))
-//     .union(
-//       db.select({
-//         id: postSchema.id,
-//         activityTime: repostSchema.createdAt,
-//         actorId: repostSchema.userId,
-//         isRepost: sql<boolean>`true`,
-//       })
-//       .from(repostSchema)
-//       .innerJoin(followerSchema, eq(repostSchema.userId, followerSchema.userId))
-//       .innerJoin(postSchema, eq(repostSchema.postId, postSchema.id))
-//       .where(eq(followerSchema.followerId, userId))
-//     )
-//   )
-
-//   // Then use this CTE to get the full post details
-//   return await db
-//     .with(postsAndReposts)
-//     .select({
-//       post: {
-//         ...basePostSelect,
-//         isLiked: sql<boolean>`EXISTS (
-//           SELECT 1 FROM ${likeSchema}
-//           WHERE ${likeSchema.userId} = ${userId}
-//             AND ${likeSchema.postId} = ${postSchema.id}
-//         )`.as('isLiked'),
-//         isReposted: sql<boolean>`EXISTS (
-//           SELECT 1 FROM ${repostSchema}
-//           WHERE ${repostSchema.userId} = ${userId}
-//             AND ${repostSchema.postId} = ${postSchema.id}
-//         )`.as('isReposted'),
-//       },
-//       user: {
-//         ...baseUserSelect,
-//         isFollowed: sql<boolean>`EXISTS (
-//           SELECT 1 FROM ${followerSchema}
-//           WHERE ${followerSchema.userId} = ${userSchema.id}
-//             AND ${followerSchema.followerId} = ${userId}
-//         )`.as('isFollowed'),
-//       },
-//       repostedBy: {
-//         id: sql<string>`CASE
-//           WHEN posts_and_reposts.is_repost
-//           THEN posts_and_reposts.actor_id
-//           ELSE NULL
-//         END`.as('id'),
-//         createdAt: sql<string>`CASE
-//           WHEN posts_and_reposts.is_repost
-//           THEN posts_and_reposts.activity_time
-//           ELSE NULL
-//         END`.as('createdAt'),
-//       },
-//       activityTime: postsAndReposts.activityTime,
-//     })
-//     .from(postsAndReposts)
-//     .innerJoin(postSchema, eq(postsAndReposts.id, postSchema.id))
-//     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-//     .orderBy(desc(postsAndReposts.activityTime))
-//     .limit(limit)
-//     .all()
-// }

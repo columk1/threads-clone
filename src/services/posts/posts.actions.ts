@@ -4,6 +4,9 @@ import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
+import { logger } from '@/lib/Logger'
+import { validateRequest } from '@/lib/Lucia'
+import { newPostSchema, replySchema } from '@/lib/schemas/zod.schema'
 import {
   deleteLike,
   deletePost,
@@ -12,10 +15,7 @@ import {
   insertLike,
   insertPost,
   insertRepost,
-} from '@/lib/db/queries'
-import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
-import { newPostSchema, replySchema } from '@/lib/schemas/zod.schema'
+} from '@/repositories/posts.repository'
 
 /*
  * Create Post

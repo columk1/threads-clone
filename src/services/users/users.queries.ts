@@ -2,14 +2,14 @@ import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
+import { logger } from '@/lib/Logger'
+import { validateRequest } from '@/lib/Lucia'
 import {
   findUserByField,
   getAuthUserDetails,
   getPublicUserDetails,
   searchUsers as searchUsersDb,
-} from '@/lib/db/queries'
-import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
+} from '@/repositories/users.repository'
 
 export type PostUser = {
   id: string

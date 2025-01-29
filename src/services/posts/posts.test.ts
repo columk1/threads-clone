@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { DEFAULT_ERROR } from '@/lib/constants/errors'
+import type { Post } from '@/lib/db/Schema'
+import { logger } from '@/lib/Logger'
+import { validateRequest } from '@/lib/Lucia'
 import {
   deleteLike,
   getAuthPostWithReplies,
@@ -13,10 +16,7 @@ import {
   insertPost,
   listFollowingPosts,
   listPosts,
-} from '@/lib/db/queries'
-import type { Post } from '@/lib/db/Schema'
-import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
+} from '@/repositories/posts.repository'
 
 import { createPost, handleLikeAction, handleShareAction } from './posts.actions'
 import {
@@ -45,7 +45,7 @@ vi.mock('@conform-to/zod', () => ({
   }),
 }))
 
-vi.mock('@/lib/db/queries', () => ({
+vi.mock('@/repositories/posts.repository', () => ({
   insertPost: vi.fn().mockResolvedValue({ id: 'new-post-123' }),
   insertLike: vi.fn(),
   deleteLike: vi.fn(),

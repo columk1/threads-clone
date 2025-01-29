@@ -8,9 +8,10 @@ import { createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { GET } from '@/app/api/login/google/callback/route'
 import { db } from '@/lib/db/Drizzle'
-import { deleteUser, getUserByGoogleId } from '@/lib/db/queries'
 import { sessionSchema } from '@/lib/db/Schema'
 import { google } from '@/lib/oauth'
+import { getUserByGoogleId } from '@/repositories/auth.repository'
+import { deleteUser } from '@/repositories/users.repository'
 
 setupIntegrationTest()
 

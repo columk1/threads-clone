@@ -2,9 +2,9 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { DEFAULT_ERROR, NOT_AUTHORIZED_ERROR } from '@/lib/constants'
-import { getFollowStatus } from '@/lib/db/queries'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
+import { getFollowStatus } from '@/repositories/users.repository'
 
 /*
  * Get user follow status

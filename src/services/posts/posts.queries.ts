@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { ROUTES } from '@/lib/constants'
+import { validateRequest } from '@/lib/Lucia'
 import {
   getAuthPostWithReplies,
   getPostById,
@@ -10,8 +11,7 @@ import {
   listReplies,
   listReposts,
   searchPosts as searchPostsQuery,
-} from '@/lib/db/queries'
-import { validateRequest } from '@/lib/Lucia'
+} from '@/repositories/posts.repository'
 
 export type RepliesResponse = Awaited<ReturnType<typeof listReplies>>
 export type RepostsResponse = Awaited<ReturnType<typeof listReposts>>
