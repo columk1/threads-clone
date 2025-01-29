@@ -1,6 +1,6 @@
 'use client'
 
-import { type FunctionComponent, useState } from 'react'
+import type { FunctionComponent } from 'react'
 
 import { Dialog, DialogTrigger } from '@/components/Dialog'
 import {
@@ -30,8 +30,6 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
   isCurrentUser,
   postId,
 }) => {
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-
   // const handleMouseEnter = () => {
   //   isFollowing(username).then((status) => {
   //     if (status !== isFollowed) {
@@ -42,7 +40,7 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
   // onMouseEnter={handleMouseEnter}
 
   return (
-    <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+    <Dialog>
       <DropdownMenu modal>
         <DropdownMenuTrigger className="dark:data-[state=open]:text-primary-text">
           <div className="group relative flex items-center justify-center rounded-full transition duration-200 active:scale-90">
