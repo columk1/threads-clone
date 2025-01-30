@@ -58,4 +58,4 @@ const withBundleAnalyzer = bundleAnalyzer({
 })
 
 /** @type {import('next').NextConfig} */
-export default withBundleAnalyzer(nextConfig)
+export default process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig
