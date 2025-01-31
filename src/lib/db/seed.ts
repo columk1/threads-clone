@@ -60,7 +60,7 @@ async function seed() {
 
     logger.info('Seeding complete!')
   } catch (error) {
-    console.error('Error seeding database:', error)
+    logger.error(error, 'Error seeding database:')
   }
 }
 

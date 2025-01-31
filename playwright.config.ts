@@ -10,11 +10,11 @@ const baseURL = `http://localhost:${PORT}`
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: './src/__tests__',
   // Look for files with the .spec.js or .e2e.js extension
   testMatch: '*.@(spec|e2e).?(c|m)[jt]s?(x)',
   // Timeout per test
-  timeout: 30 * 1000,
+  timeout: 10 * 1000,
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
   // Reporter to use. See https://playwright.dev/docs/test-reporters
@@ -22,13 +22,14 @@ export default defineConfig({
 
   expect: {
     // Set timeout for async expect matchers
-    timeout: 10 * 1000,
+    timeout: 5 * 1000,
   },
 
   // Run your local dev server before starting the tests:
   // https://playwright.dev/docs/test-advanced#launching-a-development-web-server-during-the-tests
   webServer: {
-    command: process.env.CI ? 'npm run start' : 'npm run dev:next',
+    command: 'DATABASE_URL="file:test.db" npm run dev',
+    // command: 'dotenv -c test -- npm run dev',
     url: baseURL,
     timeout: 2 * 60 * 1000,
     reuseExistingServer: !process.env.CI,
@@ -49,14 +50,20 @@ export default defineConfig({
 
   projects: [
     {
+      name: 'setup db',
+      testMatch: /e2e\/.*\.setup\.ts/,
+    },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup db'],
     },
     ...(process.env.CI
       ? [
           {
             name: 'firefox',
             use: { ...devices['Desktop Firefox'] },
+            dependencies: ['setup db'],
           },
         ]
       : []),
