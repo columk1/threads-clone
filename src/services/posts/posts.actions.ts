@@ -1,6 +1,7 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
@@ -62,10 +63,11 @@ export async function createReply(_: unknown, formData: FormData) {
 
   try {
     const reply = await insertPost(user.id, submission.value)
-    return { data: reply }
+    revalidatePath(`@${user.username}/posts/${reply.parentId}`)
+    return { data: reply, success: true }
   } catch (error) {
     logger.error(error, 'Error creating reply')
-    return { error: DEFAULT_ERROR }
+    return { error: DEFAULT_ERROR, success: false }
   }
 }
 

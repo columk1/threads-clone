@@ -59,8 +59,17 @@ type ReplyModalProps = {
 const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, trigger }) => {
   const [open, setOpen] = useState(false)
   const [state, formAction, isPending] = useActionState(createReply, null)
-  const { text, handleTextInput, isTextValid } = usePostForm()
-  const { image, imageData, uploading, fileInputRef, handleFileChange, handleUploadButtonClick } = useImageForm()
+  const { text, setText, handleTextInput, isTextValid } = usePostForm()
+  const {
+    image,
+    setImage,
+    imageData,
+    setImageData,
+    uploading,
+    fileInputRef,
+    handleFileChange,
+    handleUploadButtonClick,
+  } = useImageForm()
   const updatePost = useAppStore((state) => state.updatePost)
   const cachedPost = useAppStore((state) => state.posts[post.id])
 
@@ -68,9 +77,19 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
 
   const isValid = isTextValid || imageData !== null
 
+  const resetForm = useCallback(() => {
+    setText('')
+    setImage(null)
+    setImageData(null)
+    if (state?.success) {
+      state.success = false
+    }
+  }, [setText, setImage, setImageData, state])
+
   const closeModal = useCallback(() => {
     setOpen(false)
-  }, [setOpen])
+    resetForm()
+  }, [resetForm])
 
   const handleSubmit = () => {
     startTransition(() => {
@@ -89,20 +108,20 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
   useEffect(() => {
     if (state?.error) {
       toast(state.error)
-    } else {
-      if (state?.data) {
-        // Update the parent post's reply count in the app store
-        if (cachedPost) {
-          updatePost(post.id, {
-            ...cachedPost,
-            replyCount: (cachedPost.replyCount ?? post.replyCount) + 1,
-          })
-        }
-        router.refresh()
-        closeModal()
-      }
+      return
     }
-  }, [state, router, closeModal, post.id, updatePost, cachedPost, post.replyCount])
+    if (state?.success) {
+      // Update the parent post's reply count in the app store
+      if (cachedPost) {
+        updatePost(post.id, {
+          ...cachedPost,
+          replyCount: (cachedPost.replyCount ?? post.replyCount) + 1,
+        })
+      }
+      // router.refresh()
+      closeModal()
+    }
+  }, [state?.success, state?.error, router, closeModal, updatePost, post.id, post.replyCount, cachedPost])
 
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
@@ -110,27 +129,72 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent className="min-w-[620px] max-md:hidden">
+        {open && (
+          <DialogContent className="min-w-[620px] max-md:hidden">
+            <div className="sr-only">
+              <DialogDescription>Reply to a thread</DialogDescription>
+            </div>
+            <DialogHeader>
+              <div className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)] px-6">
+                <DialogClose asChild>
+                  <div className="flex">
+                    <button type="button" onClick={closeModal} className="rounded-lg py-1 text-[17px]">
+                      <span className="sr-only">Close</span>
+                      Cancel
+                    </button>
+                  </div>
+                </DialogClose>
+                <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">Reply</DialogTitle>
+              </div>
+              <div className="h-[0.25px] bg-gray-6"></div>
+            </DialogHeader>
+            <ModalContent
+              state={{
+                isReply: true,
+                isDrawer: false,
+                avatar: user.avatar,
+                username: user.username,
+                image,
+                text,
+                isValid,
+                isPending,
+                uploading,
+                fileInputRef,
+              }}
+              actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
+            >
+              <ParentThread user={user} author={author} post={post} />
+            </ModalContent>
+            {/* Vertical Line - uncomment for multiple replies in thread feature */}
+            {/* <div className="absolute bottom-1.5 left-[17px] top-[50px] w-[2px] bg-gray-5"></div> */}
+          </DialogContent>
+        )}
+      </Dialog>
+    )
+  }
+  return (
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {open && (
+        <DrawerContent onOpenAutoFocus={(e) => e.preventDefault()} className="h-full min-w-full border-none">
           <div className="sr-only">
             <DialogDescription>Reply to a thread</DialogDescription>
           </div>
-          <DialogHeader>
-            <div className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)] px-6">
-              <DialogClose asChild>
-                <div className="flex">
-                  <button type="button" onClick={closeModal} className="rounded-lg py-1 text-[17px]">
-                    <span className="sr-only">Close</span>
-                    Cancel
-                  </button>
-                </div>
-              </DialogClose>
-              <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">Reply</DialogTitle>
-            </div>
-            <div className="h-[0.25px] bg-gray-6"></div>
+          <DialogHeader className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)]">
+            <DialogClose asChild>
+              <div className="flex">
+                <button type="button" onClick={closeModal} className="rounded-lg py-1 text-[17px]">
+                  <span className="sr-only">Close</span>
+                  Cancel
+                </button>
+              </div>
+            </DialogClose>
+            <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">Reply</DialogTitle>
           </DialogHeader>
           <ModalContent
             state={{
-              isDrawer: false,
+              isReply: true,
+              isDrawer: true,
               avatar: user.avatar,
               username: user.username,
               image,
@@ -144,47 +208,8 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
           >
             <ParentThread user={user} author={author} post={post} />
           </ModalContent>
-          {/* Vertical Line - uncomment for multiple replies in thread feature */}
-          {/* <div className="absolute bottom-1.5 left-[17px] top-[50px] w-[2px] bg-gray-5"></div> */}
-        </DialogContent>
-      </Dialog>
-    )
-  }
-  return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DrawerContent onOpenAutoFocus={(e) => e.preventDefault()} className="h-full min-w-full border-none">
-        <div className="sr-only">
-          <DialogDescription>Reply to a thread</DialogDescription>
-        </div>
-        <DialogHeader className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)]">
-          <DialogClose asChild>
-            <div className="flex">
-              <button type="button" onClick={closeModal} className="rounded-lg py-1 text-[17px]">
-                <span className="sr-only">Close</span>
-                Cancel
-              </button>
-            </div>
-          </DialogClose>
-          <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">Reply</DialogTitle>
-        </DialogHeader>
-        <ModalContent
-          state={{
-            isDrawer: true,
-            avatar: user.avatar,
-            username: user.username,
-            image,
-            text,
-            isValid,
-            isPending,
-            uploading,
-            fileInputRef,
-          }}
-          actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
-        >
-          <ParentThread user={user} author={author} post={post} />
-        </ModalContent>
-      </DrawerContent>
+        </DrawerContent>
+      )}
     </Drawer>
   )
 }

@@ -28,6 +28,7 @@ type ModalActions = {
 }
 
 type ModalState = {
+  isReply?: boolean
   isDrawer?: boolean
   avatar: string | null
   username: string
@@ -69,7 +70,7 @@ export const RemainingCharacters = ({ currentCount, limit }: { currentCount: num
 }
 
 export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children }) => {
-  const { isDrawer, avatar, username, image, text, isValid, isPending, uploading, fileInputRef } = state
+  const { isReply, isDrawer, avatar, username, image, text, isValid, isPending, uploading, fileInputRef } = state
   const { handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit } = actions
 
   const textInputRef = useCallback((node: HTMLTextAreaElement | null) => {
@@ -123,7 +124,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
                 autoComplete="off"
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
-                placeholder="What's new?"
+                placeholder={isReply ? `Reply to ${username}...` : "What's new?"}
                 minLength={1}
                 className="col-start-2 mb-[2px] w-full resize-none bg-transparent placeholder:text-gray-7 focus:outline-none focus:ring-0"
                 rows={1}
