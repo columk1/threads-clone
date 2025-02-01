@@ -5,6 +5,7 @@ import * as schema from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 
 import { createTestUser } from '../utils/factories'
+import { TEST_USERS } from '../utils/testConstants'
 import { setupTestDb, testDb } from '../utils/testDb'
 
 // Initial database setup and table cleanup
@@ -20,19 +21,16 @@ setup('setup database', async () => {
   await testDb.delete(schema.userSchema)
   logger.info('Tables cleared')
 
-  // Seed test data
-  logger.info('Creating test user...')
-  const hashedPassword = await bcrypt.hash('password123', 10)
-  const createdUser = await createTestUser({
-    email: 'test@example.com',
-    username: 'testuser',
-    emailVerified: 1,
-    password: hashedPassword,
-  })
-  logger.info('Created test user:', createdUser)
-})
+  // Create test users
+  logger.info('Creating test users...')
+  const hashedPassword = await bcrypt.hash(TEST_USERS[0].password, 10)
 
-// Clean up after all tests
-// setup('teardown database', async () => {
-//   await teardownTestDb()
-// })
+  // Create all test users
+  for (const [index, user] of TEST_USERS.entries()) {
+    const createdUser = await createTestUser({
+      ...user,
+      password: hashedPassword,
+    })
+    logger.info(`Created test user ${index + 1}:`, createdUser)
+  }
+})

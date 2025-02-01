@@ -1,9 +1,9 @@
-/* eslint-disable playwright/no-skipped-test */
 import { expect, test } from '@playwright/test'
 
-import { generateRandomString } from '@/utils/string/generateRandomString'
+import { generateRandomString } from '../../utils/string/generateRandomString'
+import { USER_1 } from '../utils/testConstants'
 
-test.describe.skip('Authentication Flows', () => {
+test.describe('Authentication Flows', () => {
   const testEmail = `test.${generateRandomString(8)}@example.com`
   const testPassword = 'TestPassword123!'
   const testName = 'Test User'
@@ -47,13 +47,13 @@ test.describe.skip('Authentication Flows', () => {
       await page.goto('/signup')
 
       // Test duplicate email validation
-      await page.getByLabel(/email/i).fill('test@example.com')
+      await page.getByLabel(/email/i).fill(USER_1.email)
       await page.getByLabel(/password/i).focus() // unfocus email
 
       await expect(page.getByText('Another account is using the same email.')).toBeVisible()
 
       // Test duplicate username validation
-      await page.getByLabel(/username/i).fill('testuser')
+      await page.getByLabel(/username/i).fill(USER_1.username)
       await page.getByLabel(/email/i).focus() // unfocus username
 
       await expect(page.getByText('A user with that username already exists.')).toBeVisible()
@@ -101,9 +101,9 @@ test.describe.skip('Authentication Flows', () => {
     test('should successfully log in with valid credentials', async ({ page }) => {
       await page.goto('/login')
 
-      // Use credentials from seeded test user
-      await page.getByLabel(/email/i).fill('test@example.com')
-      await page.getByLabel(/password/i).fill('password123')
+      // Use credentials from test user
+      await page.getByLabel(/email/i).fill(USER_1.email)
+      await page.getByLabel(/password/i).fill(USER_1.password)
       await page.getByRole('button', { name: /Log in/i }).click()
 
       // Should redirect to home page since email is verified
@@ -115,12 +115,17 @@ test.describe.skip('Authentication Flows', () => {
     test('should successfully log out', async ({ page }) => {
       // First log in
       await page.goto('/login')
-      await page.getByLabel(/email/i).fill('test@example.com')
-      await page.getByLabel(/password/i).fill('password123')
+      await page.getByLabel(/email/i).fill(USER_1.email)
+      await page.getByLabel(/password/i).fill(USER_1.password)
       await page.getByRole('button', { name: /Log in/i }).click()
 
       // Click the more button in the desktop sidebar to open dropdown
-      await page.locator('button.md\\:block').click()
+      const moreButton = page.getByRole('button', { name: 'More' }).first()
+
+      await expect(moreButton).toBeVisible()
+
+      // Click the button
+      await moreButton.click()
 
       // Click the logout button in the dropdown menu
       await page.getByRole('menuitem', { name: /Log out/i }).click()

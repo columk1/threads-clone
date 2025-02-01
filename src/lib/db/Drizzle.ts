@@ -8,7 +8,7 @@ import { Env } from '../Env.ts'
 import * as schema from './Schema.ts'
 
 if (!Env.DATABASE_URL) {
-  throw new Error('TURSO_DATABASE_URL is not defined')
+  throw new Error('DATABASE_URL is not defined')
 }
 
 if (!Env.TURSO_AUTH_TOKEN) {
