@@ -8,6 +8,7 @@ import type { PostUser } from '@/services/users/users.queries'
 
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTrigger } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
+import EditBioModal from './EditBioModal'
 import ProfileImageDropDown from './ProfileImageDropDown'
 
 type ProfileModalProps = {
@@ -49,14 +50,19 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
               </div>
             </div>
             {/* Bio */}
-            <div className="flex gap-4">
-              <div className="flex flex-1 flex-col gap-0.5">
-                <div className="font-semibold">Bio</div>
-                {/* TODO: Wrap in button to open edit bio modal */}
-                <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
-                <div className="my-2 h-[0.25px] bg-gray-6"></div>
-              </div>
-            </div>
+            <EditBioModal
+              initialBio={user.bio}
+              trigger={
+                <div className="flex cursor-pointer gap-4">
+                  <div className="flex flex-1 flex-col gap-0.5">
+                    <div className="font-semibold">Bio</div>
+                    {/* TODO: Wrap in button to open edit bio modal */}
+                    <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
+                    <div className="my-2 h-[0.25px] bg-gray-6"></div>
+                  </div>
+                </div>
+              }
+            />
             <button
               type="button"
               onClick={closeModal}
@@ -114,15 +120,17 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                 </div>
               </div>
               {/* Bio */}
-              <div className="flex gap-4">
-                <div className="flex flex-1 flex-col gap-0.5">
-                  <div className="font-semibold">Bio</div>
-                  {/* TODO: Wrap in button to open edit bio modal */}
-                  <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
-                  {/* <div className="mt-2.5 h-[0.25px] bg-gray-6"></div> */}
-                </div>
-                <div className=""></div>
-              </div>
+              <EditBioModal
+                initialBio={user.bio}
+                trigger={
+                  <div className="flex cursor-pointer gap-4">
+                    <div className="flex flex-1 flex-col gap-0.5">
+                      <div className="font-semibold">Bio</div>
+                      <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
+                    </div>
+                  </div>
+                }
+              />
             </div>
           </div>
         </div>

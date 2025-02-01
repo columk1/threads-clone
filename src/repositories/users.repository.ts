@@ -196,3 +196,7 @@ export const deleteUser = async (userId: string) => {
   // posts (which will cascade to likes and reposts) and followers
   return await db.delete(userSchema).where(eq(userSchema.id, userId))
 }
+
+export const updateUserBio = async (userId: string, bio: string) => {
+  await db.update(userSchema).set({ bio }).where(eq(userSchema.id, userId))
+}

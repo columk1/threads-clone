@@ -83,3 +83,9 @@ export const googleClaimsSchema = z.object({
 })
 
 export type GoogleClaims = z.infer<typeof googleClaimsSchema>
+
+export const bioSchema = z.object({
+  bio: z.string().trim().max(150, { message: 'Maximum 150 characters' }),
+})
+
+export type BioSchema = z.infer<typeof bioSchema>

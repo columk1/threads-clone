@@ -1,13 +1,14 @@
 'use server'
 
+import { parseWithZod } from '@conform-to/zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
-import { type FollowActionType, followSchema } from '@/lib/schemas/zod.schema'
-import { handleFollow, updateUserAvatar } from '@/repositories/users.repository'
+import { bioSchema, type FollowActionType, followSchema } from '@/lib/schemas/zod.schema'
+import { handleFollow, updateUserAvatar, updateUserBio } from '@/repositories/users.repository'
 
 /*
  * Update Avatar
@@ -51,6 +52,34 @@ export const handleFollowAction = async (userId: string, action: FollowActionTyp
     }
   } catch (err) {
     logger.error(err, 'Error following/unfollowing user')
+    return { error: DEFAULT_ERROR }
+  }
+}
+
+/*
+ * Update Bio
+ */
+export const updateBio = async (_: unknown, formData: FormData) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect(ROUTES.LOGIN)
+  }
+
+  const submission = parseWithZod(formData, {
+    schema: bioSchema,
+  })
+
+  if (submission.status !== 'success') {
+    logger.error(submission.error, 'Error updating bio')
+    return { error: submission.error?.bio?.[0] || DEFAULT_ERROR }
+  }
+
+  try {
+    await updateUserBio(user.id, submission.value.bio)
+    revalidatePath('/', 'page')
+    return { success: true }
+  } catch (err) {
+    logger.error(err, 'Error updating bio')
     return { error: DEFAULT_ERROR }
   }
 }
