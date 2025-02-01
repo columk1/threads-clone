@@ -56,7 +56,16 @@ const ThreadCard: FunctionComponent<ThreadCardProps> = ({ onClick, children }) =
   return (
     <div
       role="link"
-      onClick={(e) => handleNestedInteraction(e, onClick)}
+      onPointerDown={() => {
+        window.getSelection()?.removeAllRanges()
+      }}
+      onClick={(e) => {
+        // Don't navigate if text is selected
+        if (window.getSelection()?.toString()) {
+          return
+        }
+        handleNestedInteraction(e, onClick)
+      }}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           handleNestedInteraction(e, onClick)
