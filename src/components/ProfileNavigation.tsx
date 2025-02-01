@@ -13,7 +13,7 @@ export default function ProfileNavigation() {
   const subpath = pathname.split('/').pop()
   return (
     <>
-      <div className="flex h-12 font-semibold text-gray-7">
+      <nav className="flex h-12 font-semibold text-gray-7">
         <Link
           href={`/${profile}`}
           className={`flex w-1/2 items-center justify-center border-b ${subpath === profile ? 'border-primary-text text-primary-text' : 'border-gray-4'}`}
@@ -32,7 +32,7 @@ export default function ProfileNavigation() {
         >
           Reposts
         </Link>
-      </div>
+      </nav>
       <div className="h-[0.5px] w-full bg-gray-4 md:hidden"></div>
     </>
   )

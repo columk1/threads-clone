@@ -56,6 +56,10 @@ const ProfileImageDropdown = ({ username, avatarUrl }: { username: string; avata
         body: formData,
       })
       const data = await res.json()
+      if (data.error) {
+        toast(data.error.message)
+        return
+      }
 
       // clearPosts()
       const result = await updateAvatar(data.secure_url)
