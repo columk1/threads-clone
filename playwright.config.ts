@@ -15,7 +15,7 @@ export default defineConfig({
   testMatch: '*.@(spec|e2e).?(c|m)[jt]s?(x)',
   workers: 1,
   // Timeout per test
-  timeout: 20 * 1000,
+  timeout: 10 * 1000,
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
   // Reporter to use. See https://playwright.dev/docs/test-reporters

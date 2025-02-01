@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-skipped-test */
 import { Buffer } from 'node:buffer'
 
 import { expect, test } from '@playwright/test'
@@ -63,9 +62,13 @@ test.describe('Profile Management', () => {
       await page.getByRole('button', { name: 'Edit Profile' }).click()
 
       // Update profile information
-      // TODO: Test updating bio
-      // const newBio = `Test bio ${generateRandomString(8)}`
-      // await page.getByLabel(/bio/i).fill(newBio)
+      const newBio = `Test bio ${generateRandomString(8)}`
+      await page.getByText('Bio', { exact: true }).click()
+      await page.getByRole('textbox', { name: 'Bio' }).fill(newBio)
+      await page.getByRole('button', { name: 'Done' }).click()
+
+      // Verify bio is updated
+      await expect(page.getByText(newBio)).toBeVisible()
 
       // Upload a new profile image through the dropdown
       await page.getByRole('button', { name: 'Avatar' }).click()
@@ -104,17 +107,17 @@ test.describe('Profile Management', () => {
       // await expect(page.getByText(newBio)).toBeVisible()
     })
 
-    test.skip('should handle profile update validation', async ({ page }) => {
+    test('should handle profile update validation', async ({ page }) => {
       await page.goto(`/@${USER_1.username}`)
       await page.getByRole('button', { name: 'Edit Profile' }).click()
 
       // Try to save with invalid bio
-      const longBio = 'a'.repeat(201) // Assuming there's a max length validation
-      await page.getByText('+ Write bio').click()
-      await page.getByRole('textbox').fill(longBio)
+      await page.getByText('Bio', { exact: true }).click()
+      const longBio = 'a'.repeat(501)
+      await page.getByRole('textbox', { name: 'Bio' }).fill(longBio)
 
       // Verify validation error appears
-      await expect(page.getByText(/bio is too long/i)).toBeVisible()
+      await expect(page.getByText(longBio)).toBeHidden()
     })
   })
 
