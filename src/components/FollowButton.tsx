@@ -32,11 +32,11 @@ const FollowButton: FunctionComponent<FollowButtonProps> = ({
       type="button"
       onClick={handleFollow}
       className={cx(
-        'w-full h-9 rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30',
-        !isFollowed && variant !== 'dark' ? 'bg-white text-black' : 'text-primary-text',
+        'w-full h-9 rounded-lg border border-gray-5 px-4 min-w-28 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30',
+        !isFollowed && variant !== 'dark' ? 'bg-white text-black' : 'text-gray-7',
       )}
     >
-      {isFollowed ? 'Unfollow' : 'Follow'}
+      {isFollowed ? 'Following' : 'Follow'}
     </button>
   )
 }
