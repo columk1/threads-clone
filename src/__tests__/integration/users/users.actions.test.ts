@@ -10,7 +10,7 @@ import { DEFAULT_ERROR } from '@/lib/constants/errors'
 import { followerSchema, userSchema } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
-import { handleFollowAction, updateAvatar } from '@/services/users/users.actions'
+import { handleFollowAction, updateAvatar, updateBio } from '@/services/users/users.actions'
 
 setupIntegrationTest()
 
@@ -182,6 +182,83 @@ describe('User Actions', () => {
       await handleFollowAction('some-id', 'follow')
 
       expect(vi.mocked(redirect)).toHaveBeenCalledWith('/login')
+    })
+  })
+
+  describe('updateBio', () => {
+    it('should successfully update bio', async () => {
+      const testUser = await createTestUser()
+      vi.mocked(validateRequest).mockResolvedValue({
+        user: testUser,
+        session: createMockSession(testUser.id),
+      })
+
+      const formData = new FormData()
+      formData.append('bio', 'New test bio')
+
+      const result = await updateBio(null, formData)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify bio was updated in database
+      const updatedUser = await testDb.query.userSchema.findFirst({
+        where: (users, { eq }) => eq(users.id, testUser.id),
+      })
+
+      expect(updatedUser?.bio).toBe('New test bio')
+    })
+
+    it('should handle bio exceeding max length', async () => {
+      const testUser = await createTestUser()
+      vi.mocked(validateRequest).mockResolvedValue({
+        user: testUser,
+        session: createMockSession(testUser.id),
+      })
+
+      const formData = new FormData()
+      formData.append('bio', 'a'.repeat(151)) // Bio limit is 150 chars
+
+      const result = await updateBio(null, formData)
+
+      expect(result).toHaveProperty('error')
+
+      // Verify bio was not updated
+      const user = await testDb.query.userSchema.findFirst({
+        where: (users, { eq }) => eq(users.id, testUser.id),
+      })
+
+      expect(user?.bio).toBeNull()
+    })
+
+    it('should handle empty bio', async () => {
+      const testUser = await createTestUser()
+      vi.mocked(validateRequest).mockResolvedValue({
+        user: testUser,
+        session: createMockSession(testUser.id),
+      })
+
+      const formData = new FormData()
+      formData.append('bio', '')
+
+      const result = await updateBio(null, formData)
+
+      expect(result).toHaveProperty('error')
+
+      // Verify bio was not updated
+      const user = await testDb.query.userSchema.findFirst({
+        where: (users, { eq }) => eq(users.id, testUser.id),
+      })
+
+      expect(user?.bio).toBeNull()
+    })
+
+    it('should handle unauthorized user', async () => {
+      vi.mocked(validateRequest).mockResolvedValue({ user: null, session: null })
+
+      const formData = new FormData()
+      formData.append('bio', 'Test bio')
+
+      expect(redirect).toHaveBeenCalledWith('/login')
     })
   })
 })
