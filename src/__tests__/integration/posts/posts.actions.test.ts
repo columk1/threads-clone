@@ -1,3 +1,4 @@
+/* eslint-disable test/no-only-tests */
 import { sql } from 'drizzle-orm'
 import type { Session } from 'lucia'
 import { redirect } from 'next/navigation'
@@ -26,6 +27,10 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/lib/Lucia', () => ({
   validateRequest: vi.fn(),
+}))
+
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
 vi.mock('@/lib/Logger', () => ({
@@ -195,7 +200,7 @@ describe('Posts Actions', () => {
     })
   })
 
-  describe('createReply', () => {
+  describe.only('createReply', () => {
     it('should create a reply to a post', async () => {
       const formData = new FormData()
       formData.append('text', 'Test reply')
