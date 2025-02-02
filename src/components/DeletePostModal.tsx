@@ -5,11 +5,11 @@ import { toast } from 'sonner'
 import { DialogClose, DialogContent, DialogTitle } from '@/components/Dialog'
 import { handleDeleteAction } from '@/services/posts/posts.actions'
 
-type DeletePostDialogContentProps = {
+type DeletePostModalProps = {
   postId: string
 }
 
-const DeletePostDialogContent: FunctionComponent<DeletePostDialogContentProps> = ({ postId }) => {
+const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) => {
   const router = useRouter()
 
   const onDelete = async () => {
@@ -48,4 +48,4 @@ const DeletePostDialogContent: FunctionComponent<DeletePostDialogContentProps> =
   )
 }
 
-export default DeletePostDialogContent
+export default DeletePostModal
