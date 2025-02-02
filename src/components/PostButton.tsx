@@ -2,7 +2,6 @@
 
 import type { FunctionComponent } from 'react'
 
-import Button from '@/components/Button'
 import { useModal } from '@/hooks/useModal'
 
 type PostButtonProps = {
@@ -14,9 +13,9 @@ const PostButton: FunctionComponent<PostButtonProps> = ({ className, children })
   const { openModal } = useModal()
 
   return (
-    <Button onClick={() => openModal('new-thread')} className={className}>
+    <button type="button" onClick={() => openModal('new-thread')} className={className}>
       {children}
-    </Button>
+    </button>
   )
 }
 

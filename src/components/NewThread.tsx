@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
+import { baseButtonStyles } from '@/components/ui/utils'
 import { validateRequest } from '@/lib/Lucia'
 
 import Avatar from './Avatar'
@@ -23,9 +24,7 @@ const NewThread: FunctionComponent = async () => {
         </Link>
         <PostButton className="flex w-full items-center">
           <div className="flex-1 cursor-text text-left">What's new?</div>
-          <div className="z-10 ml-auto flex h-9 items-center rounded-lg border border-gray-5 px-4 font-semibold text-primary-text transition active:scale-95">
-            Post
-          </div>
+          <div className={`z-10 ml-auto flex h-9 items-center ${baseButtonStyles}`}>Post</div>
         </PostButton>
       </div>
     </div>

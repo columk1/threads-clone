@@ -1,19 +1,20 @@
 'use client'
 
-import cx from 'clsx'
 import type { FunctionComponent } from 'react'
 
 import { useModal } from '@/hooks/useModal'
 
+import Button from './Button'
+
 type FollowButtonProps = {
-  variant?: 'light' | 'dark'
+  muted?: boolean
   isAuthenticated?: boolean
   isFollowed?: boolean
   onToggleFollow?: () => Promise<void>
 }
 
 const FollowButton: FunctionComponent<FollowButtonProps> = ({
-  variant = 'light',
+  muted = false,
   isAuthenticated = false,
   isFollowed,
   onToggleFollow,
@@ -27,17 +28,22 @@ const FollowButton: FunctionComponent<FollowButtonProps> = ({
     }
     await (onToggleFollow ? onToggleFollow() : Promise.resolve())
   }
+  const variant = isFollowed ? (muted ? 'darkMuted' : 'dark') : 'light'
   return (
-    <button
-      type="button"
-      onClick={handleFollow}
-      className={cx(
-        'w-full h-9 rounded-lg border border-gray-5 px-4 min-w-28 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30',
-        !isFollowed && variant !== 'dark' ? 'bg-white text-black' : 'text-gray-7',
-      )}
-    >
+    <Button onClick={handleFollow} variant={variant} size="sm" className="w-full min-w-28">
       {isFollowed ? 'Following' : 'Follow'}
-    </button>
+    </Button>
+
+    // <button
+    //   type="button"
+    //   onClick={handleFollow}
+    //   className={cx(
+    //     'w-full h-9 rounded-lg border border-gray-5 px-4 min-w-28 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30',
+    //     !isFollowed && variant !== 'dark' ? 'bg-white text-black' : 'text-gray-7',
+    //   )}
+    // >
+    //   {isFollowed ? 'Following' : 'Follow'}
+    // </button>
   )
 }
 

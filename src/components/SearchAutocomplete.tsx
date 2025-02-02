@@ -77,6 +77,7 @@ const SearchResult = ({
           {!isCurrentUser && (
             <>
               <FollowButton
+                muted
                 isFollowed={user.isFollowed}
                 isAuthenticated={Boolean(currentUser)}
                 onToggleFollow={handleToggleFollow}

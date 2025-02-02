@@ -137,8 +137,7 @@ const ThreadContent: FunctionComponent<{
   isCurrentUser: boolean
   currentUser: User | null
   onToggleFollow?: () => Promise<void>
-  validateFollowStatus?: () => Promise<void>
-}> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow, validateFollowStatus }) => {
+}> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow }) => {
   const canFollow = !isCurrentUser && !user.isFollowed
 
   const media = () => {
@@ -150,7 +149,7 @@ const ThreadContent: FunctionComponent<{
     return (
       <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
         <div
-          className={cx('mb-1 max-h-[430px] rounded-lg outline outline-1 outline-offset--1 outline-primary-outline')}
+          className={cx('mb-1 max-h-[430px] rounded-lg outline -outline-offset-1 outline-primary-outline')}
           style={{
             width: containerWidth,
             height: containerHeight,
@@ -198,7 +197,7 @@ const ThreadContent: FunctionComponent<{
       </div>
       <div className="flex w-full items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="font-semibold" onMouseEnter={() => (isAuthenticated ? validateFollowStatus?.() : {})}>
+          <div className="font-semibold">
             <PostAuthor
               user={user}
               isAuthenticated={isAuthenticated}
@@ -250,7 +249,6 @@ export default function Thread({
   const {
     user: followableUser,
     handleToggleFollow,
-    validateFollowStatus,
     unfollowModalProps,
   } = useFollow({
     initialUser: user,
@@ -269,7 +267,6 @@ export default function Thread({
           isCurrentUser={isCurrentUser}
           currentUser={currentUser}
           onToggleFollow={handleToggleFollow}
-          validateFollowStatus={validateFollowStatus}
         />
       </ThreadCard>
       <UnfollowModal {...unfollowModalProps} />

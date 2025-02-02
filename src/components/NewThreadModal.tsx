@@ -14,6 +14,7 @@ import { MAX_CHARACTERS } from '@/lib/constants'
 import { createPost } from '@/services/posts/posts.actions'
 
 import Avatar from './Avatar'
+import Button from './Button'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
 import { ImageIcon } from './icons'
@@ -122,8 +123,13 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
   // )
 
   return (
-    <div className={cx('flex h-full flex-col justify-between', isDrawer && 'max-h-[calc(100vh-56px)]')}>
-      <div ref={contentRef} className={cx('overflow-y-auto', !isDrawer && 'max-h-[calc(100vh-200px)]')}>
+    <div
+      className={cx(
+        'flex flex-col h-full',
+        isDrawer ? 'min-h-[calc(100dvh-56px)] max-h-[calc(100dvh-56px)]' : 'max-h-[calc(100dvh-120px)]',
+      )}
+    >
+      <div ref={contentRef} className="overflow-y-auto">
         <div className={cx('pt-2', !isDrawer && 'px-6 pb-1')}>
           {children}
           <div className="relative">
@@ -167,22 +173,20 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
           </div>
         </div>
       </div>
-      <div className={cx('flex items-center justify-between py-4 text-[15px] text-gray-7', !isDrawer && 'px-6')}>
+      <div
+        className={cx('flex items-center justify-between py-4 mt-auto text-[15px] text-gray-7', !isDrawer && 'px-6')}
+      >
         Anyone can reply & quote
         <div className="flex items-center gap-3">
           <RemainingCharacters currentCount={text.length} limit={MAX_CHARACTERS} />
-          <button
+          <Button
             type="submit"
+            variant={isDrawer ? 'light' : 'dark'}
             disabled={!isValid || isPending}
-            className={cx(
-              'ml-auto h-9 px-4 font-semibold transition active:scale-95 disabled:opacity-30',
-              isDrawer
-                ? 'rounded-full bg-primary-text text-gray-0'
-                : 'rounded-lg border border-gray-5 text-primary-text',
-            )}
+            className={isDrawer ? 'rounded-full text-gray-0' : ''}
           >
             {uploading ? <Spinner /> : 'Post'}
-          </button>
+          </Button>
         </div>
       </div>
       <input ref={fileInputRef} type="file" name="imageFile" onChange={handleFileChange} className="hidden" />
