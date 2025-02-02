@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 
 import { EditColorIcon, FollowColorIcon, LikeColorIcon, ReplyColorIcon, RepostColorIcon } from '@/components/icons'
-import { ModalContext } from '@/context/ModalContext'
+import { ModalContext } from '@/contexts/ModalContext'
 
 export type ProtectedAction = 'post' | 'activity' | 'profile' | 'follow' | 'like' | 'repost' | 'reply' | 'save'
 

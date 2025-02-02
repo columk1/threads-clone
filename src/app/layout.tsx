@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
 
-import { ModalProvider } from '@/context/ModalContext'
+import { ModalProvider } from '@/contexts/ModalContext'
 
 export const metadata: Metadata = {
   title: {
