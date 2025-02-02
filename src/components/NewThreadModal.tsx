@@ -3,7 +3,7 @@
 import { DialogDescription } from '@radix-ui/react-dialog'
 import cx from 'clsx'
 import { useRouter } from 'next/navigation'
-import { type FunctionComponent, startTransition, useActionState, useCallback, useEffect } from 'react'
+import { type FunctionComponent, useActionState, useCallback, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 import { useImageForm } from '@/hooks/useImageForm'
@@ -21,7 +21,7 @@ import Spinner from './spinner/Spinner'
 
 type ModalActions = {
   closeModal?: () => void
-  handleSubmit: () => void
+  // handleSubmit: () => void
   handleTextInput: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   handleUploadButtonClick: () => void
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>
@@ -33,11 +33,14 @@ type ModalState = {
   avatar: string | null
   username: string
   image: string | null
+  imageData?: { url: string; width: string; height: string } | null
   text: string
   isValid: boolean
   isPending: boolean
   uploading: boolean
   fileInputRef: React.RefObject<HTMLInputElement | null>
+  parentId?: string
+  formRef: React.RefObject<HTMLFormElement | null>
 }
 
 type ModalContentProps = {
@@ -70,8 +73,22 @@ export const RemainingCharacters = ({ currentCount, limit }: { currentCount: num
 }
 
 export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, children }) => {
-  const { isReply, isDrawer, avatar, username, image, text, isValid, isPending, uploading, fileInputRef } = state
-  const { handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit } = actions
+  const {
+    isReply,
+    isDrawer,
+    avatar,
+    username,
+    image,
+    imageData,
+    text,
+    isValid,
+    isPending,
+    uploading,
+    fileInputRef,
+    parentId,
+    formRef,
+  } = state
+  const { handleTextInput, handleUploadButtonClick, handleFileChange } = actions
 
   const textInputRef = useCallback((node: HTMLTextAreaElement | null) => {
     if (node) {
@@ -92,21 +109,22 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
     return () => clearTimeout(delayScroll)
   }, [])
 
-  const submitForm = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      handleSubmit()
-    },
-    [handleSubmit],
-  )
+  const submitForm = useCallback(() => {
+    formRef.current?.requestSubmit()
+  }, [formRef])
+
+  // const submitForm = useCallback(
+  //   (e: React.FormEvent<HTMLFormElement>) => {
+  //     e.preventDefault()
+  //     handleSubmit()
+  //   },
+  //   [handleSubmit],
+  // )
 
   return (
-    <form
-      onSubmit={submitForm}
-      className={cx('flex h-full flex-col justify-between', isDrawer && 'max-h-[calc(100vh-56px)]')}
-    >
-      <div ref={contentRef} className={cx('overflow-y-auto', !isDrawer && `max-h-[calc(100vh-200px)]`)}>
-        <div className={cx(`pt-2`, !isDrawer && `px-6 pb-1 pt-2`)}>
+    <div className={cx('flex h-full flex-col justify-between', isDrawer && 'max-h-[calc(100vh-56px)]')}>
+      <div ref={contentRef} className={cx('overflow-y-auto', !isDrawer && 'max-h-[calc(100vh-200px)]')}>
+        <div className={cx('pt-2', !isDrawer && 'px-6 pb-1')}>
           {children}
           <div className="relative">
             <div className="grid grid-cols-[48px_minmax(0,1fr)] text-[15px] leading-[21px]">
@@ -132,7 +150,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
                 onInput={handleTextInput}
                 onKeyDown={(e) => {
                   if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && isValid && !isPending) {
-                    handleSubmit()
+                    submitForm()
                   }
                 }}
               />
@@ -141,7 +159,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
               <button
                 type="button"
                 onClick={handleUploadButtonClick}
-                className="mt-2 flex h-9 items-center justify-start transition active:scale-85"
+                className="mt-2 flex h-7 items-center justify-start transition active:scale-85"
               >
                 <ImageIcon />
               </button>
@@ -149,7 +167,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
           </div>
         </div>
       </div>
-      <div className={cx(`flex items-center justify-between text-[15px] text-gray-7 py-4`, !isDrawer && `p-6`)}>
+      <div className={cx('flex items-center justify-between py-4 text-[15px] text-gray-7', !isDrawer && 'px-6')}>
         Anyone can reply & quote
         <div className="flex items-center gap-3">
           <RemainingCharacters currentCount={text.length} limit={MAX_CHARACTERS} />
@@ -167,8 +185,17 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
           </button>
         </div>
       </div>
-      <input ref={fileInputRef} type="file" name="image" onChange={handleFileChange} className="hidden" />
-    </form>
+      <input ref={fileInputRef} type="file" name="imageFile" onChange={handleFileChange} className="hidden" />
+      <input type="hidden" name="text" value={text} />
+      {imageData && (
+        <>
+          <input type="hidden" name="image" value={imageData.url} />
+          <input type="hidden" name="imageWidth" value={imageData.width} />
+          <input type="hidden" name="imageHeight" value={imageData.height} />
+        </>
+      )}
+      {parentId && <input type="hidden" name="parentId" value={parentId} />}
+    </div>
   )
 }
 
@@ -178,10 +205,43 @@ type NewThreadModalProps = {
   handleOpenChange: (open: boolean) => void
 }
 
+export const ModalHeader = ({
+  title,
+  description,
+  isDrawer = false,
+}: {
+  title: string
+  description: string
+  isDrawer?: boolean
+}) => (
+  <>
+    <div className="sr-only">
+      <DialogDescription>{description}</DialogDescription>
+    </div>
+    <DialogHeader>
+      <div
+        className={cx('grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)]', !isDrawer && 'px-6')}
+      >
+        <DialogClose asChild>
+          <div className="flex">
+            <button type="button" className="rounded-lg py-1 text-[17px]">
+              <span className="sr-only">Close</span>
+              Cancel
+            </button>
+          </div>
+        </DialogClose>
+        <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">{title}</DialogTitle>
+      </div>
+      <div className={cx('h-[0.25px] bg-gray-6', isDrawer && '-mx-6')}></div>
+    </DialogHeader>
+  </>
+)
+
 const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avatar, handleOpenChange }) => {
   const [state, formAction, isPending] = useActionState(createPost, null)
   const { text, handleTextInput, isTextValid } = usePostForm()
   const { image, imageData, uploading, fileInputRef, handleFileChange, handleUploadButtonClick } = useImageForm()
+  const formRef = useRef<HTMLFormElement>(null)
 
   const router = useRouter()
 
@@ -196,18 +256,18 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
   // const img = new Image()
   // img.src = image.url
 
-  const handleSubmit = () => {
-    startTransition(() => {
-      const formData = new FormData()
-      formData.append('text', text)
-      if (imageData) {
-        formData.append('image', imageData.url)
-        formData.append('imageWidth', imageData.width)
-        formData.append('imageHeight', imageData.height)
-      }
-      formAction(formData)
-    })
-  }
+  // const handleSubmit = () => {
+  //   startTransition(() => {
+  //     const formData = new FormData()
+  //     formData.append('text', text)
+  //     if (imageData) {
+  //       formData.append('image', imageData.url)
+  //       formData.append('imageWidth', imageData.width)
+  //       formData.append('imageHeight', imageData.height)
+  //     }
+  //     formAction(formData)
+  //   })
+  // }
 
   useEffect(() => {
     if (state?.error) {
@@ -222,57 +282,46 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
 
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
+  const modalState = {
+    avatar,
+    username,
+    text,
+    image,
+    imageData,
+    isValid,
+    isPending,
+    uploading,
+    fileInputRef,
+    formRef,
+  }
+
+  const modalActions = {
+    closeModal,
+    handleUploadButtonClick,
+    handleFileChange,
+    handleTextInput,
+  }
+
   if (isDesktop) {
     return (
       <Dialog open onOpenChange={handleOpenChange}>
         <DialogContent className="min-w-[620px] max-md:hidden">
-          <div className="sr-only">
-            <DialogDescription>Create a new thread</DialogDescription>
-          </div>
-          <DialogHeader>
-            <div className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)] px-6">
-              <DialogClose asChild>
-                <div className="flex">
-                  <button type="button" onClick={closeModal} className="rounded-lg py-1 text-[17px]">
-                    <span className="sr-only">Close</span>
-                    Cancel
-                  </button>
-                </div>
-              </DialogClose>
-              <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">New thread</DialogTitle>
-            </div>
-            <div className="h-[0.25px] bg-gray-6"></div>
-          </DialogHeader>
-          <ModalContent
-            state={{ avatar, username, text, image, isValid, isPending, uploading, fileInputRef }}
-            actions={{ closeModal, handleUploadButtonClick, handleFileChange, handleTextInput, handleSubmit }}
-          />
+          <ModalHeader title="New thread" description="Create a new thread" />
+          <form ref={formRef} action={formAction}>
+            <ModalContent state={{ ...modalState }} actions={modalActions} />
+          </form>
         </DialogContent>
       </Dialog>
     )
   }
-  // Mobile Drawer
+
   return (
     <Drawer open onOpenChange={handleOpenChange}>
       <DrawerContent className="h-full min-w-full border-none">
-        <div className="sr-only">
-          <DialogDescription>Create a new thread</DialogDescription>
-        </div>
-        <DialogHeader className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)]">
-          <DialogClose asChild>
-            <div className="flex">
-              <button type="button" onClick={closeModal} className="rounded-lg py-1 text-[17px]">
-                <span className="sr-only">Close</span>
-                Cancel
-              </button>
-            </div>
-          </DialogClose>
-          <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">New thread</DialogTitle>
-        </DialogHeader>
-        <ModalContent
-          state={{ isDrawer: true, avatar, username, text, image, isValid, isPending, uploading, fileInputRef }}
-          actions={{ closeModal, handleUploadButtonClick, handleFileChange, handleTextInput, handleSubmit }}
-        />
+        <ModalHeader title="New thread" description="Create a new thread" isDrawer />
+        <form ref={formRef} action={formAction}>
+          <ModalContent state={{ ...modalState, isDrawer: true }} actions={modalActions} />
+        </form>
       </DrawerContent>
     </Drawer>
   )

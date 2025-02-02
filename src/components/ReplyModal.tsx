@@ -1,10 +1,7 @@
-'use client'
-
-import { DialogDescription } from '@radix-ui/react-dialog'
 import type { User } from 'lucia'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { type FunctionComponent, startTransition, useActionState, useCallback, useEffect, useState } from 'react'
+import { type FunctionComponent, useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useAppStore } from '@/hooks/useAppStore'
@@ -16,9 +13,9 @@ import { createReply } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
 
 import Avatar from './Avatar'
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './Dialog'
+import { Dialog, DialogContent, DialogTrigger } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
-import { ModalContent, ThreadMediaContent } from './NewThreadModal'
+import { ModalContent, ModalHeader, ThreadMediaContent } from './NewThreadModal'
 import TimeAgo from './TimeAgo'
 
 const ParentThread = ({ user, author, post }: { user: User; author: PostUser; post: Post }) => {
@@ -59,6 +56,7 @@ type ReplyModalProps = {
 const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, trigger }) => {
   const [open, setOpen] = useState(false)
   const [state, formAction, isPending] = useActionState(createReply, null)
+  const formRef = useRef<HTMLFormElement>(null)
   const { text, setText, handleTextInput, isTextValid } = usePostForm()
   const {
     image,
@@ -91,18 +89,26 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
     resetForm()
   }, [resetForm])
 
-  const handleSubmit = () => {
-    startTransition(() => {
-      const formData = new FormData()
-      formData.append('text', text)
-      formData.append('parentId', post.id)
-      if (imageData) {
-        formData.append('image', imageData.url)
-        formData.append('imageWidth', imageData.width)
-        formData.append('imageHeight', imageData.height)
-      }
-      formAction(formData)
-    })
+  const modalState = {
+    isReply: true,
+    avatar: user.avatar,
+    username: user.username,
+    text,
+    image,
+    imageData,
+    isValid,
+    isPending,
+    uploading,
+    fileInputRef,
+    parentId: post.id,
+    formRef,
+  }
+
+  const modalActions = {
+    closeModal,
+    handleUploadButtonClick,
+    handleFileChange,
+    handleTextInput,
   }
 
   useEffect(() => {
@@ -131,40 +137,12 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
         <DialogTrigger asChild>{trigger}</DialogTrigger>
         {open && (
           <DialogContent className="min-w-[620px] max-md:hidden">
-            <div className="sr-only">
-              <DialogDescription>Reply to a thread</DialogDescription>
-            </div>
-            <DialogHeader>
-              <div className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)] px-6">
-                <DialogClose asChild>
-                  <div className="flex">
-                    <button type="button" onClick={closeModal} className="rounded-lg py-1 text-[17px]">
-                      <span className="sr-only">Close</span>
-                      Cancel
-                    </button>
-                  </div>
-                </DialogClose>
-                <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">Reply</DialogTitle>
-              </div>
-              <div className="h-[0.25px] bg-gray-6"></div>
-            </DialogHeader>
-            <ModalContent
-              state={{
-                isReply: true,
-                isDrawer: false,
-                avatar: user.avatar,
-                username: user.username,
-                image,
-                text,
-                isValid,
-                isPending,
-                uploading,
-                fileInputRef,
-              }}
-              actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
-            >
-              <ParentThread user={user} author={author} post={post} />
-            </ModalContent>
+            <ModalHeader title="Reply" description="Reply to a thread" />
+            <form ref={formRef} action={formAction}>
+              <ModalContent state={{ ...modalState }} actions={modalActions}>
+                <ParentThread user={user} author={author} post={post} />
+              </ModalContent>
+            </form>
             {/* Vertical Line - uncomment for multiple replies in thread feature */}
             {/* <div className="absolute bottom-1.5 left-[17px] top-[50px] w-[2px] bg-gray-5"></div> */}
           </DialogContent>
@@ -172,42 +150,18 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
       </Dialog>
     )
   }
+
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       {open && (
         <DrawerContent onOpenAutoFocus={(e) => e.preventDefault()} className="h-full min-w-full border-none">
-          <div className="sr-only">
-            <DialogDescription>Reply to a thread</DialogDescription>
-          </div>
-          <DialogHeader className="grid h-14 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)]">
-            <DialogClose asChild>
-              <div className="flex">
-                <button type="button" onClick={closeModal} className="rounded-lg py-1 text-[17px]">
-                  <span className="sr-only">Close</span>
-                  Cancel
-                </button>
-              </div>
-            </DialogClose>
-            <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">Reply</DialogTitle>
-          </DialogHeader>
-          <ModalContent
-            state={{
-              isReply: true,
-              isDrawer: true,
-              avatar: user.avatar,
-              username: user.username,
-              image,
-              text,
-              isValid,
-              isPending,
-              uploading,
-              fileInputRef,
-            }}
-            actions={{ handleTextInput, handleUploadButtonClick, handleFileChange, handleSubmit }}
-          >
-            <ParentThread user={user} author={author} post={post} />
-          </ModalContent>
+          <ModalHeader title="Reply" description="Reply to a thread" isDrawer />
+          <form ref={formRef} action={formAction}>
+            <ModalContent state={{ ...modalState, isDrawer: true }} actions={modalActions}>
+              <ParentThread user={user} author={author} post={post} />
+            </ModalContent>
+          </form>
         </DrawerContent>
       )}
     </Drawer>

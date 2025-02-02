@@ -63,7 +63,7 @@ export async function createReply(_: unknown, formData: FormData) {
 
   try {
     const reply = await insertPost(user.id, submission.value)
-    revalidatePath(`@${user.username}/posts/${reply.parentId}`)
+    revalidatePath(`/@${user.username}/posts/${reply.parentId}`, 'page')
     return { data: reply, success: true }
   } catch (error) {
     logger.error(error, 'Error creating reply')
