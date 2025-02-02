@@ -18,6 +18,7 @@ import PostAuthor from './PostAuthor'
 import PostDropDownMenu from './PostDropDownMenu'
 import ThreadActions from './ThreadActions'
 import TimeAgo from './TimeAgo'
+import UnfollowModal from './UnfollowModal'
 import UserModal from './UserModal'
 
 const applyConstraints = (width: number | null, height: number | null, maxWidth = 543, maxHeight = 430) => {
@@ -250,6 +251,7 @@ export default function Thread({
     user: followableUser,
     handleToggleFollow,
     validateFollowStatus,
+    unfollowModalProps,
   } = useFollow({
     initialUser: user,
     isAuthenticated,
@@ -270,6 +272,7 @@ export default function Thread({
           validateFollowStatus={validateFollowStatus}
         />
       </ThreadCard>
+      {user.isFollowed && <UnfollowModal {...unfollowModalProps} />}
     </ThreadLayout>
   )
 }

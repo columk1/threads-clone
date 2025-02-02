@@ -16,6 +16,7 @@ import { handleNestedInteraction } from '@/utils/handleNestedInteraction'
 
 import PostAuthor from './PostAuthor'
 import Spinner from './spinner/Spinner'
+import UnfollowModal from './UnfollowModal'
 
 // Autocomplete search results (user cards)
 
@@ -37,7 +38,10 @@ const SearchResult = ({
       followerCount: storedUser.followerCount,
     }),
   }
-  const { handleToggleFollow } = useFollow({ initialUser: user, isAuthenticated: Boolean(currentUser) })
+  const { handleToggleFollow, unfollowModalProps } = useFollow({
+    initialUser: user,
+    isAuthenticated: Boolean(currentUser),
+  })
 
   return (
     <div
@@ -69,14 +73,16 @@ const SearchResult = ({
           </span>
           <span className="text-placeholder-text">{user.name}</span>
         </div>
-        <div className="w-min">
+        <div className="">
           {!isCurrentUser && (
-            <FollowButton
-              isFollowed={user.isFollowed}
-              isAuthenticated={Boolean(currentUser)}
-              onToggleFollow={handleToggleFollow}
-              variant="dark"
-            />
+            <>
+              <FollowButton
+                isFollowed={user.isFollowed}
+                isAuthenticated={Boolean(currentUser)}
+                onToggleFollow={handleToggleFollow}
+              />
+              {user.isFollowed && <UnfollowModal {...unfollowModalProps} />}
+            </>
           )}
         </div>
       </div>
