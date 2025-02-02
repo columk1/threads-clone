@@ -76,6 +76,7 @@ export default antfu(
       'style/quote-props': 'off',
       'style/operator-linebreak': 'off',
       'style/indent-binary-ops': 'off',
+      'style/indent': 'off',
     },
   },
   {
