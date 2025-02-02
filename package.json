@@ -12,6 +12,7 @@
     "lint:fix": "eslint . --fix",
     "check-types": "tsc --noEmit --pretty",
     "test": "vitest run --no-file-parallelism",
+    "test:watch": "vitest watch --no-file-parallelism",
     "test:e2e": "playwright test",
     "commit": "cz",
     "db:generate": "drizzle-kit generate",
