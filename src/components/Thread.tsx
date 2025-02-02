@@ -272,7 +272,7 @@ export default function Thread({
           validateFollowStatus={validateFollowStatus}
         />
       </ThreadCard>
-      {user.isFollowed && <UnfollowModal {...unfollowModalProps} />}
+      <UnfollowModal {...unfollowModalProps} />
     </ThreadLayout>
   )
 }

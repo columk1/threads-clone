@@ -54,13 +54,17 @@ export const useFollow = ({
       return
     }
 
-    const currentFollowState = storedUser?.isFollowed ?? initialUser.isFollowed
-    const currentFollowerCount = storedUser?.followerCount ?? initialUser.followerCount
+    // Get the most up-to-date state
+    const currentUser = storedUser ?? {
+      id: initialUser.id,
+      isFollowed: initialUser.isFollowed,
+      followerCount: initialUser.followerCount,
+    }
 
     // Optimistically update UI
     updateUser(initialUser.id, {
       isFollowed: true,
-      followerCount: currentFollowerCount + 1,
+      followerCount: currentUser.followerCount + 1,
     })
 
     const result = await handleFollowAction(initialUser.id, 'follow')
@@ -68,20 +72,24 @@ export const useFollow = ({
       toast.error(result.error)
       // Revert optimistic update on error
       updateUser(initialUser.id, {
-        isFollowed: currentFollowState,
-        followerCount: currentFollowerCount,
+        isFollowed: currentUser.isFollowed,
+        followerCount: currentUser.followerCount,
       })
     }
   }
 
   const handleUnfollow = async () => {
-    const currentFollowState = storedUser?.isFollowed ?? initialUser.isFollowed
-    const currentFollowerCount = storedUser?.followerCount ?? initialUser.followerCount
+    // Get the most up-to-date state
+    const currentUser = storedUser ?? {
+      id: initialUser.id,
+      isFollowed: initialUser.isFollowed,
+      followerCount: initialUser.followerCount,
+    }
 
     // Optimistically update UI
     updateUser(initialUser.id, {
       isFollowed: false,
-      followerCount: currentFollowerCount - 1,
+      followerCount: currentUser.followerCount - 1,
     })
 
     const result = await handleFollowAction(initialUser.id, 'unfollow')
@@ -89,8 +97,8 @@ export const useFollow = ({
       toast.error(result.error)
       // Revert optimistic update on error
       updateUser(initialUser.id, {
-        isFollowed: currentFollowState,
-        followerCount: currentFollowerCount,
+        isFollowed: currentUser.isFollowed,
+        followerCount: currentUser.followerCount,
       })
       return
     }
@@ -104,9 +112,14 @@ export const useFollow = ({
       return
     }
 
-    const currentFollowState = storedUser?.isFollowed ?? initialUser.isFollowed
+    // Get the most up-to-date follow state by checking both store and initial data
+    const currentUser = storedUser ?? {
+      id: initialUser.id,
+      isFollowed: initialUser.isFollowed,
+      followerCount: initialUser.followerCount,
+    }
 
-    if (currentFollowState) {
+    if (currentUser.isFollowed) {
       setIsUnfollowModalOpen(true)
     } else {
       await handleFollow()
