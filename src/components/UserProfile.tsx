@@ -5,6 +5,7 @@ import type { PostUser } from '@/services/users/users.queries'
 
 import BaseProfile from './BaseProfile'
 import FollowButton from './FollowButton'
+import UnfollowModal from './UnfollowModal'
 
 type VisitorProfileProps = {
   initialUser: PostUser
@@ -12,7 +13,7 @@ type VisitorProfileProps = {
 }
 
 export default function VisitorProfile({ initialUser, children }: VisitorProfileProps) {
-  const { user, handleToggleFollow } = useFollow({ initialUser, isAuthenticated: true })
+  const { user, handleToggleFollow, unfollowModalProps } = useFollow({ initialUser, isAuthenticated: true })
 
   const actions = (
     <div className="flex w-full gap-2">
@@ -28,6 +29,7 @@ export default function VisitorProfile({ initialUser, children }: VisitorProfile
 
   return (
     <BaseProfile user={user} actions={actions}>
+      <UnfollowModal {...unfollowModalProps} />
       {children}
     </BaseProfile>
   )

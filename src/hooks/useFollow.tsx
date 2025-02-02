@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import type { FollowingResponseData } from '@/app/api/users/[userId]/following/route'
@@ -16,6 +16,7 @@ export const useFollow = ({
   isAuthenticated: boolean
 }) => {
   const { openModal } = useModal()
+  const [isUnfollowModalOpen, setIsUnfollowModalOpen] = useState(false)
   const updateUser = useAppStore((state) => state.updateUser)
   const storedUser = useAppStore((state) => state.users[initialUser.id])
   const addUsers = useAppStore((state) => state.addUsers)
@@ -47,7 +48,7 @@ export const useFollow = ({
     }
   }
 
-  const handleToggleFollow = async () => {
+  const handleFollow = async () => {
     if (!isAuthenticated) {
       openModal('auth-prompt', 'follow')
       return
@@ -55,25 +56,60 @@ export const useFollow = ({
 
     const currentFollowState = storedUser?.isFollowed ?? initialUser.isFollowed
     const currentFollowerCount = storedUser?.followerCount ?? initialUser.followerCount
-    const newIsFollowed = !currentFollowState
 
+    // Optimistically update UI
     updateUser(initialUser.id, {
-      isFollowed: newIsFollowed,
-      followerCount: newIsFollowed ? currentFollowerCount + 1 : currentFollowerCount - 1,
+      isFollowed: true,
+      followerCount: currentFollowerCount + 1,
     })
 
-    const result = await handleFollowAction(initialUser.id, newIsFollowed ? 'follow' : 'unfollow')
+    const result = await handleFollowAction(initialUser.id, 'follow')
     if (result.error) {
       toast.error(result.error)
+      // Revert optimistic update on error
+      updateUser(initialUser.id, {
+        isFollowed: currentFollowState,
+        followerCount: currentFollowerCount,
+      })
+    }
+  }
+
+  const handleUnfollow = async () => {
+    const currentFollowState = storedUser?.isFollowed ?? initialUser.isFollowed
+    const currentFollowerCount = storedUser?.followerCount ?? initialUser.followerCount
+
+    // Optimistically update UI
+    updateUser(initialUser.id, {
+      isFollowed: false,
+      followerCount: currentFollowerCount - 1,
+    })
+
+    const result = await handleFollowAction(initialUser.id, 'unfollow')
+    if (result.error) {
+      toast.error(result.error)
+      // Revert optimistic update on error
       updateUser(initialUser.id, {
         isFollowed: currentFollowState,
         followerCount: currentFollowerCount,
       })
       return
     }
-    // Threads only toasts on unfollow
-    if (!newIsFollowed) {
-      toast(result.success)
+    toast(result.success)
+    setIsUnfollowModalOpen(false)
+  }
+
+  const handleToggleFollow = async () => {
+    if (!isAuthenticated) {
+      openModal('auth-prompt', 'follow')
+      return
+    }
+
+    const currentFollowState = storedUser?.isFollowed ?? initialUser.isFollowed
+
+    if (currentFollowState) {
+      setIsUnfollowModalOpen(true)
+    } else {
+      await handleFollow()
     }
   }
 
@@ -87,5 +123,11 @@ export const useFollow = ({
     },
     handleToggleFollow,
     validateFollowStatus,
+    unfollowModalProps: {
+      user: initialUser,
+      handleUnfollow,
+      open: isUnfollowModalOpen,
+      onOpenChange: setIsUnfollowModalOpen,
+    },
   }
 }
