@@ -1,5 +1,15 @@
 import { type InferSelectModel, relations, sql } from 'drizzle-orm'
-import { check, index, integer, primaryKey, type SQLiteColumn, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import {
+  check,
+  customType,
+  index,
+  integer,
+  primaryKey,
+  type SQLiteColumn,
+  sqliteTable,
+  text,
+  unique,
+} from 'drizzle-orm/sqlite-core'
 import { ulid } from 'ulidx'
 
 // Use `npm run db:push` while prototyping
@@ -7,6 +17,38 @@ import { ulid } from 'ulidx'
 
 // The migration is automatically applied during the next database interaction,
 // so there's no need to run it manually or restart the Next.js server.
+
+const textEnum = <V extends Record<string, string>, RV = V[keyof V]>(
+  columnName: string,
+  enumObj: V,
+  message?: string,
+) => {
+  const colFn = customType<{
+    data: string
+    driverData: string
+  }>({
+    dataType() {
+      return 'text'
+    },
+    toDriver(value: string): string {
+      const values = Object.values(enumObj)
+      if (!values.includes(value)) {
+        throw new Error(
+          message ?? `Invalid value for column ${columnName}. Expected:${values.join(',')} | Found:${value}`,
+        )
+      }
+      return value
+    },
+  })
+  return colFn(columnName).$type<RV>()
+}
+
+export const notificationTypeEnum = {
+  FOLLOW: 'FOLLOW',
+  LIKE: 'LIKE',
+  REPLY: 'REPLY',
+  REPOST: 'REPOST',
+} as const
 
 export const userSchema = sqliteTable(
   'users',
@@ -24,7 +66,7 @@ export const userSchema = sqliteTable(
     bio: text('bio'),
     followerCount: integer('follower_count').notNull().default(0),
   },
-  (table) => [index('username_idx').on(table.username)],
+  (table) => [index('username_idx').on(table.followerCount)],
 )
 
 export type User = InferSelectModel<typeof userSchema>
@@ -174,12 +216,55 @@ export const repostSchema = sqliteTable(
 
 export type Repost = InferSelectModel<typeof repostSchema>
 
+export const notificationSchema = sqliteTable(
+  'notifications',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => ulid()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => userSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
+    type: textEnum('type', notificationTypeEnum).notNull(),
+    sourceUserId: text('source_user_id').references(() => userSchema.id, {
+      onUpdate: 'cascade',
+      onDelete: 'cascade',
+    }),
+    postId: text('post_id').references(() => postSchema.id, {
+      onUpdate: 'cascade',
+      onDelete: 'cascade',
+    }),
+    seen: integer('seen', { mode: 'boolean' }).notNull().default(false),
+    createdAt: integer('created_at')
+      .notNull()
+      .default(sql`(cast(unixepoch() as int))`),
+  },
+  (table) => {
+    return [
+      index('notif_user_seen_created_idx')
+        .on(table.userId, table.seen, table.createdAt)
+        .where(sql`${table.seen} = 0`),
+      unique('notif_user_seen_created_unique').on(table.userId, table.sourceUserId, table.postId, table.type),
+      check(
+        'valid_reference',
+        sql`(type = 'FOLLOW' AND post_id IS NULL) OR (type IN ('LIKE', 'REPLY', 'REPOST') AND post_id IS NOT NULL)`,
+      ),
+    ]
+  },
+)
+
+export type Notification = InferSelectModel<typeof notificationSchema>
+
 export const userRelations = relations(userSchema, ({ many }) => ({
   session: many(sessionSchema),
   emailVerificationCode: many(emailVerificationCodeSchema),
   posts: many(postSchema),
   followers: many(followerSchema),
   likes: many(likeSchema),
+  notifications: many(notificationSchema),
 }))
 
 export const sessionRelations = relations(sessionSchema, ({ one }) => ({
@@ -233,6 +318,24 @@ export const repostRelations = relations(repostSchema, ({ one }) => ({
   }),
   post: one(postSchema, {
     fields: [repostSchema.postId],
+    references: [postSchema.id],
+  }),
+}))
+
+export const notificationRelations = relations(notificationSchema, ({ one }) => ({
+  user: one(userSchema, {
+    fields: [notificationSchema.userId],
+    references: [userSchema.id],
+  }),
+
+  sourceUser: one(userSchema, {
+    fields: [notificationSchema.sourceUserId],
+    references: [userSchema.id],
+    relationName: 'notification_source_user',
+  }),
+
+  post: one(postSchema, {
+    fields: [notificationSchema.postId],
     references: [postSchema.id],
   }),
 }))
