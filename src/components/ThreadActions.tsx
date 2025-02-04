@@ -134,7 +134,7 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
   }
 
   return (
-    <div className={cx('-ml-3 mt-1 flex h-9 items-center text-[13px] text-secondary-text', className)}>
+    <div className={cx('-ml-2.5 mt-1 flex h-9 items-center text-[13px] text-secondary-text', className)}>
       <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
         <LikeIcon className={isLiked ? 'fill-notification stroke-notification' : ''} />
         <span className={cx('tabular-nums', isLiked && 'text-notification')}>

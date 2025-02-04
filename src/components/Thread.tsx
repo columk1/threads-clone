@@ -219,7 +219,9 @@ const ThreadContent: FunctionComponent<{
       </div>
 
       {post.text && (
-        <div className={cx('row-start-2', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>{post.text}</div>
+        <div className={cx('row-start-2 leading-[1.35rem]', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>
+          {post.text}
+        </div>
       )}
 
       <ThreadMedia image={post.image} imageWidth={post.imageWidth} imageHeight={post.imageHeight} isTarget={isTarget} />

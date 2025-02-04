@@ -24,7 +24,7 @@ const Activity = async () => {
         {'error' in data || data.length === 0 ? (
           <div className="mx-auto my-[calc(50%+60px)] py-3 text-gray-8">No activity yet</div>
         ) : (
-          data.map((e) => <Notification key={e.notification.id} data={e} />)
+          data.map((e) => <Notification key={e.notification.id} data={e} currentUser={user} />)
         )}
         {/* <div className="mx-auto my-[calc(50%+60px)] py-3 text-gray-8">Under development</div> */}
       </div>
