@@ -1,4 +1,5 @@
 import { type InferSelectModel, relations, sql } from 'drizzle-orm'
+import type { LibSQLDatabase } from 'drizzle-orm/libsql'
 import {
   check,
   customType,
@@ -17,6 +18,8 @@ import { ulid } from 'ulidx'
 
 // The migration is automatically applied during the next database interaction,
 // so there's no need to run it manually or restart the Next.js server.
+
+export type Transaction = Parameters<Parameters<LibSQLDatabase<any>['transaction']>[0]>[0]
 
 const textEnum = <V extends Record<string, string>, RV = V[keyof V]>(
   columnName: string,
@@ -237,6 +240,10 @@ export const notificationSchema = sqliteTable(
       onUpdate: 'cascade',
       onDelete: 'cascade',
     }),
+    replyId: text('reply_id').references(() => postSchema.id, {
+      onUpdate: 'cascade',
+      onDelete: 'cascade',
+    }),
     seen: integer('seen', { mode: 'boolean' }).notNull().default(false),
     createdAt: integer('created_at')
       .notNull()
@@ -250,7 +257,9 @@ export const notificationSchema = sqliteTable(
       unique('notif_user_seen_created_unique').on(table.userId, table.sourceUserId, table.postId, table.type),
       check(
         'valid_reference',
-        sql`(type = 'FOLLOW' AND post_id IS NULL) OR (type IN ('LIKE', 'REPLY', 'REPOST') AND post_id IS NOT NULL)`,
+        sql`(type = 'FOLLOW' AND post_id IS NULL AND reply_id IS NULL) 
+          OR (type IN ('LIKE', 'REPOST') AND post_id IS NOT NULL AND reply_id IS NULL) 
+          OR (type = 'REPLY' AND post_id IS NOT NULL AND reply_id IS NOT NULL)`,
       ),
     ]
   },
@@ -264,7 +273,8 @@ export const userRelations = relations(userSchema, ({ many }) => ({
   posts: many(postSchema),
   followers: many(followerSchema),
   likes: many(likeSchema),
-  notifications: many(notificationSchema),
+  notificationReceiver: many(notificationSchema, { relationName: 'notification_receiving_user' }),
+  notificationSender: many(notificationSchema, { relationName: 'notification_source_user' }),
 }))
 
 export const sessionRelations = relations(sessionSchema, ({ one }) => ({
@@ -326,6 +336,7 @@ export const notificationRelations = relations(notificationSchema, ({ one }) => 
   user: one(userSchema, {
     fields: [notificationSchema.userId],
     references: [userSchema.id],
+    relationName: 'notification_receiving_user',
   }),
 
   sourceUser: one(userSchema, {

@@ -2,23 +2,32 @@ import type { SQLWrapper } from 'drizzle-orm'
 import { and, desc, eq, isNotNull, isNull, or, sql } from 'drizzle-orm'
 
 import { db } from '../lib/db/Drizzle'
-import { followerSchema, likeSchema, type Post, postSchema, repostSchema, userSchema } from '../lib/db/Schema'
-import { baseUserSelect } from './users.repository'
+import {
+  followerSchema,
+  likeSchema,
+  notificationSchema,
+  type Post,
+  postSchema,
+  repostSchema,
+  type Transaction,
+  userSchema,
+} from '../lib/db/Schema'
+import { basePostSelect, baseUserSelect } from '../lib/db/selectors'
 
-export const basePostSelect = {
-  id: postSchema.id,
-  text: postSchema.text,
-  image: postSchema.image,
-  imageWidth: postSchema.imageWidth,
-  imageHeight: postSchema.imageHeight,
-  userId: postSchema.userId,
-  parentId: postSchema.parentId,
-  likeCount: postSchema.likeCount,
-  replyCount: postSchema.replyCount,
-  repostCount: postSchema.repostCount,
-  shareCount: postSchema.shareCount,
-  createdAt: postSchema.createdAt,
-}
+export const getAliasedBasePostSelect = (table: typeof postSchema) => ({
+  id: table.id,
+  text: table.text,
+  image: table.image,
+  imageWidth: table.imageWidth,
+  imageHeight: table.imageHeight,
+  userId: table.userId,
+  parentId: table.parentId,
+  likeCount: table.likeCount,
+  replyCount: table.replyCount,
+  repostCount: table.repostCount,
+  shareCount: table.shareCount,
+  createdAt: table.createdAt,
+})
 
 export type PostData = Post & { isLiked: boolean; isReposted: boolean }
 
@@ -215,11 +224,14 @@ export const listReposts = async (username: string, currentUserId: string = '') 
     .all()
 }
 
-export const incrementReplyCount = async (tx: any, postId: string) => {
-  await tx
+export const incrementReplyCount = async (tx: Transaction, postId: string) => {
+  // Return the updated post so that we can save a query when creating a notification
+  return await tx
     .update(postSchema)
     .set({ replyCount: sql`${postSchema.replyCount} + 1` })
     .where(eq(postSchema.id, postId))
+    .returning()
+    .get()
 }
 
 export const insertPost = async (userId: string, post: { text?: string; image?: string; parentId?: string }) => {
@@ -234,9 +246,18 @@ export const insertPost = async (userId: string, post: { text?: string; image?: 
       .returning()
       .get()
 
-    // If this is a reply, increment the parent's reply count
+    // If this is a reply, increment the parent's reply count and create a notification
     if (post.parentId) {
-      await incrementReplyCount(tx, post.parentId)
+      const parentPost = await incrementReplyCount(tx, post.parentId)
+      if (parentPost) {
+        await tx.insert(notificationSchema).values({
+          userId: parentPost.userId,
+          type: 'REPLY',
+          sourceUserId: userId,
+          postId: parentPost.id,
+          replyId: newPost.id,
+        })
+      }
     }
 
     return newPost
@@ -417,6 +438,23 @@ export const searchPosts = (searchTerm: string, userId?: string, limit: number =
 }
 
 export const deletePost = async (postId: string) => {
-  // All related records (replies, likes, reposts) will be deleted automatically via cascade
-  return await db.delete(postSchema).where(eq(postSchema.id, postId))
+  await db.transaction(async (tx) => {
+    // Get the post's parent ID before deletion
+    const post = await tx
+      .select({ parentId: postSchema.parentId })
+      .from(postSchema)
+      .where(eq(postSchema.id, postId))
+      .get()
+
+    // Delete the post (related records will be deleted via cascade)
+    await tx.delete(postSchema).where(eq(postSchema.id, postId))
+
+    // If this was a reply, decrement the parent's reply count
+    if (post?.parentId) {
+      await tx
+        .update(postSchema)
+        .set({ replyCount: sql`${postSchema.replyCount} - 1` })
+        .where(eq(postSchema.id, post.parentId))
+    }
+  })
 }

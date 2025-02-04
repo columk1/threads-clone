@@ -3,16 +3,7 @@ import { ulid } from 'ulidx'
 
 import { db } from '../lib/db/Drizzle'
 import { followerSchema, notificationSchema, postSchema, type User, userSchema } from '../lib/db/Schema'
-import { basePostSelect } from './posts.repository'
-
-export const baseUserSelect = {
-  id: userSchema.id,
-  username: userSchema.username,
-  name: userSchema.name,
-  avatar: userSchema.avatar,
-  bio: userSchema.bio,
-  followerCount: userSchema.followerCount,
-}
+import { basePostSelect, baseUserSelect, getAliasedBasePostSelect } from '../lib/db/selectors'
 
 type UserField = keyof User
 
@@ -72,12 +63,14 @@ export const handleFollow = async (userId: string, followerId: string, action: '
         .set({ followerCount: targetUser.followerCount - 1 })
         .where(eq(userSchema.id, userId))
     }
-    await tx.insert(notificationSchema).values({
-      userId,
-      type: 'FOLLOW',
-      sourceUserId: followerId,
-      seen: false,
-    })
+    if (action === 'follow') {
+      await tx.insert(notificationSchema).values({
+        userId,
+        type: 'FOLLOW',
+        sourceUserId: followerId,
+        seen: false,
+      })
+    }
   })
 }
 
@@ -209,6 +202,7 @@ export const updateUserBio = async (userId: string, bio: string) => {
 }
 
 const reply = aliasedTable(postSchema, 'reply')
+const replySelect = getAliasedBasePostSelect(reply)
 
 export const getNotifications = async (userId: string) => {
   return await db
@@ -224,8 +218,7 @@ export const getNotifications = async (userId: string) => {
       )`.as('isFollowed'),
       },
       post: basePostSelect,
-      reply: basePostSelect,
-      // postAuthor: userSchema,
+      reply: replySelect,
     })
     .from(notificationSchema)
     .where(
@@ -238,7 +231,7 @@ export const getNotifications = async (userId: string) => {
     .innerJoin(userSchema, eq(notificationSchema.sourceUserId, userSchema.id))
     .leftJoin(postSchema, eq(notificationSchema.postId, postSchema.id))
     // .leftJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .leftJoin(reply, eq(postSchema.parentId, reply.id))
+    .leftJoin(reply, and(eq(notificationSchema.type, 'REPLY'), eq(notificationSchema.replyId, reply.id)))
     .orderBy(desc(notificationSchema.createdAt))
     .limit(50)
     .all()
