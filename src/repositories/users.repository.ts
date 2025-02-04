@@ -1,8 +1,9 @@
-import { and, eq, or, sql } from 'drizzle-orm'
+import { aliasedTable, and, desc, eq, or, sql } from 'drizzle-orm'
 import { ulid } from 'ulidx'
 
 import { db } from '../lib/db/Drizzle'
-import { followerSchema, type User, userSchema } from '../lib/db/Schema'
+import { followerSchema, notificationSchema, postSchema, type User, userSchema } from '../lib/db/Schema'
+import { basePostSelect } from './posts.repository'
 
 export const baseUserSelect = {
   id: userSchema.id,
@@ -71,6 +72,12 @@ export const handleFollow = async (userId: string, followerId: string, action: '
         .set({ followerCount: targetUser.followerCount - 1 })
         .where(eq(userSchema.id, userId))
     }
+    await tx.insert(notificationSchema).values({
+      userId,
+      type: 'FOLLOW',
+      sourceUserId: followerId,
+      seen: false,
+    })
   })
 }
 
@@ -199,4 +206,47 @@ export const deleteUser = async (userId: string) => {
 
 export const updateUserBio = async (userId: string, bio: string) => {
   await db.update(userSchema).set({ bio }).where(eq(userSchema.id, userId))
+}
+
+const reply = aliasedTable(postSchema, 'reply')
+
+export const getNotifications = async (userId: string) => {
+  return await db
+    .select({
+      notification: notificationSchema,
+      sourceUser: {
+        ...baseUserSelect,
+        isFollowed: sql<boolean>`EXISTS (
+        SELECT 1 
+        FROM ${followerSchema} 
+        WHERE ${followerSchema.userId} = ${userSchema.id} 
+          AND ${followerSchema.followerId} = ${userId}
+      )`.as('isFollowed'),
+      },
+      post: basePostSelect,
+      reply: basePostSelect,
+      // postAuthor: userSchema,
+    })
+    .from(notificationSchema)
+    .where(
+      and(
+        eq(notificationSchema.userId, userId),
+        eq(notificationSchema.seen, false),
+        sql`${notificationSchema.sourceUserId} IS NOT NULL`,
+      ),
+    )
+    .innerJoin(userSchema, eq(notificationSchema.sourceUserId, userSchema.id))
+    .leftJoin(postSchema, eq(notificationSchema.postId, postSchema.id))
+    // .leftJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .leftJoin(reply, eq(postSchema.parentId, reply.id))
+    .orderBy(desc(notificationSchema.createdAt))
+    .limit(50)
+    .all()
+}
+
+export const markNotificationsAsSeen = async (userId: string) => {
+  await db
+    .update(notificationSchema)
+    .set({ seen: true })
+    .where(and(eq(notificationSchema.userId, userId), eq(notificationSchema.seen, false)))
 }

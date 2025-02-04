@@ -7,6 +7,7 @@ import { validateRequest } from '@/lib/Lucia'
 import {
   findUserByField,
   getAuthUserDetails,
+  getNotifications as getNotificationsDb,
   getPublicUserDetails,
   searchUsers as searchUsersDb,
 } from '@/repositories/users.repository'
@@ -105,6 +106,22 @@ export const searchUsers = async (query: string) => {
         isFollowed: Boolean(user.isFollowed),
       })),
     }
+  } catch (err) {
+    logger.error(err)
+    return { error: DEFAULT_ERROR }
+  }
+}
+
+/*
+ * Get notifications
+ */
+export const getNotifications = async () => {
+  try {
+    const { user } = await validateRequest()
+    if (!user) {
+      return redirect(ROUTES.LOGIN)
+    }
+    return await getNotificationsDb(user.id)
   } catch (err) {
     logger.error(err)
     return { error: DEFAULT_ERROR }
