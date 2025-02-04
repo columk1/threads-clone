@@ -1,6 +1,6 @@
 import type { FunctionComponent } from 'react'
 
-import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/Dialog'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/Dialog'
 import type { PostUser } from '@/services/users/users.queries'
 
 import Avatar from './Avatar'
@@ -21,6 +21,7 @@ const UnfollowModal: FunctionComponent<UnfollowModalProps> = ({ user, handleUnfo
             <Avatar url={user.avatar} size="lg" />
           </div>
           <DialogTitle className="px-6 text-center text-[15px] font-bold">{`Unfollow ${user.username}?`}</DialogTitle>
+          <DialogDescription className="sr-only">Confirm unfollow</DialogDescription>
         </div>
         <div className="flex w-full">
           <DialogClose asChild>

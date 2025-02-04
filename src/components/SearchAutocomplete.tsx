@@ -64,24 +64,14 @@ const SearchResult = ({
       <div className="flex w-full border-b-[0.5px] border-primary-outline py-[16px] pr-6">
         <div className="flex flex-1 flex-col">
           <span className="font-semibold leading-5">
-            <PostAuthor
-              user={user}
-              isAuthenticated={Boolean(currentUser)}
-              isCurrentUser={isCurrentUser}
-              onToggleFollow={handleToggleFollow}
-            />
+            <PostAuthor user={user} isCurrentUser={isCurrentUser} onToggleFollow={handleToggleFollow} />
           </span>
           <span className="text-placeholder-text">{user.name}</span>
         </div>
         <div className="">
           {!isCurrentUser && (
             <>
-              <FollowButton
-                muted
-                isFollowed={user.isFollowed}
-                isAuthenticated={Boolean(currentUser)}
-                onToggleFollow={handleToggleFollow}
-              />
+              <FollowButton muted isFollowed={user.isFollowed} onToggleFollow={handleToggleFollow} />
               {user.isFollowed && <UnfollowModal {...unfollowModalProps} />}
             </>
           )}

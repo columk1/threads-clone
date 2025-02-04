@@ -37,6 +37,42 @@ const applyConstraints = (width: number | null, height: number | null, maxWidth 
   }
 }
 
+type ThreadMediaProps = {
+  image: string | null
+  imageWidth: number | null
+  imageHeight: number | null
+  isTarget?: boolean
+}
+
+export const ThreadMedia = ({ image, imageWidth, imageHeight, isTarget = false }: ThreadMediaProps) => {
+  if (!image) {
+    return null
+  }
+
+  const { containerWidth, containerHeight } = applyConstraints(imageWidth, imageHeight)
+
+  return (
+    <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
+      <div
+        className={cx('mb-1 max-h-[430px] rounded-lg outline -outline-offset-1 outline-primary-outline')}
+        style={{
+          width: containerWidth,
+          height: containerHeight,
+        }}
+      >
+        <Image
+          src={image}
+          alt="preview"
+          priority
+          width={Number(containerWidth)}
+          height={Number(containerHeight)}
+          className="block rounded-lg object-contain"
+        />
+      </div>
+    </div>
+  )
+}
+
 type ThreadProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }
   user: PostUser
@@ -140,34 +176,6 @@ const ThreadContent: FunctionComponent<{
 }> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow }) => {
   const canFollow = !isCurrentUser && !user.isFollowed
 
-  const media = () => {
-    if (!post.image) {
-      return null
-    }
-    const { containerWidth, containerHeight } = applyConstraints(post.imageWidth, post.imageHeight)
-    // const { width, height } = { width: post.imageWidth || 543, height: post.imageHeight || 430 }
-    return (
-      <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
-        <div
-          className={cx('mb-1 max-h-[430px] rounded-lg outline -outline-offset-1 outline-primary-outline')}
-          style={{
-            width: containerWidth,
-            height: containerHeight,
-          }}
-        >
-          <Image
-            src={post.image}
-            alt="preview"
-            priority
-            width={Number(containerWidth)}
-            height={Number(containerHeight)}
-            className="block rounded-lg object-contain"
-          />
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="grid grid-cols-[48px_minmax(0,1fr)]">
       <div className={cx('col-start-1 pt-[5px]', isTarget ? 'row-span-1' : 'row-span-2')}>
@@ -175,7 +183,6 @@ const ThreadContent: FunctionComponent<{
           {isAuthenticated && canFollow ? (
             <UserModal
               user={user}
-              isAuthenticated
               isCurrentUser={isCurrentUser}
               onToggleFollow={onToggleFollow}
               trigger={
@@ -196,15 +203,8 @@ const ThreadContent: FunctionComponent<{
         </div>
       </div>
       <div className="flex w-full items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <div className="font-semibold">
-            <PostAuthor
-              user={user}
-              isAuthenticated={isAuthenticated}
-              isCurrentUser={isCurrentUser}
-              onToggleFollow={onToggleFollow}
-            />
-          </div>
+        <div className="flex items-center gap-2 leading-6">
+          <PostAuthor user={user} isCurrentUser={isCurrentUser} onToggleFollow={onToggleFollow} />
           <a href={`/@${user.username}/post/${post.id}`}>
             <TimeAgo publishedAt={post.createdAt} />
           </a>
@@ -222,7 +222,7 @@ const ThreadContent: FunctionComponent<{
         <div className={cx('row-start-2', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>{post.text}</div>
       )}
 
-      {media()}
+      <ThreadMedia image={post.image} imageWidth={post.imageWidth} imageHeight={post.imageHeight} isTarget={isTarget} />
 
       <ThreadActions
         post={post}

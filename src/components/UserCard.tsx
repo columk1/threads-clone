@@ -8,16 +8,10 @@ import FollowButton from './FollowButton'
 type UserCardProps = {
   user: PostUser
   isCurrentUser?: boolean
-  isAuthenticated?: boolean
   onToggleFollow?: () => Promise<void>
 }
 
-const UserCard: FunctionComponent<UserCardProps> = ({
-  user,
-  isAuthenticated = false,
-  isCurrentUser = false,
-  onToggleFollow,
-}) => {
+const UserCard: FunctionComponent<UserCardProps> = ({ user, isCurrentUser = false, onToggleFollow }) => {
   return (
     <div className="flex flex-col items-center justify-center gap-4 text-[15px] font-normal">
       <div className="flex w-full items-center justify-between">
@@ -33,9 +27,7 @@ const UserCard: FunctionComponent<UserCardProps> = ({
           {`${Intl.NumberFormat().format(user.followerCount)} follower${user.followerCount !== 1 ? 's' : ''}`}
         </div>
       </div>
-      {!isCurrentUser && (
-        <FollowButton isAuthenticated={isAuthenticated} isFollowed={user.isFollowed} onToggleFollow={onToggleFollow} />
-      )}
+      {!isCurrentUser && <FollowButton isFollowed={user.isFollowed} onToggleFollow={onToggleFollow} />}
     </div>
   )
 }

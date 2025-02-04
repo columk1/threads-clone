@@ -31,29 +31,7 @@ export const useFollow = ({
     ])
   }, [initialUser, addUsers])
 
-  const validateFollowStatus = async () => {
-    try {
-      const response = await fetch(`/api/users/${initialUser.id}/following`)
-      if (response.ok) {
-        const result: FollowingResponseData = await response.json()
-        if (typeof result === 'boolean' && result !== storedUser?.isFollowed) {
-          updateUser(initialUser.id, {
-            isFollowed: result,
-            followerCount: result ? initialUser.followerCount + 1 : initialUser.followerCount - 1,
-          })
-        }
-      }
-    } catch (error) {
-      console.error('Error checking follow status:', error)
-    }
-  }
-
   const handleFollow = async () => {
-    if (!isAuthenticated) {
-      openModal('auth-prompt', 'follow')
-      return
-    }
-
     const currentFollowState = storedUser?.isFollowed ?? initialUser.isFollowed
     const currentFollowerCount = storedUser?.followerCount ?? initialUser.followerCount
 
@@ -110,6 +88,23 @@ export const useFollow = ({
       setIsUnfollowModalOpen(true)
     } else {
       await handleFollow()
+    }
+  }
+
+  const validateFollowStatus = async () => {
+    try {
+      const response = await fetch(`/api/users/${initialUser.id}/following`)
+      if (response.ok) {
+        const result: FollowingResponseData = await response.json()
+        if (typeof result === 'boolean' && result !== storedUser?.isFollowed) {
+          updateUser(initialUser.id, {
+            isFollowed: result,
+            followerCount: result ? initialUser.followerCount + 1 : initialUser.followerCount - 1,
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Error checking follow status:', error)
     }
   }
 
