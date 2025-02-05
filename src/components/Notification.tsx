@@ -2,12 +2,14 @@
 
 import type { User } from 'lucia'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import { useFollow } from '@/hooks/useFollow'
 import type { getNotifications as getNotificationsDb } from '@/repositories/users.repository'
 
 import Avatar from './Avatar'
 import FollowButton from './FollowButton'
+import NestedLinkWrapper from './NestedLinkWrapper'
 import PostAuthor from './PostAuthor'
 import { ThreadMedia } from './Thread'
 import ThreadActions from './ThreadActions'
@@ -23,14 +25,23 @@ const Notification = ({ data, currentUser }: { data: NotificationItem; currentUs
     isAuthenticated: true,
   })
   const source = notification.type === 'FOLLOW' ? 'Followed you' : post?.text
+
+  const router = useRouter()
+  const linkTarget = reply
+    ? `/@${sourceUser.username}/post/${reply.id}`
+    : post
+      ? `/@${currentUser.username}/post/${post.id}`
+      : `/@${sourceUser.username}`
+
   return (
-    <>
+    <NestedLinkWrapper onClick={() => router.push(linkTarget)}>
       <div className="px-6 py-3">
         <div className="grid grid-cols-[48px_minmax(0,1fr)_auto] text-[15px]">
           <div className="col-start-1 row-span-2 pt-[4px]">
             <Link href={`/@${user.username}`} className="group !ring-0 !ring-offset-0">
               <Avatar
                 url={user.avatar}
+                notificationIconType={notification.type}
                 className="group-focus-visible:outline-2 group-focus-visible:outline-white group-focus-visible:ring-2 group-focus-visible:ring-blue-500 group-focus-visible:ring-offset-2"
               />
             </Link>
@@ -64,7 +75,7 @@ const Notification = ({ data, currentUser }: { data: NotificationItem; currentUs
         <UnfollowModal {...unfollowModalProps} />
       </div>
       <div className="ml-[72px] h-[0.5px] bg-gray-5"></div>
-    </>
+    </NestedLinkWrapper>
   )
 }
 

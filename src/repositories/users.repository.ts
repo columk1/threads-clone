@@ -2,7 +2,15 @@ import { aliasedTable, and, desc, eq, or, sql } from 'drizzle-orm'
 import { ulid } from 'ulidx'
 
 import { db } from '../lib/db/Drizzle'
-import { followerSchema, notificationSchema, postSchema, type User, userSchema } from '../lib/db/Schema'
+import {
+  followerSchema,
+  likeSchema,
+  notificationSchema,
+  postSchema,
+  repostSchema,
+  type User,
+  userSchema,
+} from '../lib/db/Schema'
 import { basePostSelect, baseUserSelect, getAliasedBasePostSelect } from '../lib/db/selectors'
 
 type UserField = keyof User
@@ -211,14 +219,28 @@ export const getNotifications = async (userId: string) => {
       sourceUser: {
         ...baseUserSelect,
         isFollowed: sql<boolean>`EXISTS (
-        SELECT 1 
-        FROM ${followerSchema} 
-        WHERE ${followerSchema.userId} = ${userSchema.id} 
-          AND ${followerSchema.followerId} = ${userId}
-      )`.as('isFollowed'),
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userSchema.id} 
+            AND ${followerSchema.followerId} = ${userId}
+        )`.as('isFollowed'),
       },
       post: basePostSelect,
-      reply: replySelect,
+      reply: {
+        ...replySelect,
+        isLiked: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${likeSchema} 
+          WHERE ${likeSchema.postId} = ${reply.id} 
+            AND ${likeSchema.userId} = ${userId}
+        )`.as('isLiked'),
+        isReposted: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${repostSchema} 
+          WHERE ${repostSchema.postId} = ${reply.id} 
+            AND ${repostSchema.userId} = ${userId}
+        )`.as('isReposted'),
+      },
     })
     .from(notificationSchema)
     .where(
