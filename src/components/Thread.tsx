@@ -10,10 +10,10 @@ import type { FunctionComponent } from 'react'
 import { useFollow } from '@/hooks/useFollow'
 import type { Post } from '@/lib/db/Schema'
 import type { PostUser } from '@/services/users/users.queries'
-import { handleNestedInteraction } from '@/utils/handleNestedInteraction'
 
 import Avatar from './Avatar'
 import { RepostIcon } from './icons'
+import NestedLinkWrapper from './NestedLinkWrapper'
 import PostAuthor from './PostAuthor'
 import PostDropDownMenu from './PostDropDownMenu'
 import ThreadActions from './ThreadActions'
@@ -82,38 +82,6 @@ type ThreadProps = {
   isTarget?: boolean
   isParent?: boolean
   reposted?: { username: string; createdAt: number }
-}
-
-type ThreadCardProps = {
-  onClick: () => void
-  children: React.ReactNode
-}
-
-const ThreadCard: FunctionComponent<ThreadCardProps> = ({ onClick, children }) => {
-  return (
-    <div
-      role="link"
-      onPointerDown={() => {
-        window.getSelection()?.removeAllRanges()
-      }}
-      onClick={(e) => {
-        // Don't navigate if text is selected
-        if (window.getSelection()?.toString()) {
-          return
-        }
-        handleNestedInteraction(e, onClick)
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          handleNestedInteraction(e, onClick)
-        }
-      }}
-      tabIndex={0}
-      className="link cursor-pointer"
-    >
-      {children}
-    </div>
-  )
 }
 
 type ThreadLayoutProps = {
@@ -259,7 +227,7 @@ export default function Thread({
 
   return (
     <ThreadLayout isParent={isParent} isTarget={isTarget} currentUser={currentUser}>
-      <ThreadCard onClick={() => router.push(`/@${followableUser.username}/post/${post.id}`)}>
+      <NestedLinkWrapper onClick={() => router.push(`/@${followableUser.username}/post/${post.id}`)}>
         {reposted && <RepostHeader username={reposted.username} createdAt={reposted.createdAt} />}
         <ThreadContent
           post={post}
@@ -270,7 +238,7 @@ export default function Thread({
           currentUser={currentUser}
           onToggleFollow={handleToggleFollow}
         />
-      </ThreadCard>
+      </NestedLinkWrapper>
       <UnfollowModal {...unfollowModalProps} />
     </ThreadLayout>
   )
