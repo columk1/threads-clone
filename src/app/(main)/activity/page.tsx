@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import Header from '@/components/Header'
+import HydrateStore from '@/components/hydrateStore'
 import Notification from '@/components/Notification'
 import { validateRequest } from '@/lib/Lucia'
 import { getNotifications } from '@/services/users/users.queries'
@@ -16,6 +17,11 @@ const Activity = async () => {
   }
 
   const data = await getNotifications()
+  const replies =
+    !('error' in data) && data.length > 0
+      ? data.filter((e) => e.reply !== null).map((e) => ({ post: e.reply!, user: e.sourceUser }))
+      : []
+
   return (
     <>
       <Header title="Activity" />
@@ -24,7 +30,12 @@ const Activity = async () => {
         {'error' in data || data.length === 0 ? (
           <div className="mx-auto my-[calc(50%+60px)] py-3 text-gray-8">No activity yet</div>
         ) : (
-          data.map((e) => <Notification key={e.notification.id} data={e} currentUser={user} />)
+          <>
+            <HydrateStore initialPosts={replies} />
+            {data.map((e) => (
+              <Notification key={e.notification.id} data={e} currentUser={user} />
+            ))}
+          </>
         )}
         {/* <div className="mx-auto my-[calc(50%+60px)] py-3 text-gray-8">Under development</div> */}
       </div>
