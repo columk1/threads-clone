@@ -2,12 +2,13 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import Header from '@/components/Header'
+import HydrateStore from '@/components/hydrateStore'
 import Spinner from '@/components/spinner/Spinner'
 import Thread from '@/components/Thread'
 import ThreadView from '@/components/ThreadView'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
-import { getAuthPostById, getPublicPostById, getSinglePostById } from '@/services/posts/posts.queries'
+import { getAuthPostById, getPublicPostById } from '@/services/posts/posts.queries'
 
 type Props = {
   params: Promise<{
@@ -28,30 +29,28 @@ export default async function PostPage({ params }: Props) {
 
   const username = result.data
 
-  const isAuthenticated = !!currentUser
+  const isAuthenticated = Boolean(currentUser)
   const isCurrentUser = currentUser?.username === username
 
-  const getPostById = currentUser ? getAuthPostById : getPublicPostById
+  const getPostById = isAuthenticated ? getAuthPostById : getPublicPostById
 
   const data = await getPostById(postId)
 
-  // if ('error' in data) {
-  //   return notFound()
-  // }
-
-  if (!Array.isArray(data) || data[0]?.user?.username !== username) {
+  if (!Array.isArray(data)) {
     return notFound()
   }
 
-  const [targetThread, ...replies] = data
+  const parentThread = data[0]?.post.id !== postId ? data[0] : null
+
+  const [targetThread, ...replies] = parentThread ? data.slice(1) : data
+
   if (!targetThread) {
     return notFound()
   }
 
-  const parentThread = targetThread.post.parentId ? await getSinglePostById(targetThread.post.parentId) : null
-
   return (
     <>
+      <HydrateStore initialPosts={data} />
       <Header title="Thread" />
       <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
         <ThreadView

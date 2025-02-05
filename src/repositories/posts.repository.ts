@@ -14,21 +14,6 @@ import {
 } from '../lib/db/Schema'
 import { basePostSelect, baseUserSelect } from '../lib/db/selectors'
 
-export const getAliasedBasePostSelect = (table: typeof postSchema) => ({
-  id: table.id,
-  text: table.text,
-  image: table.image,
-  imageWidth: table.imageWidth,
-  imageHeight: table.imageHeight,
-  userId: table.userId,
-  parentId: table.parentId,
-  likeCount: table.likeCount,
-  replyCount: table.replyCount,
-  repostCount: table.repostCount,
-  shareCount: table.shareCount,
-  createdAt: table.createdAt,
-})
-
 export type PostData = Post & { isLiked: boolean; isReposted: boolean }
 
 export const listPublicPosts = async (authorUsername?: string) => {
@@ -279,7 +264,13 @@ export const getPublicPostWithReplies = async (postId: string) => {
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(or(eq(postSchema.id, postId), eq(postSchema.parentId, postId)))
+    .where(
+      or(
+        eq(postSchema.id, postId),
+        eq(postSchema.parentId, postId),
+        eq(postSchema.id, sql`(SELECT ${postSchema.parentId} FROM ${postSchema} WHERE ${postSchema.id} = ${postId})`),
+      ),
+    )
     .orderBy(postSchema.createdAt)
     .all()
 }
@@ -314,11 +305,18 @@ export const getAuthPostWithReplies = async (postId: string, userId: string) => 
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
-    .where(or(eq(postSchema.id, postId), eq(postSchema.parentId, postId)))
+    .where(
+      or(
+        eq(postSchema.id, postId),
+        eq(postSchema.parentId, postId),
+        eq(postSchema.id, sql`(SELECT ${postSchema.parentId} FROM ${postSchema} WHERE ${postSchema.id} = ${postId})`),
+      ),
+    )
     .orderBy(postSchema.createdAt)
     .all()
 }
 
+// TODO: Remove if not used, this doesn't have a corresponding auth version
 export const getPostById = async (id: string) => {
   return await db
     .select({
