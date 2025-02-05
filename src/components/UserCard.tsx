@@ -13,8 +13,8 @@ type UserCardProps = {
 
 const UserCard: FunctionComponent<UserCardProps> = ({ user, isCurrentUser = false, onToggleFollow }) => {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 text-[15px] font-normal">
-      <div className="flex w-full items-center justify-between">
+    <div className="flex flex-col gap-4 text-[15px] font-normal">
+      <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-xl font-semibold">{user.username}</span>
           <span>{user.username}</span>
