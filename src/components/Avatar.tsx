@@ -3,6 +3,10 @@ import Image from 'next/image'
 import type { FunctionComponent } from 'react'
 
 import { FollowIcon } from './icons'
+import FollowNotification from './icons/FollowNotification'
+import LikeNotification from './icons/LikeNotification'
+import ReplyNotification from './icons/ReplyNotification'
+import RepostNotification from './icons/RepostNotification'
 
 type AvatarProps = {
   url: string | null
@@ -10,6 +14,7 @@ type AvatarProps = {
   isFollowed?: boolean
   priority?: boolean
   responsive?: boolean
+  notificationIconType?: 'LIKE' | 'FOLLOW' | 'REPLY' | 'REPOST'
   className?: string
 }
 
@@ -28,7 +33,22 @@ const sizeClass = {
 //   xl: 84,
 // }
 
-const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, priority, responsive, className }) => {
+const notificationIcons = {
+  LIKE: <LikeNotification />,
+  FOLLOW: <FollowNotification />,
+  REPLY: <ReplyNotification />,
+  REPOST: <RepostNotification />,
+}
+
+const Avatar: FunctionComponent<AvatarProps> = ({
+  size = 'sm',
+  url,
+  isFollowed,
+  priority,
+  responsive,
+  notificationIconType,
+  className,
+}) => {
   return (
     <div
       className={cx(
@@ -47,7 +67,11 @@ const Avatar: FunctionComponent<AvatarProps> = ({ size = 'sm', url, isFollowed, 
           priority={priority ?? false}
         />
       </div>
-      {isFollowed === false ? (
+      {notificationIconType ? (
+        <span className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white text-gray-1 outline outline-2 outline-gray-1">
+          {notificationIcons[notificationIconType]}
+        </span>
+      ) : isFollowed === false ? (
         <span className="absolute bottom-0 right-0 flex size-3.5 items-center justify-center rounded-full bg-white text-gray-1 outline outline-2 outline-gray-1">
           <FollowIcon />
         </span>

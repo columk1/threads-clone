@@ -9,6 +9,7 @@ import EditIcon from './Edit'
 import EditColorIcon from './EditColor'
 import FollowIcon from './Follow'
 import FollowColorIcon from './FollowColor'
+import FollowNotificationIcon from './FollowNotification'
 import HamburgerMenuIcon from './HamburgerMenu'
 import HomeIcon from './Home'
 import ImageIcon from './Image'
@@ -22,10 +23,12 @@ import PinIcon from './Pin'
 import ProfileIcon from './Profile'
 import ReplyIcon from './Reply'
 import ReplyColorIcon from './ReplyColor'
+import ReplyNotificationIcon from './ReplyNotification'
 import ReportIcon from './Report'
 import RepostIcon from './Repost'
 import RepostColorIcon from './RepostColor'
 import RepostedIcon from './Reposted'
+import RepostNotificationIcon from './RepostNotification'
 import SearchIcon from './Search'
 import ShareIcon from './Share'
 import UnfollowIcon from './Unfollow'
@@ -42,6 +45,7 @@ export {
   EditIcon,
   FollowColorIcon,
   FollowIcon,
+  FollowNotificationIcon,
   HamburgerMenuIcon,
   HomeIcon,
   ImageIcon,
@@ -55,10 +59,12 @@ export {
   ProfileIcon,
   ReplyColorIcon,
   ReplyIcon,
+  ReplyNotificationIcon,
   ReportIcon,
   RepostColorIcon,
   RepostedIcon,
   RepostIcon,
+  RepostNotificationIcon,
   SearchIcon,
   ShareIcon,
   UnfollowIcon,
