@@ -235,13 +235,24 @@ export const insertPost = async (userId: string, post: { text?: string; image?: 
     if (post.parentId) {
       const parentPost = await incrementReplyCount(tx, post.parentId)
       if (parentPost) {
-        await tx.insert(notificationSchema).values({
-          userId: parentPost.userId,
-          type: 'REPLY',
-          sourceUserId: userId,
-          postId: parentPost.id,
-          replyId: newPost.id,
-        })
+        await tx
+          .insert(notificationSchema)
+          .values({
+            userId: parentPost.userId,
+            type: 'REPLY',
+            sourceUserId: userId,
+            postId: parentPost.id,
+            replyId: newPost.id,
+          })
+          // Don't recreate notifications
+          .onConflictDoNothing({
+            target: [
+              notificationSchema.userId,
+              notificationSchema.sourceUserId,
+              notificationSchema.postId,
+              notificationSchema.type,
+            ],
+          })
       }
     }
 
@@ -338,6 +349,13 @@ export const getPostById = async (id: string) => {
 
 export const insertLike = async (postId: string, userId: string) => {
   await db.transaction(async (trx) => {
+    // Get the post's user ID
+    const post = await trx.select({ userId: postSchema.userId }).from(postSchema).where(eq(postSchema.id, postId)).get()
+
+    if (!post) {
+      throw new Error('Post not found')
+    }
+
     // Add a like
     await trx.insert(likeSchema).values({ userId, postId })
 
@@ -346,6 +364,27 @@ export const insertLike = async (postId: string, userId: string) => {
       .update(postSchema)
       .set({ likeCount: sql`${postSchema.likeCount} + 1` })
       .where(eq(postSchema.id, postId))
+
+    // Create a notification for the post's author
+    if (post.userId !== userId) {
+      await trx
+        .insert(notificationSchema)
+        .values({
+          userId: post.userId,
+          type: 'LIKE',
+          sourceUserId: userId,
+          postId,
+        })
+        // Don't recreate notifications
+        .onConflictDoNothing({
+          target: [
+            notificationSchema.userId,
+            notificationSchema.sourceUserId,
+            notificationSchema.postId,
+            notificationSchema.type,
+          ],
+        })
+    }
   })
 }
 
@@ -364,6 +403,13 @@ export const deleteLike = async (postId: string, userId: string) => {
 
 export const insertRepost = async (postId: string, userId: string) => {
   await db.transaction(async (tx) => {
+    // Get the post's user ID
+    const post = await tx.select({ userId: postSchema.userId }).from(postSchema).where(eq(postSchema.id, postId)).get()
+
+    if (!post) {
+      throw new Error('Post not found')
+    }
+
     await tx.insert(repostSchema).values({
       postId,
       userId,
@@ -372,6 +418,27 @@ export const insertRepost = async (postId: string, userId: string) => {
       .update(postSchema)
       .set({ repostCount: sql`${postSchema.repostCount} + 1` })
       .where(eq(postSchema.id, postId))
+
+    // Create a notification for the post's author
+    if (post.userId !== userId) {
+      await tx
+        .insert(notificationSchema)
+        .values({
+          userId: post.userId,
+          type: 'REPOST',
+          sourceUserId: userId,
+          postId,
+        })
+        // Don't recreate notifications
+        .onConflictDoNothing({
+          target: [
+            notificationSchema.userId,
+            notificationSchema.sourceUserId,
+            notificationSchema.postId,
+            notificationSchema.type,
+          ],
+        })
+    }
   })
 }
 

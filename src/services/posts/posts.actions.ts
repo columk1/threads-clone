@@ -118,6 +118,7 @@ export const handleRepostAction = async (actionType: RepostAction, postId: strin
   const repostQuery = repostQueries[actionType]
   try {
     await repostQuery(postId, userId)
+    // revalidatePath(`/@${user.username}/reposts`, 'page')
   } catch (err) {
     logger.error(err, 'Error toggling repost')
     return { error: DEFAULT_ERROR, success: false }

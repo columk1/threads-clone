@@ -72,12 +72,24 @@ export const handleFollow = async (userId: string, followerId: string, action: '
         .where(eq(userSchema.id, userId))
     }
     if (action === 'follow') {
-      await tx.insert(notificationSchema).values({
-        userId,
-        type: 'FOLLOW',
-        sourceUserId: followerId,
-        seen: false,
-      })
+      await tx
+        .insert(notificationSchema)
+        .values({
+          userId,
+          type: 'FOLLOW',
+          sourceUserId: followerId,
+          seen: false,
+        })
+        // Don't recreate notifications
+        .onConflictDoNothing({
+          target: [
+            notificationSchema.userId,
+            notificationSchema.sourceUserId,
+            notificationSchema.type,
+            sql`COALESCE(${notificationSchema.postId}, '')`, // Null is unique in SQLite
+            sql`COALESCE(${notificationSchema.replyId}, '')`, // Null is unique in SQLite
+          ],
+        })
     }
   })
 }
