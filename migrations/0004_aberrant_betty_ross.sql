@@ -15,9 +15,10 @@ CREATE TABLE `__new_notifications` (
 	CONSTRAINT "valid_reference" CHECK((type = 'FOLLOW' AND post_id IS NULL AND reply_id IS NULL) 
           OR (type IN ('LIKE', 'REPOST') AND post_id IS NOT NULL AND reply_id IS NULL) 
           OR (type = 'REPLY' AND post_id IS NOT NULL AND reply_id IS NOT NULL))
-);
---> statement-breakpoint
-INSERT INTO `__new_notifications`("id", "user_id", "type", "source_user_id", "post_id", "reply_id", "seen", "created_at") SELECT "id", "user_id", "type", "source_user_id", "post_id", "reply_id", "seen", "created_at" FROM `notifications`;--> statement-breakpoint
+);--> statement-breakpoint
+INSERT INTO `__new_notifications`("id", "user_id", "type", "source_user_id", "post_id", "seen", "created_at") 
+SELECT "id", "user_id", "type", "source_user_id", "post_id", "seen", "created_at" 
+FROM `notifications`;--> statement-breakpoint
 DROP TABLE `notifications`;--> statement-breakpoint
 ALTER TABLE `__new_notifications` RENAME TO `notifications`;--> statement-breakpoint
 PRAGMA foreign_keys=ON;--> statement-breakpoint
