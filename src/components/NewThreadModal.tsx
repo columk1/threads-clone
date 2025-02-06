@@ -41,6 +41,7 @@ type ModalState = {
   uploading: boolean
   fileInputRef: React.RefObject<HTMLInputElement | null>
   parentId?: string
+  parentUsername?: string
   formRef: React.RefObject<HTMLFormElement | null>
 }
 
@@ -87,6 +88,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
     uploading,
     fileInputRef,
     parentId,
+    parentUsername,
     formRef,
   } = state
   const { handleTextInput, handleUploadButtonClick, handleFileChange } = actions
@@ -148,7 +150,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
                 autoComplete="off"
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
-                placeholder={isReply ? `Reply to ${username}...` : "What's new?"}
+                placeholder={isReply ? `Reply to ${parentUsername}...` : "What's new?"}
                 minLength={1}
                 className="col-start-2 mb-[2px] w-full resize-none bg-transparent placeholder:text-gray-7 focus:outline-none focus:ring-0"
                 rows={1}

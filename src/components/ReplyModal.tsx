@@ -101,6 +101,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
     uploading,
     fileInputRef,
     parentId: post.id,
+    parentUsername: author.username,
     formRef,
   }
 
