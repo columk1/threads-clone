@@ -1,4 +1,3 @@
-/* eslint-disable test/no-only-tests */
 import { sql } from 'drizzle-orm'
 import type { Session } from 'lucia'
 import { redirect } from 'next/navigation'
@@ -41,8 +40,9 @@ vi.mock('@/lib/Logger', () => ({
 }))
 
 describe('Posts Actions', () => {
-  let testUser: Awaited<ReturnType<typeof createTestUser>>
+  let testUser1: Awaited<ReturnType<typeof createTestUser>>
   let testPost: Awaited<ReturnType<typeof createTestPost>>
+  let testUser2: Awaited<ReturnType<typeof createTestUser>>
 
   const createMockSession = (userId: string): Session => ({
     id: 'session-1',
@@ -53,13 +53,14 @@ describe('Posts Actions', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    testUser = await createTestUser()
+    testUser1 = await createTestUser()
+    testUser2 = await createTestUser()
     testPost = await createTestPost({
-      userId: testUser.id,
+      userId: testUser1.id,
       text: 'Test post',
     })
-    const mockSession = createMockSession(testUser.id)
-    vi.mocked(validateRequest).mockResolvedValue({ user: testUser, session: mockSession })
+    const mockSession = createMockSession(testUser2.id)
+    vi.mocked(validateRequest).mockResolvedValue({ user: testUser2, session: mockSession })
   })
 
   describe('createPost', () => {
@@ -73,12 +74,12 @@ describe('Posts Actions', () => {
 
       // Verify post was created in DB
       const posts = await testDb.query.postSchema.findMany({
-        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+        where: (posts, { eq }) => eq(posts.userId, testUser2.id),
       })
 
-      expect(posts).toHaveLength(2) // Including the testPost from beforeEach
+      expect(posts).toHaveLength(1)
 
-      const newPost = posts[1]
+      const newPost = posts[0]
 
       expect(newPost?.text).toBe('Test post content')
     })
@@ -96,12 +97,12 @@ describe('Posts Actions', () => {
 
       // Verify post was created in DB
       const posts = await testDb.query.postSchema.findMany({
-        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+        where: (posts, { eq }) => eq(posts.userId, testUser2.id),
       })
 
-      expect(posts).toHaveLength(2)
+      expect(posts).toHaveLength(1)
 
-      const newPost = posts[1]
+      const newPost = posts[0]
 
       expect(newPost?.text).toBe('Test post content')
       expect(newPost?.image).toBe('https://example.com/image.jpg')
@@ -123,7 +124,7 @@ describe('Posts Actions', () => {
 
       // Verify no post was created
       const posts = await testDb.query.postSchema.findMany({
-        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+        where: (posts, { eq }) => eq(posts.userId, testUser1.id),
       })
 
       expect(posts).toHaveLength(1) // Only the testPost from beforeEach
@@ -142,7 +143,7 @@ describe('Posts Actions', () => {
 
       // Verify no post was created
       const posts = await testDb.query.postSchema.findMany({
-        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+        where: (posts, { eq }) => eq(posts.userId, testUser1.id),
       })
 
       expect(posts).toHaveLength(1)
@@ -164,7 +165,7 @@ describe('Posts Actions', () => {
 
       // Verify no post was created
       const posts = await testDb.query.postSchema.findMany({
-        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+        where: (posts, { eq }) => eq(posts.userId, testUser1.id),
       })
 
       expect(posts).toHaveLength(1)
@@ -184,7 +185,7 @@ describe('Posts Actions', () => {
 
       // Verify no post was created
       const posts = await testDb.query.postSchema.findMany({
-        where: (posts, { eq }) => eq(posts.userId, testUser.id),
+        where: (posts, { eq }) => eq(posts.userId, testUser1.id),
       })
 
       expect(posts).toHaveLength(1)
@@ -200,8 +201,8 @@ describe('Posts Actions', () => {
     })
   })
 
-  describe.only('createReply', () => {
-    it('should create a reply to a post', async () => {
+  describe('createReply', () => {
+    it('should create a reply to a post and create a notification', async () => {
       const formData = new FormData()
       formData.append('text', 'Test reply')
       formData.append('parentId', testPost.id)
@@ -220,7 +221,21 @@ describe('Posts Actions', () => {
       const reply = replies[0]
 
       expect(reply).toBeDefined()
-      expect(reply!.text).toBe('Test reply')
+      expect(reply?.text).toBe('Test reply')
+
+      // Verify notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.userId, testUser1.id),
+            eq(notifications.type, 'REPLY'),
+            eq(notifications.sourceUserId, testUser2.id),
+            eq(notifications.postId, testPost.id),
+            eq(notifications.replyId, reply?.id || ''),
+          ),
+      })
+
+      expect(notifications).toHaveLength(1)
     })
 
     it('should handle validation errors', async () => {
@@ -253,23 +268,58 @@ describe('Posts Actions', () => {
   })
 
   describe('handleLikeAction', () => {
-    it('should successfully like a post', async () => {
+    it('should successfully like a post and create a notification', async () => {
       const result = await handleLikeAction('like', testPost.id)
 
       expect(result).toEqual({ success: true })
 
       // Verify like was created in DB
       const likes = await testDb.query.likeSchema.findMany({
-        where: (likes, { and, eq }) => and(eq(likes.userId, testUser.id), eq(likes.postId, testPost.id)),
+        where: (likes, { and, eq }) => and(eq(likes.userId, testUser2.id), eq(likes.postId, testPost.id)),
       })
 
       expect(likes).toHaveLength(1)
+
+      // Verify notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.userId, testUser1.id),
+            eq(notifications.type, 'LIKE'),
+            eq(notifications.sourceUserId, testUser2.id),
+            eq(notifications.postId, testPost.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(1)
+    })
+
+    it('should not create a notification when liking your own post', async () => {
+      // Mock the session to be the post author
+      const mockSession = createMockSession(testUser1.id)
+      vi.mocked(validateRequest).mockResolvedValueOnce({ user: testUser1, session: mockSession })
+
+      const result = await handleLikeAction('like', testPost.id)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify no notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.userId, testUser1.id),
+            eq(notifications.type, 'LIKE'),
+            eq(notifications.sourceUserId, testUser1.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(0)
     })
 
     it('should successfully unlike a post', async () => {
-      // First create a like
+      // First create a like with testUser2
       await testDb.insert(likeSchema).values({
-        userId: testUser.id,
+        userId: testUser2.id,
         postId: testPost.id,
         createdAt: Math.floor(Date.now() / 1000),
       })
@@ -280,7 +330,7 @@ describe('Posts Actions', () => {
 
       // Verify like was removed from DB
       const likes = await testDb.query.likeSchema.findMany({
-        where: (likes, { and, eq }) => and(eq(likes.userId, testUser.id), eq(likes.postId, testPost.id)),
+        where: (likes, { and, eq }) => and(eq(likes.userId, testUser2.id), eq(likes.postId, testPost.id)),
       })
 
       expect(likes).toHaveLength(0)
@@ -296,23 +346,58 @@ describe('Posts Actions', () => {
   })
 
   describe('handleRepostAction', () => {
-    it('should successfully repost a post', async () => {
+    it('should successfully repost a post and create a notification', async () => {
       const result = await handleRepostAction('repost', testPost.id)
 
       expect(result).toEqual({ success: true })
 
       // Verify repost was created in DB
       const reposts = await testDb.query.repostSchema.findMany({
-        where: (reposts, { and, eq }) => and(eq(reposts.userId, testUser.id), eq(reposts.postId, testPost.id)),
+        where: (reposts, { and, eq }) => and(eq(reposts.userId, testUser2.id), eq(reposts.postId, testPost.id)),
       })
 
       expect(reposts).toHaveLength(1)
+
+      // Verify notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.userId, testUser1.id),
+            eq(notifications.type, 'REPOST'),
+            eq(notifications.sourceUserId, testUser2.id),
+            eq(notifications.postId, testPost.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(1)
+    })
+
+    it('should not create a notification when reposting your own post', async () => {
+      // Mock the session to be the post author
+      const mockSession = createMockSession(testUser1.id)
+      vi.mocked(validateRequest).mockResolvedValueOnce({ user: testUser1, session: mockSession })
+
+      const result = await handleRepostAction('repost', testPost.id)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify no notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.userId, testUser1.id),
+            eq(notifications.type, 'REPOST'),
+            eq(notifications.sourceUserId, testUser1.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(0)
     })
 
     it('should successfully unrepost a post', async () => {
-      // First create a repost
+      // First create a repost with testUser2
       await testDb.insert(repostSchema).values({
-        userId: testUser.id,
+        userId: testUser2.id,
         postId: testPost.id,
         createdAt: Math.floor(Date.now() / 1000),
       })
@@ -323,7 +408,7 @@ describe('Posts Actions', () => {
 
       // Verify repost was removed from DB
       const reposts = await testDb.query.repostSchema.findMany({
-        where: (reposts, { and, eq }) => and(eq(reposts.userId, testUser.id), eq(reposts.postId, testPost.id)),
+        where: (reposts, { and, eq }) => and(eq(reposts.userId, testUser2.id), eq(reposts.postId, testPost.id)),
       })
 
       expect(reposts).toHaveLength(0)
@@ -352,7 +437,7 @@ describe('Posts Actions', () => {
       })
 
       expect(updatedPost).toBeDefined()
-      expect(updatedPost!.shareCount).toBe(initialShareCount + 1)
+      expect(updatedPost?.shareCount).toBe(initialShareCount + 1)
     })
   })
 
@@ -373,12 +458,12 @@ describe('Posts Actions', () => {
     it('should delete associated likes and reposts when deleting a post', async () => {
       // Create a like and repost first
       await testDb.insert(likeSchema).values({
-        userId: testUser.id,
+        userId: testUser1.id,
         postId: testPost.id,
         createdAt: Math.floor(Date.now() / 1000),
       })
       await testDb.insert(repostSchema).values({
-        userId: testUser.id,
+        userId: testUser1.id,
         postId: testPost.id,
         createdAt: Math.floor(Date.now() / 1000),
       })
@@ -406,7 +491,7 @@ describe('Posts Actions', () => {
       // Create a reply first
       await testDb.insert(postSchema).values({
         id: 'reply-1',
-        userId: testUser.id,
+        userId: testUser1.id,
         text: 'Test reply',
         parentId: testPost.id,
         createdAt: Math.floor(Date.now() / 1000),

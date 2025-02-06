@@ -62,7 +62,7 @@ describe('User Actions', () => {
       })
 
       expect(updatedUser).toBeDefined()
-      expect(updatedUser!.avatar).toBe(avatarUrl)
+      expect(updatedUser?.avatar).toBe(avatarUrl)
     })
 
     it('should handle errors', async () => {
@@ -92,7 +92,7 @@ describe('User Actions', () => {
   })
 
   describe('handleFollowAction', () => {
-    it('should successfully follow a user', async () => {
+    it('should successfully follow a user and create a notification', async () => {
       const follower = await createTestUser()
       const target = await createTestUser()
 
@@ -118,10 +118,22 @@ describe('User Actions', () => {
       })
 
       expect(updatedTarget).toBeDefined()
-      expect(updatedTarget!.followerCount).toBe(1)
+      expect(updatedTarget?.followerCount).toBe(1)
+
+      // Verify notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.userId, target.id),
+            eq(notifications.type, 'FOLLOW'),
+            eq(notifications.sourceUserId, follower.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(1)
     })
 
-    it('should successfully unfollow a user', async () => {
+    it('should successfully unfollow a user without creating a notification', async () => {
       const follower = await createTestUser()
       const target = await createTestUser()
 
@@ -156,7 +168,19 @@ describe('User Actions', () => {
       })
 
       expect(updatedTarget).toBeDefined()
-      expect(updatedTarget!.followerCount).toBe(0)
+      expect(updatedTarget?.followerCount).toBe(0)
+
+      // Verify no new notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.userId, target.id),
+            eq(notifications.type, 'FOLLOW'),
+            eq(notifications.sourceUserId, follower.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(0)
     })
 
     it('should handle invalid user ID', async () => {
