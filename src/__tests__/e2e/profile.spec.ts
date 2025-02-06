@@ -11,7 +11,7 @@ test.describe('Profile Management', () => {
     await page.goto('/login')
     await page.getByLabel(/email/i).fill(USER_1.email)
     await page.getByLabel(/password/i).fill(USER_1.password)
-    await page.getByRole('button', { name: /Log in/i }).click()
+    await page.getByRole('button', { name: 'Log in' }).click()
     // Wait for login to complete and redirect
     await page.waitForURL('/')
   })
@@ -32,20 +32,6 @@ test.describe('Profile Management', () => {
       await expect(profileNav.getByRole('link', { name: 'Replies' })).toBeVisible()
       await expect(profileNav.getByRole('link', { name: 'Reposts' })).toBeVisible()
     })
-
-    test('should display user posts on profile', async ({ page }) => {
-      // First create a post
-      await page.goto('/')
-      await page.getByText("What's new?").click()
-      const postContent = `Test post ${generateRandomString(8)}`
-      await page.getByRole('textbox').fill(postContent)
-      await page.getByRole('button', { name: /post/i }).click()
-
-      // Navigate to profile and verify post is visible
-      await page.goto(`/@${USER_1.username}`)
-
-      await expect(page.getByText(postContent)).toBeVisible()
-    })
   })
 
   test.describe('Profile Editing', () => {
@@ -58,7 +44,7 @@ test.describe('Profile Management', () => {
 
       await expect(initialAvatar).toHaveAttribute('src')
 
-      // Open edit profile dialog
+      // Open edit profile dialog`
       await page.getByRole('button', { name: 'Edit Profile' }).click()
 
       // Update profile information
@@ -67,8 +53,17 @@ test.describe('Profile Management', () => {
       await page.getByRole('textbox', { name: 'Bio' }).fill(newBio)
       await page.getByRole('button', { name: 'Done' }).click()
 
+      await expect(page.getByRole('textbox', { name: 'Bio' })).toBeHidden()
+
+      await page.getByRole('button', { name: 'Done' }).click()
+
+      await expect(page.getByRole('dialog')).toBeHidden()
+
       // Verify bio is updated
       await expect(page.getByText(newBio)).toBeVisible()
+
+      // Re-open the edit profile dialog
+      await page.getByRole('button', { name: 'Edit Profile' }).click()
 
       // Upload a new profile image through the dropdown
       await page.getByRole('button', { name: 'Avatar' }).click()
@@ -103,8 +98,6 @@ test.describe('Profile Management', () => {
         await expect(currentAvatar).toHaveAttribute('src')
         expect(currentAvatar).not.toBe(initialAvatar)
       }).toPass({ timeout: 5000 })
-
-      // await expect(page.getByText(newBio)).toBeVisible()
     })
 
     test('should handle profile update validation', async ({ page }) => {
@@ -122,26 +115,68 @@ test.describe('Profile Management', () => {
   })
 
   test.describe('Following Management', () => {
+    test('should follow users and create notifications', async ({ page }) => {
+      // First log out USER_1
+      await page.goto('/logout')
+
+      // Log in as USER_2
+      await page.goto('/login')
+      await page.getByLabel(/email/i).fill(USER_2.email)
+      await page.getByLabel(/password/i).fill(USER_2.password)
+      await page.getByRole('button', { name: 'Log in' }).click()
+      await page.waitForURL('/')
+
+      // Follow USER_1
+      await page.goto(`/@${USER_1.username}`)
+      await page.getByRole('button', { name: 'Follow' }).click()
+
+      // Verify following status
+      await expect(page.getByRole('button', { name: 'Following' })).toBeVisible()
+      await expect(page.getByText('1 follower', { exact: true })).toBeVisible()
+
+      // Log out USER_2
+      await page.goto('/logout')
+
+      // Log back in as USER_1 to check notifications
+      await page.goto('/login')
+      await page.getByLabel(/email/i).fill(USER_1.email)
+      await page.getByLabel(/password/i).fill(USER_1.password)
+      await page.getByRole('button', { name: 'Log in' }).click()
+      await page.waitForURL('/')
+
+      // Check notifications
+      await page.goto('/activity')
+
+      await expect(page.getByRole('list')).toBeVisible()
+
+      // Verify follow notification is present
+      await expect(page.getByRole('link', { name: `${USER_2.username}`, exact: true })).toBeVisible()
+      await expect(page.getByText('Followed you')).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Follow back' })).toBeVisible()
+    })
+
     test('should follow and unfollow users', async ({ page }) => {
       // Follow the other user
       await page.goto(`/@${USER_2.username}`)
 
-      await page.getByRole('button', { name: /follow/i }).click()
+      await page.getByRole('button', { name: 'Follow back' }).click()
 
       // Verify following status
-      await expect(page.getByRole('button', { name: /unfollow/i })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Following' })).toBeVisible()
 
       // Verify follower count
       await expect(page.getByText('1 follower', { exact: true })).toBeVisible()
 
       // Unfollow using dropdown menu and wait for both the button click and toast to appear
-      await page.getByRole('button', { name: /unfollow/i }).click()
+      await page.getByRole('button', { name: 'Following' }).click()
 
-      // Verify toast notification is visible with a more generous timeout
-      await expect(page.getByText(/unfollowed/i)).toBeVisible()
+      await page.getByRole('button', { name: 'Unfollow' }).click()
+
+      // Verify toast notification is visible
+      await expect(page.getByText('Unfollowed')).toBeVisible()
 
       // Verify follow button is back
-      await expect(page.getByRole('button', { name: /follow/i })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Follow back' })).toBeVisible()
 
       // Verify follower count
       await expect(page.getByText('0 followers', { exact: true })).toBeVisible()

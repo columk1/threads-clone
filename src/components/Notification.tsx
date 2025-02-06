@@ -61,7 +61,7 @@ const Notification = ({ data, currentUser }: { data: NotificationItem; currentUs
           <div className="col-start-2 row-start-2 leading-5 text-gray-7">{source}</div>
           {notification.type === 'FOLLOW' && (
             <div className="col-start-3 row-span-2 flex items-center">
-              <FollowButton isFollowed={user.isFollowed} onToggleFollow={handleToggleFollow} isNotification />
+              <FollowButton isFollowed={user.isFollowed} onToggleFollow={handleToggleFollow} />
             </div>
           )}
           {reply && (
