@@ -7,7 +7,7 @@ import { createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
 import { DEFAULT_ERROR } from '@/lib/constants/errors'
-import { followerSchema, userSchema } from '@/lib/db/Schema'
+import { followerSchema, notificationSchema, userSchema } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
 import { handleFollowAction, updateAvatar, updateBio } from '@/services/users/users.actions'
@@ -181,6 +181,40 @@ describe('User Actions', () => {
       })
 
       expect(notifications).toHaveLength(0)
+    })
+
+    it('should not create a duplicate follow notification when following again after unfollow', async () => {
+      const follower = await createTestUser()
+      const target = await createTestUser()
+
+      // First create a notification for the initial follow
+      await testDb.insert(notificationSchema).values({
+        userId: target.id,
+        type: 'FOLLOW',
+        sourceUserId: follower.id,
+        createdAt: Math.floor(Date.now() / 1000),
+      })
+
+      vi.mocked(validateRequest).mockResolvedValue({
+        user: follower,
+        session: createMockSession(follower.id),
+      })
+
+      const result = await handleFollowAction(target.id, 'follow')
+
+      expect(result).toEqual({ success: 'Followed' })
+
+      // Verify no duplicate notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.type, 'FOLLOW'),
+            eq(notifications.userId, target.id),
+            eq(notifications.sourceUserId, follower.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(1)
     })
 
     it('should handle invalid user ID', async () => {

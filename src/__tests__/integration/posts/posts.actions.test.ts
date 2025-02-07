@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createTestPost, createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
-import { likeSchema, postSchema, repostSchema } from '@/lib/db/Schema'
+import { likeSchema, notificationSchema, postSchema, repostSchema } from '@/lib/db/Schema'
 import { validateRequest } from '@/lib/Lucia'
 import {
   createPost,
@@ -336,6 +336,60 @@ describe('Posts Actions', () => {
       expect(likes).toHaveLength(0)
     })
 
+    it('should not create a notification when unliking a post', async () => {
+      // First create a like with testUser2
+      await testDb.insert(likeSchema).values({
+        userId: testUser2.id,
+        postId: testPost.id,
+        createdAt: Math.floor(Date.now() / 1000),
+      })
+
+      const result = await handleLikeAction('unlike', testPost.id)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify no notification was created for the unlike action
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.type, 'LIKE'),
+            eq(notifications.userId, testUser1.id),
+            eq(notifications.sourceUserId, testUser2.id),
+            eq(notifications.postId, testPost.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(0)
+    })
+
+    it('should not create a duplicate like notification when liking again after unlike', async () => {
+      // First create a notification for the initial like
+      await testDb.insert(notificationSchema).values({
+        userId: testUser1.id,
+        type: 'LIKE',
+        sourceUserId: testUser2.id,
+        postId: testPost.id,
+        createdAt: Math.floor(Date.now() / 1000),
+      })
+
+      const result = await handleLikeAction('like', testPost.id)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify no duplicate notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.type, 'LIKE'),
+            eq(notifications.userId, testUser1.id),
+            eq(notifications.sourceUserId, testUser2.id),
+            eq(notifications.postId, testPost.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(1)
+    })
+
     it('should redirect if user is not authenticated', async () => {
       vi.mocked(validateRequest).mockResolvedValueOnce({ user: null, session: null })
 
@@ -412,6 +466,33 @@ describe('Posts Actions', () => {
       })
 
       expect(reposts).toHaveLength(0)
+    })
+
+    it('should not create a duplicate repost notification', async () => {
+      await testDb.insert(notificationSchema).values({
+        userId: testUser2.id,
+        type: 'REPOST',
+        sourceUserId: testUser1.id,
+        postId: testPost.id,
+        createdAt: Math.floor(Date.now() / 1000),
+      })
+
+      const result = await handleRepostAction('repost', testPost.id)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify no duplicate notification was created
+      const notifications = await testDb.query.notificationSchema.findMany({
+        where: (notifications, { and, eq }) =>
+          and(
+            eq(notifications.type, 'REPOST'),
+            eq(notifications.userId, testUser2.id),
+            eq(notifications.sourceUserId, testUser1.id),
+            eq(notifications.postId, testPost.id),
+          ),
+      })
+
+      expect(notifications).toHaveLength(1)
     })
 
     it('should redirect if user is not authenticated', async () => {
