@@ -1,13 +1,25 @@
 import { expect, test } from '@playwright/test'
 
+import { followerSchema, likeSchema, notificationSchema, postSchema, repostSchema } from '../../lib/db/Schema'
 import { generateRandomString } from '../../utils/string/generateRandomString'
 import { USER_1, USER_2 } from '../utils/testConstants'
+import { testDb } from '../utils/testDb'
 
 // Test content constants
 const TEST_POST_CONTENT = 'This is a test post'
 const TEST_REPLY_CONTENT = 'This is a test reply'
 const TEST_INTERACTION_POST = 'Test post for interactions'
 const TEST_NOTIFICATION_POST = 'Test post for notifications'
+
+// Clear database before running tests in this file
+test.beforeAll(async () => {
+  // Clear all content
+  await testDb.delete(postSchema)
+  await testDb.delete(likeSchema)
+  await testDb.delete(repostSchema)
+  await testDb.delete(notificationSchema)
+  await testDb.delete(followerSchema)
+})
 
 test.describe('Post Management', () => {
   test.describe('Post Creation', () => {
@@ -107,7 +119,7 @@ test.describe('Post Management', () => {
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
 
-      // Delete the post
+      // Delete the interaction post
       await page.goto('/')
       const postToDelete = page.getByRole('article', { name: `${USER_1.username}` })
 
@@ -248,6 +260,7 @@ test.describe('Post Management', () => {
 
       // Verify post is removed
       await expect(testPost).toBeHidden()
+      await expect(page.getByText(TEST_POST_CONTENT)).toBeHidden()
     })
   })
 

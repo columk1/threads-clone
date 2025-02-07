@@ -2,10 +2,22 @@ import { Buffer } from 'node:buffer'
 
 import { expect, test } from '@playwright/test'
 
+import { followerSchema, likeSchema, notificationSchema, postSchema, repostSchema } from '../../lib/db/Schema'
 import { generateRandomString } from '../../utils/string/generateRandomString'
 import { USER_1, USER_2 } from '../utils/testConstants'
+import { testDb } from '../utils/testDb'
 
 test.describe('Profile Management', () => {
+  // Clear database before running tests in this file
+  test.beforeAll(async () => {
+    // Clear all content
+    await testDb.delete(postSchema)
+    await testDb.delete(likeSchema)
+    await testDb.delete(repostSchema)
+    await testDb.delete(notificationSchema)
+    await testDb.delete(followerSchema)
+  })
+
   test.beforeEach(async ({ page }) => {
     // Log in with the test user created in global setup
     await page.goto('/login')
@@ -75,7 +87,7 @@ test.describe('Profile Management', () => {
         mimeType: 'image/jpeg',
         // Valid 1x1 white pixel JPEG
         buffer: Buffer.from(
-          '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',
+          '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',
           'base64',
         ),
       })
@@ -115,51 +127,11 @@ test.describe('Profile Management', () => {
   })
 
   test.describe('Following Management', () => {
-    test('should follow users and create notifications', async ({ page }) => {
-      // First log out USER_1
-      await page.goto('/logout')
-
-      // Log in as USER_2
-      await page.goto('/login')
-      await page.getByLabel(/email/i).fill(USER_2.email)
-      await page.getByLabel(/password/i).fill(USER_2.password)
-      await page.getByRole('button', { name: 'Log in' }).click()
-      await page.waitForURL('/')
-
-      // Follow USER_1
-      await page.goto(`/@${USER_1.username}`)
-      await page.getByRole('button', { name: 'Follow' }).click()
-
-      // Verify following status
-      await expect(page.getByRole('button', { name: 'Following' })).toBeVisible()
-      await expect(page.getByText('1 follower', { exact: true })).toBeVisible()
-
-      // Log out USER_2
-      await page.goto('/logout')
-
-      // Log back in as USER_1 to check notifications
-      await page.goto('/login')
-      await page.getByLabel(/email/i).fill(USER_1.email)
-      await page.getByLabel(/password/i).fill(USER_1.password)
-      await page.getByRole('button', { name: 'Log in' }).click()
-      await page.waitForURL('/')
-
-      // Check notifications
-      await page.goto('/activity')
-
-      await expect(page.getByRole('list')).toBeVisible()
-
-      // Verify follow notification is present
-      await expect(page.getByRole('link', { name: `${USER_2.username}`, exact: true })).toBeVisible()
-      await expect(page.getByText('Followed you')).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Follow back' })).toBeVisible()
-    })
-
     test('should follow and unfollow users', async ({ page }) => {
       // Follow the other user
       await page.goto(`/@${USER_2.username}`)
 
-      await page.getByRole('button', { name: 'Follow back' }).click()
+      await page.getByRole('button', { name: 'Follow' }).click()
 
       // Verify following status
       await expect(page.getByRole('button', { name: 'Following' })).toBeVisible()
@@ -170,16 +142,67 @@ test.describe('Profile Management', () => {
       // Unfollow using dropdown menu and wait for both the button click and toast to appear
       await page.getByRole('button', { name: 'Following' }).click()
 
+      await expect(page.getByRole('button', { name: 'Unfollow' })).toBeVisible()
+
       await page.getByRole('button', { name: 'Unfollow' }).click()
 
       // Verify toast notification is visible
       await expect(page.getByText('Unfollowed')).toBeVisible()
 
       // Verify follow button is back
-      await expect(page.getByRole('button', { name: 'Follow back' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Follow' })).toBeVisible()
 
       // Verify follower count
       await expect(page.getByText('0 followers', { exact: true })).toBeVisible()
+    })
+
+    test('should follow users and create notifications', async ({ page }) => {
+      // Follow USER_2
+      await page.goto(`/@${USER_2.username}`)
+      await page.getByRole('button', { name: 'Follow' }).click()
+
+      // Verify following status
+      await expect(page.getByRole('button', { name: 'Following' })).toBeVisible()
+      await expect(page.getByText('1 follower', { exact: true })).toBeVisible()
+
+      // Log out USER_1
+      await page.goto('/logout')
+
+      // Log back in as USER_2 to check notifications
+      await page.goto('/login')
+      await page.getByLabel(/email/i).fill(USER_2.email)
+      await page.getByLabel(/password/i).fill(USER_2.password)
+      await page.getByRole('button', { name: 'Log in' }).click()
+      await page.waitForURL('/')
+
+      // Check notifications
+      await page.goto('/activity')
+
+      await expect(page.getByRole('list')).toBeVisible()
+
+      // Verify follow notification is present
+      await expect(page.getByRole('link', { name: `${USER_1.username}`, exact: true })).toBeVisible()
+      await expect(page.getByText('Followed you')).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Follow back' })).toBeVisible()
+    })
+
+    test('should not create duplicate notifications for repeat follow actions', async ({ page }) => {
+      // Log in as USER_2 to check notifications after the previous follow/unfollow/follow actions
+      await page.goto('/logout')
+      await page.goto('/login')
+      await page.getByLabel(/email/i).fill(USER_2.email)
+      await page.getByLabel(/password/i).fill(USER_2.password)
+      await page.getByRole('button', { name: 'Log in' }).click()
+      await page.waitForURL('/')
+
+      // Check notifications
+      await page.goto('/activity')
+
+      // Wait for notifications to load
+      await expect(page.getByRole('list')).toBeVisible()
+
+      // Verify one notification is present
+      await expect(page.getByRole('link', { name: `Avatar Follow Notification ${USER_1.username}` })).toBeVisible()
     })
   })
 })

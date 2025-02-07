@@ -128,6 +128,7 @@ describe('User Queries', () => {
     bio: null,
     followerCount: 0,
     isFollowed: false,
+    isFollower: false,
   }
 
   beforeEach(() => {

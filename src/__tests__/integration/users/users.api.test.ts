@@ -152,6 +152,7 @@ describe('User API Routes', () => {
           bio: null,
           followerCount: 0,
           isFollowed: false,
+          isFollower: false,
           priority: 1,
         },
         {
@@ -162,6 +163,7 @@ describe('User API Routes', () => {
           bio: null,
           followerCount: 0,
           isFollowed: true,
+          isFollower: false,
           priority: 2,
         },
       ]
