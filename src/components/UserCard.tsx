@@ -27,7 +27,9 @@ const UserCard: FunctionComponent<UserCardProps> = ({ user, isCurrentUser = fals
           {`${Intl.NumberFormat().format(user.followerCount)} follower${user.followerCount !== 1 ? 's' : ''}`}
         </div>
       </div>
-      {!isCurrentUser && <FollowButton isFollowed={user.isFollowed} onToggleFollow={onToggleFollow} />}
+      {!isCurrentUser && (
+        <FollowButton isFollowed={user.isFollowed} isFollower={user.isFollower} onToggleFollow={onToggleFollow} />
+      )}
     </div>
   )
 }

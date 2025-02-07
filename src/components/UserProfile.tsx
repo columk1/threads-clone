@@ -17,7 +17,7 @@ export default function VisitorProfile({ initialUser, children }: VisitorProfile
 
   const actions = (
     <div className="flex w-full gap-2">
-      <FollowButton isFollowed={user.isFollowed} onToggleFollow={handleToggleFollow} />
+      <FollowButton isFollowed={user.isFollowed} isFollower={user.isFollower} onToggleFollow={handleToggleFollow} />
       <button
         type="button"
         className="h-9 w-full rounded-lg border border-gray-5 px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30"

@@ -1,3 +1,5 @@
+import { sql } from 'drizzle-orm'
+
 import { postSchema, userSchema } from './Schema'
 
 export const baseUserSelect = {
@@ -7,6 +9,8 @@ export const baseUserSelect = {
   avatar: userSchema.avatar,
   bio: userSchema.bio,
   followerCount: userSchema.followerCount,
+  isFollowed: sql<boolean>`false`,
+  isFollower: sql<boolean>`false`,
 }
 
 export const basePostSelect = {

@@ -71,7 +71,12 @@ const SearchResult = ({
         <div className="">
           {!isCurrentUser && (
             <>
-              <FollowButton muted isFollowed={user.isFollowed} onToggleFollow={handleToggleFollow} />
+              <FollowButton
+                muted
+                isFollowed={user.isFollowed}
+                isFollower={user.isFollower}
+                onToggleFollow={handleToggleFollow}
+              />
               {user.isFollowed && <UnfollowModal {...unfollowModalProps} />}
             </>
           )}
@@ -140,6 +145,7 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
           data.users.map((user: PostUser) => ({
             id: user.id,
             isFollowed: user.isFollowed,
+            isFollower: user.isFollower,
             followerCount: user.followerCount,
           })),
         )

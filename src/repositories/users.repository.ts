@@ -72,24 +72,35 @@ export const handleFollow = async (userId: string, followerId: string, action: '
         .where(eq(userSchema.id, userId))
     }
     if (action === 'follow') {
-      await tx
-        .insert(notificationSchema)
-        .values({
+      const existingNotification = await tx
+        .select()
+        .from(notificationSchema)
+        .where(
+          and(
+            eq(notificationSchema.type, 'FOLLOW'),
+            eq(notificationSchema.userId, userId),
+            eq(notificationSchema.sourceUserId, followerId),
+          ),
+        )
+        .get()
+      if (!existingNotification) {
+        await tx.insert(notificationSchema).values({
           userId,
           type: 'FOLLOW',
           sourceUserId: followerId,
           seen: false,
         })
-        // Don't recreate notifications
-        .onConflictDoNothing({
-          target: [
-            notificationSchema.userId,
-            notificationSchema.sourceUserId,
-            notificationSchema.type,
-            sql`COALESCE(${notificationSchema.postId}, '')`, // Null is unique in SQLite
-            sql`COALESCE(${notificationSchema.replyId}, '')`, // Null is unique in SQLite
-          ],
-        })
+      }
+      // Don't recreate notifications
+      // .onConflictDoNothing({
+      //   target: [
+      //     notificationSchema.userId,
+      //     notificationSchema.sourceUserId,
+      //     notificationSchema.type,
+      //     sql`ifnull(${notificationSchema.postId}, '')`, // Null is unique in SQLite
+      //     sql`ifnull(${notificationSchema.replyId}, '')`, // Null is unique in SQLite
+      //   ],
+      // })
     }
   })
 }
@@ -125,6 +136,13 @@ export const getAuthUserDetails = async (targetUsername: string, userId: string)
           AND ${followerSchema.followerId} = ${userId}
           LIMIT 1
         )`.as('isFollowed'),
+      isFollower: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userId}
+          AND ${followerSchema.followerId} = ${userSchema.id}
+          LIMIT 1
+        )`.as('isFollower'),
     })
     .from(userSchema)
     .where(eq(userSchema.username, targetUsername))
@@ -132,14 +150,7 @@ export const getAuthUserDetails = async (targetUsername: string, userId: string)
 }
 
 export const getPublicUserDetails = async (username: string) => {
-  return await db
-    .select({
-      ...baseUserSelect,
-      isFollowed: sql<boolean>`false`,
-    })
-    .from(userSchema)
-    .where(eq(userSchema.username, username))
-    .get()
+  return await db.select(baseUserSelect).from(userSchema).where(eq(userSchema.username, username)).get()
 }
 
 export const updateUserAvatar = async (userId: string, url: string) => {
@@ -153,14 +164,20 @@ export const searchUsers = async (query: string, userId?: string, limit: number 
   return await db
     .select({
       ...baseUserSelect,
-      isFollowed: userId
-        ? sql<boolean>`EXISTS (
+      ...(userId && {
+        isFollowed: sql<boolean>`EXISTS (
           SELECT 1 
           FROM ${followerSchema} 
           WHERE ${followerSchema.userId} = ${userSchema.id} 
             AND ${followerSchema.followerId} = ${userId}
-        )`.as('isFollowed')
-        : sql<boolean>`false`,
+        )`.as('isFollowed'),
+        isFollower: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userId} 
+            AND ${followerSchema.followerId} = ${userSchema.id}
+        )`.as('isFollower'),
+      }),
       priority: sql<number>`
         CASE 
           WHEN lower(${userSchema.username}) LIKE lower(${startsWithTerm}) THEN 1
@@ -236,6 +253,12 @@ export const getNotifications = async (userId: string) => {
           WHERE ${followerSchema.userId} = ${userSchema.id} 
             AND ${followerSchema.followerId} = ${userId}
         )`.as('isFollowed'),
+        isFollower: sql<boolean>`EXISTS (
+          SELECT 1 
+          FROM ${followerSchema} 
+          WHERE ${followerSchema.userId} = ${userId} 
+            AND ${followerSchema.followerId} = ${userSchema.id}
+        )`.as('isFollower'),
       },
       post: basePostSelect,
       reply: {

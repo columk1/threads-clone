@@ -20,6 +20,7 @@ export type PostUser = {
   bio: string | null
   followerCount: number
   isFollowed: boolean
+  isFollower: boolean
 }
 
 /*
@@ -54,6 +55,7 @@ const getAuthUserInfoCached = cache(async (username: string): Promise<{ user: Po
         bio: userInfo.bio,
         followerCount: userInfo.followerCount,
         isFollowed: Boolean(userInfo.isFollowed),
+        isFollower: Boolean(userInfo.isFollower),
       },
     }
   } catch (err) {
@@ -83,6 +85,7 @@ const getPublicUserInfoCached = cache(async (username: string): Promise<{ user: 
         bio: userInfo.bio,
         followerCount: userInfo.followerCount,
         isFollowed: Boolean(userInfo.isFollowed),
+        isFollower: Boolean(userInfo.isFollower),
       },
     }
   } catch (err) {

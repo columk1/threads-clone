@@ -255,6 +255,15 @@ export const notificationSchema = sqliteTable(
         .on(table.userId, table.seen, table.createdAt)
         .where(sql`${table.seen} = 0`),
       unique('notif_user_seen_created_unique').on(table.userId, table.sourceUserId, table.postId, table.type),
+
+      // This should work soon: https://github.com/drizzle-team/drizzle-orm/issues/3350
+      // uniqueIndex('notif_unique_constraint').on(
+      //   table.userId,
+      //   table.sourceUserId,
+      //   sql`COALESCE(${table.postId}, '')`,
+      //   sql`COALESCE(${table.replyId}, '')`,
+      //   table.type,
+      // ),
       check(
         'valid_reference',
         sql`(type = 'FOLLOW' AND post_id IS NULL AND reply_id IS NULL) 
@@ -264,6 +273,8 @@ export const notificationSchema = sqliteTable(
     ]
   },
 )
+
+// sql`CREATE UNIQUE INDEX notif_unique_idx ON notifications(user_id, source_user_id, COALESCE(post_id, ''), COALESCE(reply_id, ''), type)`,
 
 export type Notification = InferSelectModel<typeof notificationSchema>
 
