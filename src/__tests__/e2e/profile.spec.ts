@@ -1,5 +1,3 @@
-import { Buffer } from 'node:buffer'
-
 import { expect, test } from '@playwright/test'
 
 import { followerSchema, likeSchema, notificationSchema, postSchema, repostSchema } from '../../lib/db/Schema'
@@ -82,15 +80,7 @@ test.describe('Profile Management', () => {
       await page.getByRole('menuitem', { name: 'Upload a picture' }).click()
 
       // Handle file upload through hidden input
-      await page.locator('input[type="file"]').setInputFiles({
-        name: 'test-profile.jpg',
-        mimeType: 'image/jpeg',
-        // Valid 1x1 white pixel JPEG
-        buffer: Buffer.from(
-          '/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAAQABAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+3/HPjnw/wCDNPF1r2p21lGVyqyPl3/3VGWb8BXwx8Wf2nviH4x1R7Xw9qL+HtJDYRLNzHMw9XkGGz7Lj3NfN+ueJNY8Qak+oa5qd1qN25+aW4lL/h6D2HAqhX+fvEXiDnGdYqUaWInQw9/dpQdk126v1f4H+h/CvA+U5Th4zqUo16/2qk1dvyT2XovUK+6P2O/jN4g8SxTeEPE159ustPgE1pdyHMqxghWRj/EASpAPOCMdq+F6K+Y4Y4gxWQZhDGYZ2a0lF7SXR/o+jPoeI8hw2dYGeFxCs94y6xe6/VdUf//Z',
-          'base64',
-        ),
-      })
+      await page.locator('input[type="file"]').setInputFiles('src/__tests__/e2e/test-data/test-avatar.png')
 
       // Wait for both the Cloudinary upload and the avatar update
       const [cloudinaryResponse] = await Promise.all([
