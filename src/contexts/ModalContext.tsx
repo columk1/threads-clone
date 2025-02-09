@@ -67,7 +67,7 @@ const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     [modalState],
   )
 
-  return <ModalContext.Provider value={value}>{children}</ModalContext.Provider>
+  return <ModalContext value={value}>{children}</ModalContext>
 }
 
 export { ModalContext, ModalProvider }

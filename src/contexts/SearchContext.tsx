@@ -38,7 +38,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     [searchHistory, currentQuery, addToHistory],
   )
 
-  return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
+  return <SearchContext value={value}>{children}</SearchContext>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
