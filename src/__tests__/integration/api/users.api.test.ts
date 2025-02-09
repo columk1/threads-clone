@@ -25,6 +25,13 @@ vi.mock('@/repositories/users.repository', () => ({
   getFollowStatus: vi.fn(),
 }))
 
+vi.mock('@/lib/Logger', () => ({
+  logger: {
+    error: vi.fn(),
+    info: vi.fn(),
+  },
+}))
+
 setupIntegrationTest()
 
 describe('User API Routes', () => {

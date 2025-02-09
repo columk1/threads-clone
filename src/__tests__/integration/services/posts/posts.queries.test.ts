@@ -15,9 +15,9 @@ import {
   searchPosts,
 } from '@/services/posts/posts.queries'
 
-import { createTestPost, createTestUser, followUser } from '../../utils/factories'
-import { setupIntegrationTest } from '../../utils/setupIntegrationTest'
-import { testDb } from '../../utils/testDb'
+import { createTestPost, createTestUser, followUser } from '../../../utils/factories'
+import { setupIntegrationTest } from '../../../utils/setupIntegrationTest'
+import { testDb } from '../../../utils/testDb'
 
 setupIntegrationTest()
 
