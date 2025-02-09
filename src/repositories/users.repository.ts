@@ -1,4 +1,4 @@
-import { aliasedTable, and, desc, eq, or, sql } from 'drizzle-orm'
+import { aliasedTable, and, count, desc, eq, or, sql } from 'drizzle-orm'
 import { ulid } from 'ulidx'
 
 import { db } from '../lib/db/Drizzle'
@@ -241,7 +241,8 @@ export const updateUserBio = async (userId: string, bio: string) => {
 const reply = aliasedTable(postSchema, 'reply')
 const replySelect = getAliasedBasePostSelect(reply)
 
-export const getNotifications = async (userId: string) => {
+export const getNotifications = async (userId: string, options?: { seen?: boolean }) => {
+  const seenCondition = options?.seen !== undefined ? eq(notificationSchema.seen, options.seen) : undefined
   return await db
     .select({
       notification: notificationSchema,
@@ -279,11 +280,7 @@ export const getNotifications = async (userId: string) => {
     })
     .from(notificationSchema)
     .where(
-      and(
-        eq(notificationSchema.userId, userId),
-        eq(notificationSchema.seen, false),
-        sql`${notificationSchema.sourceUserId} IS NOT NULL`,
-      ),
+      and(eq(notificationSchema.userId, userId), seenCondition, sql`${notificationSchema.sourceUserId} IS NOT NULL`),
     )
     .innerJoin(userSchema, eq(notificationSchema.sourceUserId, userSchema.id))
     .leftJoin(postSchema, eq(notificationSchema.postId, postSchema.id))
@@ -294,9 +291,80 @@ export const getNotifications = async (userId: string) => {
     .all()
 }
 
+export type Notification = Awaited<ReturnType<typeof getNotifications>>[number]
+
+/**
+ * Get the count of unseen notifications for a user
+ * @param userId - The ID of the user to count notifications for
+ * @returns The number of unseen notifications
+ */
+export const getUnseenNotificationsCount = async (userId: string): Promise<number> => {
+  const result = await db
+    .select({
+      count: sql<number>`COUNT(*)`.as('count'),
+    })
+    .from(notificationSchema)
+    .where(
+      and(
+        eq(notificationSchema.userId, userId),
+        eq(notificationSchema.seen, false),
+        sql`${notificationSchema.sourceUserId} IS NOT NULL`,
+      ),
+    )
+    .get()
+
+  return result?.count ?? 0
+}
+
 export const markNotificationsAsSeen = async (userId: string) => {
   await db
     .update(notificationSchema)
     .set({ seen: true })
     .where(and(eq(notificationSchema.userId, userId), eq(notificationSchema.seen, false)))
+}
+
+/**
+ * Get unseen notifications for a user
+ * @param userId - The ID of the user to get notifications for
+ * @returns An array of unseen notifications with their associated data
+ */
+export const getUnseenNotifications = async (userId: string) => {
+  return await db
+    .select({
+      notification: notificationSchema,
+      sourceUser: {
+        ...baseUserSelect,
+      },
+      post: basePostSelect,
+      reply: replySelect,
+    })
+    .from(notificationSchema)
+    .where(
+      and(
+        eq(notificationSchema.userId, userId),
+        eq(notificationSchema.seen, false),
+        sql`${notificationSchema.sourceUserId} IS NOT NULL`,
+      ),
+    )
+    .leftJoin(userSchema, eq(notificationSchema.sourceUserId, userSchema.id))
+    .leftJoin(postSchema, and(eq(notificationSchema.type, 'LIKE'), eq(notificationSchema.postId, postSchema.id)))
+    .leftJoin(reply, and(eq(notificationSchema.type, 'REPLY'), eq(notificationSchema.replyId, reply.id)))
+    .orderBy(desc(notificationSchema.createdAt))
+    .all()
+}
+
+/**
+ * Marks all unseen notifications as seen for a given user
+ * @param userId - The ID of the user whose notifications should be marked as seen
+ * @returns The number of notifications that were marked as seen
+ */
+export const markNotificationsAsSeenDb = async (userId: string): Promise<{ count: number }> => {
+  return await db
+    .update(notificationSchema)
+    .set({ seen: true })
+    .where(and(eq(notificationSchema.userId, userId), eq(notificationSchema.seen, false)))
+    .returning({
+      count: count(),
+    })
+    .get()
 }

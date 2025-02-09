@@ -9,6 +9,8 @@ import {
   getAuthUserDetails,
   getNotifications as getNotificationsDb,
   getPublicUserDetails,
+  getUnseenNotificationsCount as getUnseenNotificationsCountDb,
+  markNotificationsAsSeen as markNotificationsAsSeenDb,
   searchUsers as searchUsersDb,
 } from '@/repositories/users.repository'
 
@@ -118,13 +120,45 @@ export const searchUsers = async (query: string) => {
 /*
  * Get notifications
  */
-export const getNotifications = async () => {
+export const getNotifications = async (options?: { seen?: boolean }) => {
   try {
     const { user } = await validateRequest()
     if (!user) {
       return redirect(ROUTES.LOGIN)
     }
-    return await getNotificationsDb(user.id)
+    return await getNotificationsDb(user.id, options)
+  } catch (err) {
+    logger.error(err)
+    return { error: DEFAULT_ERROR }
+  }
+}
+
+/*
+ * Get unseen notifications count
+ */
+export const getUnseenNotificationsCount = async () => {
+  try {
+    const { user } = await validateRequest()
+    if (!user) {
+      return redirect(ROUTES.LOGIN)
+    }
+    return await getUnseenNotificationsCountDb(user.id)
+  } catch (err) {
+    logger.error(err)
+    return { error: DEFAULT_ERROR }
+  }
+}
+
+/*
+ * Mark notifications as seen
+ */
+export const markNotificationsAsSeen = async () => {
+  try {
+    const { user } = await validateRequest()
+    if (!user) {
+      return redirect(ROUTES.LOGIN)
+    }
+    return await markNotificationsAsSeenDb(user.id)
   } catch (err) {
     logger.error(err)
     return { error: DEFAULT_ERROR }
