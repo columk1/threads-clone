@@ -95,7 +95,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
               key={link.label}
               className={`group relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${isActive(link.route) && 'text-primary-text'} ${link?.classNames}`}
             >
-              <div className="z-10">{link.icon && <link.icon isActive={isActive(link.route)} hasNotification />}</div>
+              <div className="z-10">{link.icon && <link.icon isActive={isActive(link.route)} />}</div>
               <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg"></div>
             </Link>
           )

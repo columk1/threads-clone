@@ -4,7 +4,7 @@ import Header from '@/components/Header'
 import HydrateStore from '@/components/hydrateStore'
 import Notification from '@/components/Notification'
 import { validateRequest } from '@/lib/Lucia'
-import { getNotifications } from '@/services/users/users.queries'
+import { getNotifications, markNotificationsAsSeen } from '@/services/users/users.queries'
 
 export const metadata = {
   title: 'Activity',
@@ -17,6 +17,7 @@ const Activity = async () => {
   }
 
   const data = await getNotifications()
+  await markNotificationsAsSeen()
   const replies =
     !('error' in data) && data.length > 0
       ? data.filter((e) => e.reply !== null).map((e) => ({ post: e.reply!, user: e.sourceUser }))
@@ -42,5 +43,4 @@ const Activity = async () => {
     </>
   )
 }
-
 export default Activity

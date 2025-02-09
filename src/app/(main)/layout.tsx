@@ -7,6 +7,7 @@ import MobileSidebar from '@/components/MobileSidebar'
 import FloatingActionButton from '@/components/NewPostFAB'
 import NewThreadModal from '@/components/NewThreadModal'
 import Sidebar from '@/components/Sidebar'
+import { NotificationsProvider } from '@/contexts/NotificationsContext'
 import { validateRequest } from '@/lib/Lucia'
 
 export const metadata: Metadata = {
@@ -21,8 +22,10 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-primary-bg text-gray-6 antialiased md:bg-secondary-bg md:px-5">
       <MobileHeader />
-      <Sidebar user={user} />
-      <MobileSidebar user={user} />
+      <NotificationsProvider isAuthenticated={!!user}>
+        <Sidebar user={user} />
+        <MobileSidebar user={user} />
+      </NotificationsProvider>
       {user ? (
         <>
           <NewThreadModal username={user.username} avatar={user.avatar} />
