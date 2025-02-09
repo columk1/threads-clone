@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
 import { footerLinks } from '@/lib/constants/navigation'
 
@@ -15,6 +16,11 @@ type MobileSidebarProps = {
 const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
   const pathname = usePathname()
   const { openModal } = useModal()
+  const isDesktop = useMediaQuery('(min-width: 700px)')
+
+  if (isDesktop) {
+    return null
+  }
 
   return (
     <aside className="fixed bottom-0 z-20 flex h-[68px] w-screen items-center justify-evenly md:hidden">
