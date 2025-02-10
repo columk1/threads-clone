@@ -53,20 +53,14 @@ export const ThreadMedia = ({ image, imageWidth, imageHeight, isTarget = false }
 
   return (
     <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
-      <div
-        className={cx('mb-1 max-h-[430px] rounded-lg outline -outline-offset-1 outline-primary-outline')}
-        style={{
-          width: containerWidth,
-          height: containerHeight,
-        }}
-      >
+      <div className={cx('mb-1 max-h-[430px] rounded-lg outline -outline-offset-1 outline-primary-outline')}>
         <Image
           src={image}
           alt="preview"
           priority
           width={Number(containerWidth)}
           height={Number(containerHeight)}
-          className="block rounded-lg object-contain"
+          className="block size-auto rounded-lg object-contain"
         />
       </div>
     </div>
