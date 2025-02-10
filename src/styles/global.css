@@ -47,6 +47,13 @@
   html:has(body[data-scroll-locked]) {
     scrollbar-color: transparent rgb(44, 44, 44);
   }
+  /* This is a splash screen that fades out when the threads are loaded for a public user */
+  html:has([data-threads-loaded='true']) .splash-overlay {
+    opacity: 0;
+    & .splash-logo {
+      transform: scale(1.3);
+    }
+  }
 }
 
 /* autofill style hack: https://github.com/tailwindlabs/tailwindcss/discussions/8679 */

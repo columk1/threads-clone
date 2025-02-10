@@ -22,7 +22,7 @@ export type ThreadListProps = {
 
 const ThreadList = ({ posts, currentUser }: ThreadListProps) => {
   return (
-    <>
+    <div role="list" data-threads-loaded="true">
       {posts.map((row) => (
         <Thread
           key={row.post.id}
@@ -33,7 +33,7 @@ const ThreadList = ({ posts, currentUser }: ThreadListProps) => {
           isCurrentUser={currentUser ? row.user.username === currentUser.username : false}
         />
       ))}
-    </>
+    </div>
   )
 }
 
@@ -49,6 +49,9 @@ async function loadMorePosts(offset: number, filter?: string) {
 const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
   const { user: currentUser } = await validateRequest()
   const getPostsQuery = filter === undefined ? getPosts : getFollowingPosts
+  // const getPostsQuery = () => {
+  //   throw new Promise(() => {})
+  // }
   const { posts } = await getPostsQuery()
 
   return (

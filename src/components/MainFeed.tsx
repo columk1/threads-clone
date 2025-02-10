@@ -1,6 +1,7 @@
 import type { User } from 'lucia'
 import { type FunctionComponent, Suspense } from 'react'
 
+import LoadingSplashOverlay from './LoadingSplashOverlay'
 import { MobileHomeFeedFilter } from './MobileHomeFeedFilter'
 import NewThread from './NewThread'
 import Skeleton from './Skeleton'
@@ -22,6 +23,7 @@ const MainFeed: FunctionComponent<Props> = ({ user, filter }) => {
           {user && <NewThread />}
 
           {/* Posts Here */}
+          {!user && <LoadingSplashOverlay />}
           <Suspense fallback={<Skeleton />}>
             <Threads filter={filter} />
           </Suspense>
