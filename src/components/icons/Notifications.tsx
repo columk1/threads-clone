@@ -24,7 +24,7 @@ const Notifications: FunctionComponent<NotificationsProps> = ({ className, isAct
 
   return (
     <svg
-      aria-label="Notifications"
+      aria-label={`Notifications ${hasNotifications ? ` (${unseenCount})` : ''}`}
       role="img"
       viewBox="0 0 32 32"
       width="30px"
