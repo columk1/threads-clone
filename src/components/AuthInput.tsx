@@ -13,6 +13,7 @@ type AuthInputProps = {
   defaultValue?: string
   autoComplete?: string
   autoCapitalize?: string
+  autofocus?: boolean
   required?: boolean
   minLength?: number
   error?: string | null
@@ -31,6 +32,7 @@ const Input = ({
   defaultValue,
   autoComplete,
   autoCapitalize,
+  autofocus,
   required,
   minLength,
   error = null,
@@ -116,6 +118,8 @@ const Input = ({
         minLength={minLength}
         onChange={onChange}
         onBlur={onBlur}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus={autofocus}
       />
       <label
         htmlFor={name}
