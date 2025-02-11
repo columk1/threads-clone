@@ -16,19 +16,19 @@ const MainFeed: FunctionComponent<Props> = ({ user, filter }) => {
   // user = undefined
   return (
     <>
-      {user && <MobileHomeFeedFilter />}
+      {user ? (
+        <>
+          <MobileHomeFeedFilter />
+          <NewThread />
+        </>
+      ) : (
+        <LoadingSplashOverlay />
+      )}
 
-      <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
-        <div className="">
-          {user && <NewThread />}
-
-          {/* Posts Here */}
-          {!user && <LoadingSplashOverlay />}
-          <Suspense fallback={<Skeleton />}>
-            <Threads filter={filter} />
-          </Suspense>
-        </div>
-      </div>
+      {/* Posts Here */}
+      <Suspense fallback={<Skeleton />}>
+        <Threads filter={filter} />
+      </Suspense>
     </>
   )
 }

@@ -1,6 +1,7 @@
 import type { User } from 'lucia'
 import { Suspense } from 'react'
 
+import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
 import HydrateStore from '@/components/hydrateStore'
 import SearchAutocomplete from '@/components/SearchAutocomplete'
@@ -46,20 +47,20 @@ export default async function Search({
     return (
       <>
         <Header title="Search" />
-        <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+        <ContentPane>
           <SearchAutocomplete currentUser={user || undefined} />
-        </div>
+        </ContentPane>
       </>
     )
   }
   return (
     <>
       <Header title={searchQuery} />
-      <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+      <ContentPane>
         <Suspense fallback={<Skeleton />}>
           <SearchResults query={searchQuery} user={user} />
         </Suspense>
-      </div>
+      </ContentPane>
     </>
   )
 }

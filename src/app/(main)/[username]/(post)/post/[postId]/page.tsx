@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
+import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
 import HydrateStore from '@/components/hydrateStore'
 import Spinner from '@/components/spinner/Spinner'
@@ -52,7 +53,8 @@ export default async function PostPage({ params }: Props) {
     <>
       <HydrateStore initialPosts={data} />
       <Header title="Thread" />
-      <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+      {/* <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg"> */}
+      <ContentPane>
         <ThreadView
           parentThread={parentThread}
           targetThread={targetThread}
@@ -77,7 +79,7 @@ export default async function PostPage({ params }: Props) {
             />
           ))}
         </Suspense>
-      </div>
+      </ContentPane>
     </>
   )
 }

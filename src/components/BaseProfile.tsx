@@ -11,7 +11,7 @@ type BaseProfileProps = {
 
 export default function BaseProfile({ user, children, actions }: BaseProfileProps) {
   return (
-    <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+    <>
       <div className="flex w-full flex-col items-center justify-center gap-4 px-6 py-5 text-[15px] font-normal">
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col">
@@ -30,6 +30,6 @@ export default function BaseProfile({ user, children, actions }: BaseProfileProp
       </div>
       <ProfileNavigation />
       {children}
-    </div>
+    </>
   )
 }

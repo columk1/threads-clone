@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 
+import { ContentPane } from '@/components/ContentPane'
 import CurrentUserProfile from '@/components/CurrentUserProfile'
 import Header from '@/components/Header'
 import VisitorProfile from '@/components/UserProfile'
@@ -59,7 +60,9 @@ const UserProfileLayout = async ({ params, children }: Props) => {
     return (
       <>
         <Header title={`${user.username}`} />
-        <VisitorProfile initialUser={user}>{children}</VisitorProfile>
+        <ContentPane>
+          <VisitorProfile initialUser={user}>{children}</VisitorProfile>
+        </ContentPane>
       </>
     )
   }
@@ -72,7 +75,9 @@ const UserProfileLayout = async ({ params, children }: Props) => {
   return (
     <>
       <Header title="Profile" />
-      <CurrentUserProfile user={user}>{children}</CurrentUserProfile>
+      <ContentPane>
+        <CurrentUserProfile user={user}>{children}</CurrentUserProfile>
+      </ContentPane>
     </>
   )
 }

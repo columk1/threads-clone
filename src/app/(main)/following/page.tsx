@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 
+import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
 import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
@@ -17,7 +18,9 @@ export default async function Following() {
       <Header title="Following">
         <HeaderDropdown pathname="/following" />
       </Header>
-      <MainFeed user={user} filter="following" />
+      <ContentPane>
+        <MainFeed user={user} filter="following" />
+      </ContentPane>
     </>
   )
 }

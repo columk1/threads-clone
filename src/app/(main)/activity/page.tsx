@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 
+import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
 import HydrateStore from '@/components/hydrateStore'
 import Notification from '@/components/Notification'
@@ -26,7 +27,7 @@ const Activity = async () => {
   return (
     <>
       <Header title="Activity" />
-      <div className="flex w-full flex-1 flex-col md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg">
+      <ContentPane>
         <div className="h-2" />
         {'error' in data || data.length === 0 ? (
           <div className="mx-auto my-[calc(50%+60px)] py-3 text-gray-8">No activity yet</div>
@@ -39,7 +40,7 @@ const Activity = async () => {
           </div>
         )}
         {/* <div className="mx-auto my-[calc(50%+60px)] py-3 text-gray-8">Under development</div> */}
-      </div>
+      </ContentPane>
     </>
   )
 }

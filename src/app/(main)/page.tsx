@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 
+import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
 import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
@@ -20,7 +21,9 @@ export default async function Home() {
   return (
     <>
       <Header title={`${user ? 'For you' : 'Home'}`}>{user && <HeaderDropdown pathname="/" />}</Header>
-      <MainFeed user={user} />
+      <ContentPane>
+        <MainFeed user={user} />
+      </ContentPane>
     </>
   )
 }
