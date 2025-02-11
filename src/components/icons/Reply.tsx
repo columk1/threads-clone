@@ -14,6 +14,7 @@ const Reply: FunctionComponent<ReplyProps> = ({ className }) => {
       height="18px"
       width="18px"
       stroke="currentColor"
+      fill="transparent"
       className={className}
     >
       <title>Reply</title>
