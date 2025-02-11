@@ -35,8 +35,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
+    // Supress hydration warning for theme script
     <html lang="en-US" suppressHydrationWarning>
-      <body suppressHydrationWarning className="overflow-y-scroll bg-primary-bg font-system text-primary-text">
+      <body className="overflow-y-scroll bg-primary-bg font-system text-primary-text antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <ModalProvider>
             <div className="flex min-h-screen flex-1 flex-col items-center justify-center">

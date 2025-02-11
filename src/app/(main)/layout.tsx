@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export default async function HomeLayout({ children }: { children: React.ReactNode }) {
   const { user } = await validateRequest()
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-primary-bg text-gray-6 antialiased md:bg-secondary-bg md:px-5">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-primary-bg text-gray-6 md:bg-secondary-bg md:px-5">
       <MobileHeader />
       <NotificationsProvider isAuthenticated={!!user}>
         <Sidebar user={user} />
