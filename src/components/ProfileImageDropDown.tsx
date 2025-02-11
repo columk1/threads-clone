@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/DropdownMenu'
+import { signUploadForm } from '@/lib/Cloudinary'
 import { IMG_UPLOAD_URL } from '@/lib/constants'
-import { signUploadForm } from '@/lib/data'
 import { updateAvatar } from '@/services/users/users.actions'
 import { stringToSafePublicId } from '@/utils/string/stringToSafePublicId'
 

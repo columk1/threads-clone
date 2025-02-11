@@ -4,8 +4,8 @@ import { useCallback, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { signUploadForm } from '@/lib/Cloudinary'
 import { IMG_UPLOAD_URL } from '@/lib/constants'
-import { signUploadForm } from '@/lib/data'
 import { type ImageData, imageSchema } from '@/lib/schemas/zod.schema'
 
 export const useImageForm = () => {
