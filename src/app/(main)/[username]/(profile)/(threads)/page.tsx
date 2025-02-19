@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 
-import HydrateStore from '@/components/hydrateStore'
+import HydrateStore from '@/components/HydrateStore'
 import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'

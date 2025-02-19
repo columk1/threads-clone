@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 
 import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
-import HydrateStore from '@/components/hydrateStore'
+import HydrateStore from '@/components/HydrateStore'
 import Spinner from '@/components/spinner/Spinner'
 import Thread from '@/components/Thread'
 import ThreadView from '@/components/ThreadView'

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
-import HydrateStore from '@/components/hydrateStore'
+import HydrateStore from '@/components/HydrateStore'
 import Notification from '@/components/Notification'
 import { validateRequest } from '@/lib/Lucia'
 import { getNotifications, markNotificationsAsSeen } from '@/services/users/users.queries'

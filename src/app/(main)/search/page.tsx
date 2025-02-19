@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 
 import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
-import HydrateStore from '@/components/hydrateStore'
+import HydrateStore from '@/components/HydrateStore'
 import SearchAutocomplete from '@/components/SearchAutocomplete'
 import Skeleton from '@/components/Skeleton'
 import Thread from '@/components/Thread'

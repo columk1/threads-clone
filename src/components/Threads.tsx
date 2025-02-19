@@ -4,7 +4,7 @@ import type { FunctionComponent } from 'react'
 import { validateRequest } from '@/lib/Lucia'
 import { getFollowingPosts, getPosts, QUERY_LIMIT } from '@/services/posts/posts.queries'
 
-import HydrateStore from './hydrateStore'
+import HydrateStore from './HydrateStore'
 import LoadMore from './LoadMore'
 import Thread from './Thread'
 
