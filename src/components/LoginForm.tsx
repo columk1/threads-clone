@@ -7,6 +7,7 @@ import Spinner from '@/components/spinner/Spinner'
 import { login } from '@/services/auth/auth.actions'
 
 import AuthInput from './AuthInput'
+import Divider from './Divider'
 import GoogleAuthButton from './GoogleAuthButton'
 
 const LoginForm = () => {
@@ -42,8 +43,8 @@ const LoginForm = () => {
           <AuthInput
             type="text"
             name="email"
-            label="Username, phone or email"
-            placeholder="Username, phone or email"
+            label="Username or email"
+            placeholder="Username or email"
             autoComplete="current-email"
             defaultValue={state?.initialValue?.email?.toString()}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
@@ -71,11 +72,7 @@ const LoginForm = () => {
               Forgot password?
             </a>
           </div>
-          <div className="flex items-center justify-center space-x-4 text-gray-7">
-            <hr className="w-full border-[0.5px] border-primary-outline" />
-            <span className="px-4">or</span>
-            <hr className="w-full border-t border-primary-outline" />
-          </div>
+          <Divider text="or" />
           <GoogleAuthButton>Continue with Google</GoogleAuthButton>
         </div>
       </div>

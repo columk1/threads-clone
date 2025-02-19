@@ -7,6 +7,7 @@ import { validateUniqueEmail, validateUniqueUsername } from '@/helpers/formHelpe
 import { signup } from '@/services/auth/auth.actions'
 
 import AuthInput from './AuthInput'
+import Divider from './Divider'
 import GoogleAuthButton from './GoogleAuthButton'
 
 const VALIDATION_DELAY = 300
@@ -29,7 +30,7 @@ const SignupForm: FunctionComponent = () => {
 
   return (
     <form ref={formRef} action={formAction} autoComplete="off" onInput={handleInput}>
-      <div className="flex w-full flex-col gap-2 text-[15px]">
+      <div className="flex w-full flex-col gap-4 text-[15px]">
         {/* {state?.error && (
           <div>
             {Object.entries(state.error).map(([key, value]) => (
@@ -42,11 +43,7 @@ const SignupForm: FunctionComponent = () => {
         <GoogleAuthButton iconSize="30" className="h-[3.25rem]">
           Log in with Google
         </GoogleAuthButton>
-        <div className="flex items-center justify-center space-x-4 text-gray-7">
-          <hr className="w-full border-[0.5px] border-primary-outline" />
-          <span className="px-4">or</span>
-          <hr className="w-full border-t border-primary-outline" />
-        </div>
+        <Divider text="or" />
         <div className="flex flex-col gap-2">
           <AuthInput
             name="email"
@@ -81,7 +78,7 @@ const SignupForm: FunctionComponent = () => {
           <AuthInput
             name="name"
             type="text"
-            label="Full Name"
+            label="Full name"
             placeholder=""
             defaultValue={state?.initialValue?.name?.toString()}
             required
@@ -105,8 +102,6 @@ const SignupForm: FunctionComponent = () => {
             icons
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"
           />
-        </div>
-        <div className="flex flex-col gap-4">
           <button
             type="submit"
             disabled={isPending || !isFormValid}
@@ -114,12 +109,12 @@ const SignupForm: FunctionComponent = () => {
           >
             Sign up
           </button>
-          <div className="text-center text-sm text-gray-7">
-            Have an account?&nbsp;
-            <Link href="/login" className="text-primary-text hover:underline">
-              Log in
-            </Link>
-          </div>
+        </div>
+        <div className="text-center text-sm text-gray-7">
+          Have an account?&nbsp;
+          <Link href="/login" className="text-primary-text hover:underline">
+            Log in
+          </Link>
         </div>
       </div>
     </form>
