@@ -9,7 +9,7 @@ test.describe('Notifications Icon', () => {
     // Log in as USER_1
     await page.goto('/login')
     await page.getByLabel(/email/i).fill(USER_1.email)
-    await page.getByLabel(/password/i).fill(USER_1.password)
+    await page.getByLabel('Password').fill(USER_1.password)
     await page.getByRole('button', { name: 'Log in' }).click()
     await page.waitForURL('/')
   })
@@ -24,12 +24,19 @@ test.describe('Notifications Icon', () => {
     await expect(page.getByRole('dialog')).toBeHidden()
 
     // Log out USER_1
-    await page.goto('/logout')
+    const sidebar = page.getByRole('navigation', { name: 'Primary navigation' })
+    const moreButton = sidebar.getByRole('button', { name: 'More' })
+
+    await expect(moreButton).toBeVisible()
+
+    await moreButton.click()
+    await page.getByRole('menuitem', { name: 'Log out' }).click()
+
+    await expect(page).toHaveURL('/login')
 
     // Log in as USER_2 to create a notification
-    await page.goto('/login')
     await page.getByLabel(/email/i).fill(USER_2.email)
-    await page.getByLabel(/password/i).fill(USER_2.password)
+    await page.getByLabel('Password').fill(USER_2.password)
     await page.getByRole('button', { name: 'Log in' }).click()
     await page.waitForURL('/')
 
@@ -46,12 +53,18 @@ test.describe('Notifications Icon', () => {
     await expect(replyButton).toContainText('1')
 
     // Log out USER_2
-    await page.goto('/logout')
+    const moreButton2 = sidebar.getByRole('button', { name: 'More' })
+
+    await expect(moreButton2).toBeVisible()
+
+    await moreButton2.click()
+    await page.getByRole('menuitem', { name: 'Log out' }).click()
+
+    await expect(page).toHaveURL('/login')
 
     // Log back in as USER_1 to check notifications
-    await page.goto('/login')
     await page.getByLabel(/email/i).fill(USER_1.email)
-    await page.getByLabel(/password/i).fill(USER_1.password)
+    await page.getByLabel('Password').fill(USER_1.password)
     await page.getByRole('button', { name: 'Log in' }).click()
     await page.waitForURL('/')
 

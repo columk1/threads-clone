@@ -1,4 +1,13 @@
-export default function AuthLayout(props: { children: React.ReactNode }) {
+import { redirect } from 'next/navigation'
+
+import { validateRequest } from '@/lib/Lucia'
+
+export default async function AuthLayout(props: { children: React.ReactNode }) {
+  const { user } = await validateRequest()
+  if (user) {
+    return redirect('/')
+  }
+
   return (
     <>
       <div className="p-3">

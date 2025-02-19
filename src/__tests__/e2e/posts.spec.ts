@@ -27,7 +27,7 @@ test.describe('Post Management', () => {
       // Log in with test user
       await page.goto('/login')
       await page.getByLabel(/email/i).fill(USER_1.email)
-      await page.getByLabel(/password/i).fill(USER_1.password)
+      await page.getByLabel('Password').fill(USER_1.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       // Wait for login to complete and redirect
       await page.waitForURL('/')
@@ -89,7 +89,7 @@ test.describe('Post Management', () => {
       // Log in with test user
       await page.goto('/login')
       await page.getByLabel(/email/i).fill(USER_1.email)
-      await page.getByLabel(/password/i).fill(USER_1.password)
+      await page.getByLabel('Password').fill(USER_1.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
 
@@ -115,7 +115,7 @@ test.describe('Post Management', () => {
       // Log in with test user to delete the post
       await page.goto('/login')
       await page.getByLabel(/email/i).fill(USER_1.email)
-      await page.getByLabel(/password/i).fill(USER_1.password)
+      await page.getByLabel('Password').fill(USER_1.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
 
@@ -141,7 +141,7 @@ test.describe('Post Management', () => {
       // Log in as USER_2 to test interactions
       await page.goto('/login')
       await page.getByLabel(/email/i).fill(USER_2.email)
-      await page.getByLabel(/password/i).fill(USER_2.password)
+      await page.getByLabel('Password').fill(USER_2.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
     })
@@ -274,7 +274,7 @@ test.describe('Post Management', () => {
       // Log in with test user
       await page.goto('/login')
       await page.getByLabel(/email/i).fill(USER_1.email)
-      await page.getByLabel(/password/i).fill(USER_1.password)
+      await page.getByLabel('Password').fill(USER_1.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
 
@@ -298,7 +298,7 @@ test.describe('Post Management', () => {
       // Log in as USER_2 to test interactions
       await page.goto('/login')
       await page.getByLabel(/email/i).fill(USER_2.email)
-      await page.getByLabel(/password/i).fill(USER_2.password)
+      await page.getByLabel('Password').fill(USER_2.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
     })
@@ -330,12 +330,19 @@ test.describe('Post Management', () => {
       await expect(repostButton).toContainText('1')
 
       // Log out USER_2
-      await page.goto('/logout')
+      const sidebar = page.getByRole('navigation', { name: 'Primary navigation' })
+      const moreButton = sidebar.getByRole('button', { name: 'More' })
+
+      await expect(moreButton).toBeVisible()
+
+      await moreButton.click()
+      await page.getByRole('menuitem', { name: 'Log out' }).click()
+
+      await expect(page).toHaveURL('/login')
 
       // Log back in as USER_1 to check notifications
-      await page.goto('/login')
       await page.getByLabel(/email/i).fill(USER_1.email)
-      await page.getByLabel(/password/i).fill(USER_1.password)
+      await page.getByLabel('Password').fill(USER_1.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
 

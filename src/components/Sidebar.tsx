@@ -27,7 +27,10 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-10 flex h-full w-sidebar-width flex-col items-center justify-between overflow-x-visible pb-5 max-md:hidden">
+    <nav
+      aria-label="Primary navigation"
+      className="fixed left-0 top-0 z-10 flex h-full w-sidebar-width flex-col items-center justify-between overflow-x-visible pb-5 max-md:hidden"
+    >
       <Link href="/" className="flex w-[34px] items-center justify-center gap-4 py-[15px]">
         <Logo />
       </Link>
@@ -102,7 +105,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
         })}
       </div>
       <SidebarDropdown isAuthenticated={isAuthenticated} />
-    </aside>
+    </nav>
   )
 }
 

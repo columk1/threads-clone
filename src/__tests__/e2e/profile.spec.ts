@@ -20,7 +20,7 @@ test.describe('Profile Management', () => {
     // Log in with the test user created in global setup
     await page.goto('/login')
     await page.getByLabel(/email/i).fill(USER_1.email)
-    await page.getByLabel(/password/i).fill(USER_1.password)
+    await page.getByLabel('Password').fill(USER_1.password)
     await page.getByRole('button', { name: 'Log in' }).click()
     // Wait for login to complete and redirect
     await page.waitForURL('/')
@@ -156,12 +156,19 @@ test.describe('Profile Management', () => {
       await expect(page.getByText('1 follower', { exact: true })).toBeVisible()
 
       // Log out USER_1
-      await page.goto('/logout')
+      const sidebar = page.getByRole('navigation', { name: 'Primary navigation' })
+      const moreButton = sidebar.getByRole('button', { name: 'More' })
+
+      await expect(moreButton).toBeVisible()
+
+      await moreButton.click()
+      await page.getByRole('menuitem', { name: 'Log out' }).click()
+
+      await expect(page).toHaveURL('/login')
 
       // Log back in as USER_2 to check notifications
-      await page.goto('/login')
       await page.getByLabel(/email/i).fill(USER_2.email)
-      await page.getByLabel(/password/i).fill(USER_2.password)
+      await page.getByLabel('Password').fill(USER_2.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
 
@@ -178,10 +185,41 @@ test.describe('Profile Management', () => {
 
     test('should not create duplicate notifications for repeat follow actions', async ({ page }) => {
       // Log in as USER_2 to check notifications after the previous follow/unfollow/follow actions
-      await page.goto('/logout')
-      await page.goto('/login')
+      const sidebar = page.getByRole('navigation', { name: 'Primary navigation' })
+      const moreButton = sidebar.getByRole('button', { name: 'More' })
+
+      await expect(moreButton).toBeVisible()
+
+      await moreButton.click()
+      await page.getByRole('menuitem', { name: 'Log out' }).click()
+
+      await expect(page).toHaveURL('/login')
+
       await page.getByLabel(/email/i).fill(USER_2.email)
-      await page.getByLabel(/password/i).fill(USER_2.password)
+      await page.getByLabel('Password').fill(USER_2.password)
+      await page.getByRole('button', { name: 'Log in' }).click()
+      await page.waitForURL('/')
+
+      // Check notifications
+      await page.goto('/activity')
+
+      // Wait for notifications to load
+      await expect(page.getByRole('list')).toBeVisible()
+
+      // Verify one notification is present
+      await expect(page.getByRole('link', { name: `Avatar Follow Notification ${USER_1.username}` })).toBeVisible()
+
+      // Log out USER_1
+      await expect(moreButton).toBeVisible()
+
+      await moreButton.click()
+      await page.getByRole('menuitem', { name: 'Log out' }).click()
+
+      await expect(page).toHaveURL('/login')
+
+      // Log back in as USER_2 to check notifications
+      await page.getByLabel(/email/i).fill(USER_2.email)
+      await page.getByLabel('Password').fill(USER_2.password)
       await page.getByRole('button', { name: 'Log in' }).click()
       await page.waitForURL('/')
 
