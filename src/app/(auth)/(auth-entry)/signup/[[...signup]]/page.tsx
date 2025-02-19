@@ -3,7 +3,7 @@ import SignupForm from '@/components/SignupForm'
 export async function generateMetadata() {
   return {
     title: 'Sign up',
-    description: 'Create a new account.',
+    description: 'Create a new account',
   }
 }
 
