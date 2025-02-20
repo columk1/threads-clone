@@ -93,12 +93,17 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
   } = state
   const { handleTextInput, handleUploadButtonClick, handleFileChange } = actions
 
-  const textInputRef = useCallback((node: HTMLTextAreaElement | null) => {
-    if (node) {
-      const length = node.value.length
-      node.setSelectionRange(length, length)
-    }
-  }, [])
+  const textInputRef = useCallback(
+    (node: HTMLTextAreaElement | null) => {
+      if (node) {
+        const length = node.value.length
+        node.setSelectionRange(length, length)
+        const event = { target: node } as React.ChangeEvent<HTMLTextAreaElement>
+        handleTextInput(event) // Set the height of the textarea on mount
+      }
+    },
+    [handleTextInput],
+  )
 
   const contentRef = useCallback((node: HTMLDivElement | null) => {
     if (!node) {
