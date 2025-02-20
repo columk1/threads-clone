@@ -36,13 +36,13 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
           <AuthPromptModal />
           <Link
             href="/login"
-            className="fixed right-5 top-5 z-30 flex h-[34px] items-center justify-center rounded-lg border border-primary-outline bg-white px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30"
+            className="fixed right-5 top-5 z-30 flex h-[34px] items-center justify-center rounded-lg border border-primary-outline bg-white px-4 text-[15px] font-semibold text-black transition active:scale-95 disabled:opacity-30"
           >
             Log in
           </Link>
         </>
       )}
-      <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-[60px] md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">
+      <main className="flex w-full flex-1 flex-col text-primary-text max-md:mt-header-height md:w-full md:max-w-[min(calc(100%-(1.5*var(--sidebar-width))),640px)]">
         {children}
       </main>
     </div>

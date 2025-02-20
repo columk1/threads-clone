@@ -22,6 +22,8 @@ export default {
       },
       spacing: {
         'sidebar-width': 'var(--sidebar-width)',
+        'header-height': 'var(--header-height)',
+        'mobile-nav-height': 'var(--mobile-nav-height)',
       },
       colors: {
         'primary-bg': 'var(--primary-bg)',

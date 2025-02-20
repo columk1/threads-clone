@@ -12,6 +12,13 @@ import { sidebarLinks } from '@/lib/constants/navigation'
 import Logo from './Logo'
 import SidebarDropdown from './SidebarDropdown'
 
+// Common styles for navigation items
+const navItemBaseStyles =
+  'group relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90'
+const navIconWrapperStyles = 'z-10'
+const navItemHoverBgStyles =
+  'absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg'
+
 type SidebarProps = {
   user: User | null
 }
@@ -43,11 +50,11 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
               <button
                 type="button"
                 key={link.label}
-                className={`my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${link?.classNames}`}
+                className={`${navItemBaseStyles} ${link?.classNames}`}
                 onClick={() => (user ? openModal('new-thread') : openModal('auth-prompt', 'post'))}
               >
-                <div className="z-10">{link.icon && <link.icon />}</div>
-                <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
+                <div className={navIconWrapperStyles}>{link.icon && <link.icon />}</div>
+                <div className={navItemHoverBgStyles}></div>
               </button>
             )
           }
@@ -57,11 +64,11 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
               <button
                 type="button"
                 key={link.label}
-                className={`my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${link?.classNames}`}
+                className={`${navItemBaseStyles} ${link?.classNames}`}
                 onClick={() => openModal('auth-prompt', 'activity')}
               >
-                <div className="z-10">{link.icon && <link.icon />}</div>
-                <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
+                <div className={navIconWrapperStyles}>{link.icon && <link.icon />}</div>
+                <div className={navItemHoverBgStyles}></div>
               </button>
             )
           }
@@ -72,11 +79,11 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
                 <button
                   type="button"
                   key={link.label}
-                  className={`my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${link?.classNames}`}
+                  className={`${navItemBaseStyles} ${link?.classNames}`}
                   onClick={() => openModal('auth-prompt', 'profile')}
                 >
-                  <div className="z-10">{link.icon && <link.icon />}</div>
-                  <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
+                  <div className={navIconWrapperStyles}>{link.icon && <link.icon />}</div>
+                  <div className={navItemHoverBgStyles}></div>
                 </button>
               )
             }
@@ -84,22 +91,24 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
               <Link
                 href={`/@${user.username}`}
                 key={link.label}
-                className={`group relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${isActive(`/@${user.username}`) && 'text-primary-text'} ${link?.classNames}`}
+                className={`${navItemBaseStyles} ${isActive(`/@${user.username}`) && 'text-primary-text'} ${link?.classNames}`}
               >
-                <div className="z-10">{link.icon && <link.icon isActive={isActive(`/@${user.username}`)} />}</div>
-                <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
+                <div className={navIconWrapperStyles}>
+                  {link.icon && <link.icon isActive={isActive(`/@${user.username}`)} />}
+                </div>
+                <div className={navItemHoverBgStyles}></div>
               </Link>
             )
           }
-
+          // Home and Search - no custom logic required, same for auth and non-auth
           return (
             <Link
               href={link.route}
               key={link.label}
-              className={`group relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${isActive(link.route) && 'text-primary-text'} ${link?.classNames}`}
+              className={`${navItemBaseStyles} ${isActive(link.route) && 'text-primary-text'} ${link?.classNames}`}
             >
-              <div className="z-10">{link.icon && <link.icon isActive={isActive(link.route)} />}</div>
-              <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
+              <div className={navIconWrapperStyles}>{link.icon && <link.icon isActive={isActive(link.route)} />}</div>
+              <div className={navItemHoverBgStyles}></div>
             </Link>
           )
         })}

@@ -30,6 +30,8 @@
     /* Spacing */
     --radius: 0.5rem;
     --sidebar-width: 76px;
+    --header-height: 60px;
+    --mobile-nav-height: 68px;
   }
   /* Global focus styles, plus [data-highlighted] styles to override Radix dropdowns */
   .link:focus-visible:not(:hover),
