@@ -63,7 +63,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-2xl border-[0.5px] border-gray-200 bg-white p-2 text-gray-950 shadow-md data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-50 data-[state=closed]:zoom-out-50 data-[state=open]:zoom-in-50 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:border-primary-border dark:bg-elevated-bg dark:text-primary-text',
+        'z-50 min-w-[8rem] overflow-hidden rounded-2xl border-[0.5px] font-semibold border-gray-200 bg-white p-2 text-gray-950 shadow-md data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-50 data-[state=closed]:zoom-out-50 data-[state=open]:zoom-in-50 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:border-primary-border dark:bg-elevated-bg dark:text-primary-text',
         className,
       )}
       {...props}
@@ -81,7 +81,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center gap-2 rounded-lg p-3 text-[15px] outline-none transition-colors duration-200 focus:bg-gray-100 focus:text-gray-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 active:scale-[.98] transition-scale dark:focus:bg-hovered-bg dark:focus:text-primary-text',
+      'relative flex cursor-pointer select-none items-center gap-2 rounded-lg p-3 text-ms outline-none transition-colors duration-200 focus:bg-gray-100 focus:text-gray-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 active:scale-[.98] transition-scale dark:focus:bg-hovered-bg dark:focus:text-primary-text',
       inset && 'pl-8',
       className,
     )}

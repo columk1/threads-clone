@@ -18,7 +18,8 @@ export default {
     },
     extend: {
       fontSize: {
-        '3xl': '2rem',
+        ms: '0.9375rem', // 15px
+        '3xl': '2rem', // 32px
       },
       spacing: {
         'sidebar-width': 'var(--sidebar-width)',

@@ -102,7 +102,7 @@ const ThreadLayout: FunctionComponent<ThreadLayoutProps> = ({ children, isParent
       {!isParent && !isTarget && (
         <div className={`h-[0.5px] bg-primary-outline ${!currentUser && 'first:hidden'}`}></div>
       )}
-      <div className={cx('relative flex flex-col gap-2 px-6 text-[15px]', getYPadding())}>
+      <div className={cx('relative flex flex-col gap-2 px-6 text-ms', getYPadding())}>
         {isParent && <div className="absolute bottom-[-7px] left-[41px] top-[50px] w-[2px] bg-primary-outline"></div>}
         {children}
       </div>

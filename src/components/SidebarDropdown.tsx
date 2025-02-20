@@ -21,12 +21,7 @@ const SidebarDropdown: FunctionComponent<SidebarDropdownProps> = ({ isAuthentica
           <MoreIcon />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        alignOffset={5}
-        sideOffset={-51}
-        className="w-60 origin-bottom-left text-[15px]"
-      >
+      <DropdownMenuContent align="start" alignOffset={5} sideOffset={-51} className="w-60 origin-bottom-left text-ms">
         {/* These are optional features to add from the Threads UI */}
         {/* <DropdownMenuItem>Appearance</DropdownMenuItem> */}
         {/* {isAuthenticated && (

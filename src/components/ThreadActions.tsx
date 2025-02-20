@@ -158,7 +158,7 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
           <ShareIcon />
           <span className="tabular-nums">{formatCount(post.shareCount)}</span>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-60 origin-top-left text-[15px] font-semibold">
+        <DropdownMenuContent align="start" className="w-60 origin-top-left text-ms font-semibold">
           <DropdownMenuItem asChild className="leading-none">
             <button type="button" onClick={handleShare} className="flex w-full justify-between">
               Copy link

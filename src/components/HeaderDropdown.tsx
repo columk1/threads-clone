@@ -17,7 +17,7 @@ export const HeaderDropdown: FunctionComponent<HeaderDropdownProps> = ({ pathnam
           <CaretIcon />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent alignOffset={0} sideOffset={6} className="hidden w-60 origin-top text-[15px] md:block">
+      <DropdownMenuContent alignOffset={0} sideOffset={6} className="hidden w-60 origin-top text-ms md:block">
         <DropdownMenuItem asChild className="py-3.5">
           <Link href="/">
             <div className="flex flex-1 items-center justify-between">

@@ -15,7 +15,7 @@ export default function CurrentUserProfile({ user, children }: CurrentUserProfil
       trigger={
         <button
           type="button"
-          className="h-9 w-full rounded-lg border border-primary-outline px-4 text-[15px] font-semibold transition active:scale-95 disabled:opacity-30"
+          className="h-9 w-full rounded-lg border border-primary-outline px-4 text-ms font-semibold transition active:scale-95 disabled:opacity-30"
         >
           Edit Profile
         </button>

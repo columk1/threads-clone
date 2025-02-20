@@ -36,7 +36,7 @@ const Notification = ({ data, currentUser }: { data: NotificationItem; currentUs
   return (
     <NestedLinkWrapper onClick={() => router.push(linkTarget)}>
       <div className="px-6 py-3">
-        <div className="grid grid-cols-[48px_minmax(0,1fr)_auto] text-[15px]">
+        <div className="grid grid-cols-[48px_minmax(0,1fr)_auto] text-ms">
           <div className="col-start-1 row-span-2 pt-[4px]">
             <Link href={`/@${user.username}`} className="group !ring-0 !ring-offset-0">
               <Avatar

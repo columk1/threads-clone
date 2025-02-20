@@ -17,10 +17,10 @@ const UnfollowModal: FunctionComponent<UnfollowModalProps> = ({ user, handleUnfo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex w-[278px] flex-col items-center justify-center gap-4 dark:bg-elevated-bg">
         <div className="flex flex-col items-center gap-3 p-6 pb-1">
-          <div className="pb-0.5 text-center text-[15px] text-secondary-text">
+          <div className="pb-0.5 text-center text-ms text-secondary-text">
             <Avatar url={user.avatar} size="lg" />
           </div>
-          <DialogTitle className="px-6 text-center text-[15px] font-bold">{`Unfollow ${user.username}?`}</DialogTitle>
+          <DialogTitle className="px-6 text-center text-ms font-bold">{`Unfollow ${user.username}?`}</DialogTitle>
           <DialogDescription className="sr-only">Confirm unfollow</DialogDescription>
         </div>
         <div className="flex w-full">

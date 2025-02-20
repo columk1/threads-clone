@@ -135,7 +135,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
         <div className={cx('pt-2', !isDrawer && 'px-6 pb-1')}>
           {children}
           <div className="relative">
-            <div className="grid grid-cols-[48px_minmax(0,1fr)] text-[15px] leading-[21px]">
+            <div className="grid grid-cols-[48px_minmax(0,1fr)] text-ms leading-[21px]">
               <div className="col-start-1 row-start-1 row-end-[span_2] pt-[5px]">
                 <Avatar size="sm" url={avatar} />
               </div>
@@ -177,7 +177,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
       </div>
       <div
         className={cx(
-          'flex items-center justify-between py-4 mt-auto text-[15px] text-secondary-text',
+          'flex items-center justify-between py-4 mt-auto text-ms text-secondary-text',
           !isDrawer && 'px-6',
         )}
       >

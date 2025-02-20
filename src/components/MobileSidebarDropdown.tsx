@@ -20,7 +20,7 @@ export const MobileSidebarDropdown = () => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="ml-auto dark:data-[state=open]:text-primary-text md:hidden">
-        <div className="mr-[13px] flex size-12 items-center justify-center transition duration-200 hover:text-primary-text active:scale-90">
+        <div className="mr-[13px] flex size-12 items-center justify-center text-navigation-icon transition duration-200 hover:text-primary-text active:scale-90">
           <HamburgerMenuIcon orientation="right" />
         </div>
       </DropdownMenuTrigger>
@@ -28,7 +28,7 @@ export const MobileSidebarDropdown = () => {
         align="end"
         alignOffset={8}
         sideOffset={-9}
-        className="w-60 origin-top-right text-[15px] md:hidden"
+        className="w-60 origin-top-right text-ms md:hidden"
       >
         <DropdownMenuItem asChild className="leading-none">
           <Link href="/settings">Settings</Link>

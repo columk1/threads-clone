@@ -25,7 +25,7 @@ const ParentThread = ({ user, author, post }: { user: User; author: PostUser; po
       <div className="absolute bottom-[-15px] left-[17px] top-[51px] w-[2px] bg-primary-outline"></div>
 
       {/* Content */}
-      <div className="grid grid-cols-[48px_minmax(0,1fr)] text-[15px] leading-[21px]">
+      <div className="grid grid-cols-[48px_minmax(0,1fr)] text-ms leading-[21px]">
         <div className="col-start-1 row-start-1 row-end-[span_2] pt-[5px]">
           <Avatar size="sm" url={author.avatar} />
         </div>

@@ -37,7 +37,7 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
             <DialogTitle>Profile</DialogTitle>
             <DialogDescription>Edit Profile</DialogDescription>
           </div>
-          <div className="flex flex-col gap-3 text-[15px]">
+          <div className="flex flex-col gap-3 text-ms">
             {/* Name & Avatar */}
             <div className="flex gap-4">
               <div className="flex flex-1 flex-col gap-0.5">
@@ -109,7 +109,7 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
         <div className="-mx-4 h-[0.25px] bg-primary-outline"></div>
         <div className="flex h-full flex-col justify-center">
           <div className="rounded-2xl border-[0.5px] border-primary-outline p-6 dark:bg-primary-bg">
-            <div className="flex flex-col gap-3 text-[15px]">
+            <div className="flex flex-col gap-3 text-ms">
               {/* Name & Avatar */}
               <div className="flex gap-4">
                 <div className="flex flex-1 flex-col gap-0.5">

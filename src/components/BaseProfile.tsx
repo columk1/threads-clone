@@ -12,7 +12,7 @@ type BaseProfileProps = {
 export default function BaseProfile({ user, children, actions }: BaseProfileProps) {
   return (
     <>
-      <div className="flex w-full flex-col items-center justify-center gap-4 px-6 py-5 text-[15px] font-normal">
+      <div className="flex w-full flex-col items-center justify-center gap-4 px-6 py-5 text-ms font-normal">
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col">
             <span className="text-2xl font-semibold">{user.name}</span>

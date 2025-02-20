@@ -37,7 +37,7 @@ const Header: FunctionComponent<HeaderProps> = async ({ title, children }) => {
             <BackIcon />
           </BackButton>
         </div>
-        <div className="col-start-2 flex items-center justify-center gap-3 text-[15px] font-semibold text-primary-text">
+        <div className="col-start-2 flex items-center justify-center gap-3 text-ms font-semibold text-primary-text">
           <h1>
             <a href="/">{title}</a>
           </h1>

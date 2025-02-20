@@ -38,7 +38,7 @@ const LoginForm = () => {
 
   return (
     <form ref={formRef} onInput={handleInput} action={formAction} autoComplete="off">
-      <div className="flex w-full flex-col gap-2 text-[15px]">
+      <div className="flex w-full flex-col gap-2 text-ms">
         <div className="flex flex-col gap-2">
           <AuthInput
             type="text"

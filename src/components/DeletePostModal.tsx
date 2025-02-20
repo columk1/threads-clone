@@ -24,7 +24,7 @@ const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) =>
   return (
     <DialogContent className="flex w-[278px] flex-col items-center justify-center gap-4 dark:bg-elevated-bg">
       <DialogTitle className="px-6 pt-6 text-base font-bold">Delete post?</DialogTitle>
-      <div className="px-6 pb-0.5 text-center text-[15px] text-secondary-text">
+      <div className="px-6 pb-0.5 text-center text-ms text-secondary-text">
         If you delete this post, you won't be able to restore it.
       </div>
       <div className="flex w-full">

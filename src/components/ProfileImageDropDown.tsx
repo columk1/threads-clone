@@ -82,7 +82,7 @@ const ProfileImageDropdown = ({ username, avatarUrl }: { username: string; avata
           align="end"
           alignOffset={0}
           sideOffset={2}
-          className="w-60 origin-top-right text-[15px] dark:bg-elevated-bg"
+          className="w-60 origin-top-right text-ms dark:bg-elevated-bg"
         >
           <DropdownMenuItem asChild className="w-full leading-none">
             <button type="button" onClick={handleUploadButtonClick}>

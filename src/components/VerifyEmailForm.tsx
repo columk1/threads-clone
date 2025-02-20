@@ -57,7 +57,7 @@ const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
         </form>
       </div>
       <form action={formAction} {...getFormProps(form)}>
-        <div className="flex w-full flex-col gap-2 text-[15px]">
+        <div className="flex w-full flex-col gap-2 text-ms">
           <div className="flex flex-col gap-2">
             <AuthInput
               label="Confirmation Code"

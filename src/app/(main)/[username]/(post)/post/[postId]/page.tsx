@@ -64,7 +64,7 @@ export default async function PostPage({ params }: Props) {
         />
 
         <div className="mx-6 h-[0.5px] bg-primary-outline"></div>
-        <div className="px-6 py-3 text-[15px] font-semibold">Replies</div>
+        <div className="px-6 py-3 text-ms font-semibold">Replies</div>
 
         {/* Replies */}
         <Suspense fallback={<Spinner size={10} />}>

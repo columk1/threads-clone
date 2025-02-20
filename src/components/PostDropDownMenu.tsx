@@ -52,7 +52,7 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
           align="end"
           alignOffset={-18}
           sideOffset={6}
-          className="w-60 origin-top-right text-[15px] font-semibold"
+          className="w-60 origin-top-right text-ms font-semibold"
         >
           {isAuthenticated && (
             <>
