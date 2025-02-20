@@ -68,7 +68,7 @@ const LoginForm = () => {
             {isPending ? <Spinner /> : 'Log in'}
           </button>
           <div className="text-center">
-            <a href="forgot-password" className="text-sm text-gray-7 hover:underline">
+            <a href="forgot-password" className="text-sm text-secondary-text hover:underline">
               Forgot password?
             </a>
           </div>

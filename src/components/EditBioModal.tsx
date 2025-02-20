@@ -88,7 +88,7 @@ const EditBioForm = ({ isDrawer, initialBio }: { isDrawer: boolean; initialBio: 
             </button>
           </DialogClose>
         </div>
-        <div className={cx('h-[0.25px] bg-gray-5', isDrawer && '-mx-6')}></div>
+        <div className={cx('h-[0.25px] bg-primary-outline', isDrawer && '-mx-6')}></div>
       </DialogHeader>
       <div className={cx('flex h-full flex-col p-6', isDrawer && 'max-h-[calc(100vh-56px)] px-0')}>
         <form ref={formRef} action={formAction} className="flex-1">
@@ -101,7 +101,7 @@ const EditBioForm = ({ isDrawer, initialBio }: { isDrawer: boolean; initialBio: 
             name="bio"
             autoComplete="off"
             minLength={1}
-            className="mb-[2px] min-h-[120px] w-full resize-none bg-transparent placeholder:text-gray-7 focus:outline-none focus:ring-0"
+            className="mb-[2px] min-h-[120px] w-full resize-none bg-transparent placeholder:text-secondary-text focus:outline-none focus:ring-0"
             rows={1}
             value={bio}
             placeholder="Write a bio..."
@@ -114,8 +114,8 @@ const EditBioForm = ({ isDrawer, initialBio }: { isDrawer: boolean; initialBio: 
             }}
           />
         </form>
-        <div className="pb-3 text-[13px] text-gray-7">Your bio is public.</div>
-        <div className="h-[0.25px] bg-gray-5"></div>
+        <div className="pb-3 text-[13px] text-secondary-text">Your bio is public.</div>
+        <div className="h-[0.25px] bg-primary-outline"></div>
       </div>
     </>
   )

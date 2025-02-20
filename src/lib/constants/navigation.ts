@@ -37,7 +37,7 @@ export const sidebarLinks: NavigationLink[] = [
     icon: CreateIcon,
     route: '/create-thread',
     label: 'Create Thread',
-    classNames: 'bg-active-bg text-gray-7 hover:text-primary-text',
+    classNames: 'bg-elevated-bg text-secondary-text hover:text-primary-text',
   },
   {
     icon: NotificationsIcon,

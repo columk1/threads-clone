@@ -48,7 +48,7 @@ const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
 
   return (
     <>
-      <div className="mb-4 text-center text-sm text-gray-7">
+      <div className="mb-4 text-center text-sm text-secondary-text">
         {`Enter the confirmation code we sent to ${userEmail}. `}
         <form action={resendFormAction} className="inline">
           <button type="submit" disabled={isPending || isResendPending} className="text-primary-text hover:underline">
@@ -65,7 +65,7 @@ const VerifyEmailForm = ({ userEmail }: { userEmail: string }) => {
               defaultValue={state?.initialValue?.code?.toString()}
               error={fields.code.errors && fields.code.errors[0]}
               required
-              className={`text-gray-500 ${!fields.code.valid ? 'text-red-500' : ''}`}
+              className={`text-input ${!fields.code.valid ? 'text-red-500' : ''}`}
               {...getInputProps(fields.code, { type: 'text' })}
               key={fields.code.key}
             />

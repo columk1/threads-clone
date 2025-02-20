@@ -7,7 +7,7 @@ type DividerProps = {
 
 const Divider: FunctionComponent<DividerProps> = ({ text, className }) => {
   return (
-    <div className={`mx-auto flex w-[100px] items-center justify-center text-gray-7 ${className}`}>
+    <div className={`mx-auto flex w-[100px] items-center justify-center text-secondary-text ${className}`}>
       <div className="h-[0.25px] w-full bg-primary-outline" />
       <span className="px-4">{text}</span>
       <div className="h-[0.25px] w-full bg-primary-outline" />

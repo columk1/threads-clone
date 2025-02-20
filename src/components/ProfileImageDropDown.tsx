@@ -82,14 +82,14 @@ const ProfileImageDropdown = ({ username, avatarUrl }: { username: string; avata
           align="end"
           alignOffset={0}
           sideOffset={2}
-          className="w-60 origin-top-right text-[15px] dark:bg-gray-2"
+          className="w-60 origin-top-right text-[15px] dark:bg-elevated-bg"
         >
           <DropdownMenuItem asChild className="w-full leading-none">
             <button type="button" onClick={handleUploadButtonClick}>
               Upload a picture
             </button>
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="h-[0.25px] dark:bg-gray-6" />
+          <DropdownMenuSeparator className="h-[0.25px]" />
           <DropdownMenuItem asChild className="w-full leading-none text-error-text dark:focus:text-error-text">
             <button type="button">Remove current picture</button>
           </DropdownMenuItem>

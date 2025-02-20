@@ -33,7 +33,7 @@ export default function LoadingSplashOverlay() {
   return (
     <div
       ref={overlayRef}
-      className="splash-overlay fixed inset-0 z-50 flex flex-col items-center justify-between bg-gray-0 duration-200"
+      className="splash-overlay fixed inset-0 z-50 flex flex-col items-center justify-between bg-secondary-bg duration-200"
       role="progressbar"
       aria-busy="true"
       aria-label="Loading"

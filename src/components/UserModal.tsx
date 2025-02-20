@@ -18,7 +18,7 @@ const UserModal: FunctionComponent<UserModalProps> = ({ user, isCurrentUser = fa
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="flex w-[380px] flex-col justify-center p-6 dark:bg-gray-1">
+      <DialogContent className="flex w-[380px] flex-col justify-center p-6 dark:bg-primary-bg">
         <DialogTitle className="sr-only">{user.username}</DialogTitle>
         <div className="flex flex-col gap-1">
           <UserCard user={user} isCurrentUser={isCurrentUser} onToggleFollow={onToggleFollow} />

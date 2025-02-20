@@ -52,7 +52,7 @@ export const ThreadMedia = ({ image, imageWidth, imageHeight, isTarget = false }
   const { containerWidth, containerHeight } = applyConstraints(imageWidth, imageHeight)
 
   return (
-    <div className={cx('flex text-gray-7 pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
+    <div className={cx('flex text-secondary-text pt-2', isTarget ? 'col-span-2' : 'col-start-2')}>
       <div className={cx('mb-1 rounded-lg outline -outline-offset-1 outline-primary-outline')}>
         <Image
           src={image}
@@ -99,9 +99,11 @@ const ThreadLayout: FunctionComponent<ThreadLayoutProps> = ({ children, isParent
 
   return (
     <>
-      {!isParent && !isTarget && <div className={`h-[0.5px] bg-gray-5 ${!currentUser && 'first:hidden'}`}></div>}
+      {!isParent && !isTarget && (
+        <div className={`h-[0.5px] bg-primary-outline ${!currentUser && 'first:hidden'}`}></div>
+      )}
       <div className={cx('relative flex flex-col gap-2 px-6 text-[15px]', getYPadding())}>
-        {isParent && <div className="absolute bottom-[-7px] left-[41px] top-[50px] w-[2px] bg-gray-5"></div>}
+        {isParent && <div className="absolute bottom-[-7px] left-[41px] top-[50px] w-[2px] bg-primary-outline"></div>}
         {children}
       </div>
     </>
@@ -113,7 +115,7 @@ const RepostHeader: FunctionComponent<{
   createdAt: number
 }> = ({ username, createdAt }) => (
   <Link href={`/@${username}`} className="group relative z-10">
-    <div className="flex h-9 items-center gap-3 text-[13px] text-gray-7">
+    <div className="flex h-9 items-center gap-3 text-[13px] text-secondary-text">
       <span className="w-9">
         <RepostIcon className="size-4 justify-self-end" />
       </span>

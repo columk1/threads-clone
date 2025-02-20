@@ -24,7 +24,7 @@ const buttonVariants = {
   variant: {
     light: 'bg-white text-black',
     dark: 'text-white',
-    darkMuted: 'text-gray-7',
+    darkMuted: 'text-secondary-text',
   },
   size: {
     sm: 'h-9',

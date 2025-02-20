@@ -58,7 +58,7 @@ const Notification = ({ data, currentUser }: { data: NotificationItem; currentUs
               </a>
             )}
           </div>
-          <div className="col-start-2 row-start-2 leading-5 text-gray-7">{source}</div>
+          <div className="col-start-2 row-start-2 leading-5 text-secondary-text">{source}</div>
           {notification.type === 'FOLLOW' && (
             <div className="col-start-3 row-span-2 flex items-center">
               <FollowButton
@@ -78,7 +78,7 @@ const Notification = ({ data, currentUser }: { data: NotificationItem; currentUs
         </div>
         <UnfollowModal {...unfollowModalProps} />
       </div>
-      <div className="ml-[72px] h-[0.5px] bg-gray-5"></div>
+      <div className="ml-[72px] h-[0.5px] bg-primary-outline"></div>
     </NestedLinkWrapper>
   )
 }

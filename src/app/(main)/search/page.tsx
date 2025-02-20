@@ -32,7 +32,7 @@ const SearchResults = async ({ query, user }: { query: string; user: User | null
       ))}
     </>
   ) : (
-    <div className="mx-auto py-3 text-gray-8">No results</div>
+    <div className="mx-auto py-3 text-secondary-text">No results</div>
   )
 }
 

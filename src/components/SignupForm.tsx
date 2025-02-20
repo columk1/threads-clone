@@ -110,7 +110,7 @@ const SignupForm: FunctionComponent = () => {
             Sign up
           </button>
         </div>
-        <div className="text-center text-sm text-gray-7">
+        <div className="text-center text-sm text-secondary-text">
           Have an account?&nbsp;
           <Link href="/login" className="text-primary-text hover:underline">
             Log in

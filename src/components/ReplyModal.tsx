@@ -22,7 +22,7 @@ const ParentThread = ({ user, author, post }: { user: User; author: PostUser; po
   return (
     <div className="relative mb-5">
       {/* Vertical Line to Link to Parent Thread */}
-      <div className="absolute bottom-[-15px] left-[17px] top-[51px] w-[2px] bg-gray-5"></div>
+      <div className="absolute bottom-[-15px] left-[17px] top-[51px] w-[2px] bg-primary-outline"></div>
 
       {/* Content */}
       <div className="grid grid-cols-[48px_minmax(0,1fr)] text-[15px] leading-[21px]">
@@ -145,7 +145,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
               </ModalContent>
             </form>
             {/* Vertical Line - uncomment for multiple replies in thread feature */}
-            {/* <div className="absolute bottom-1.5 left-[17px] top-[50px] w-[2px] bg-gray-5"></div> */}
+            {/* <div className="absolute bottom-1.5 left-[17px] top-[50px] w-[2px] bg-primary-outline"></div> */}
           </DialogContent>
         )}
       </Dialog>

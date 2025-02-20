@@ -27,7 +27,7 @@ const LoginPage = () => (
       <h1 className="mb-4 text-center font-bold">Log in with your Threads account</h1>
       <div className="flex flex-col gap-4">
         <LoginForm />
-        <div className="text-center text-sm text-gray-7">
+        <div className="text-center text-sm text-secondary-text">
           Don't have an account?&nbsp;
           <Link href="/signup" className="text-primary-text hover:underline">
             Sign up

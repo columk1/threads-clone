@@ -51,7 +51,7 @@ const BackButtonUi: FunctionComponent<BackButtonUiProps> = ({ referer, children 
       className={cx(
         !showBackButton && 'hidden',
         isAnimating && 'max-md:animate-out max-md:fade-out max-md:slide-out-to-left-12',
-        'text-primary-text rounded-full p-1.5 transition active:scale-85 max-md:animate-in max-md:fade-in-0 max-md:slide-in-from-left-12 max-md:[animation-duration:_250ms] md:border-[0.5px] md:border-gray-5 md:bg-gray-2',
+        'text-primary-text rounded-full p-1.5 transition active:scale-85 max-md:animate-in max-md:fade-in-0 max-md:slide-in-from-left-12 max-md:[animation-duration:_250ms] md:border-[0.5px] md:border-primary-outline md:bg-elevated-bg',
       )}
     >
       {/* Icon supplied as children */}

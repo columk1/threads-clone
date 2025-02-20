@@ -52,7 +52,7 @@ const Avatar: FunctionComponent<AvatarProps> = ({
   return (
     <div
       className={cx(
-        `relative bg-gray-1 rounded-full outline outline-[0.5px] outline-offset-[0.5px] outline-primary-outline border-white/20 ${className}`,
+        `relative bg-primary-bg rounded-full outline outline-[0.5px] outline-offset-[0.5px] outline-primary-outline border-white/20 ${className}`,
         sizeClass[size],
         { 'lg:size-[84px]': size === 'lg' && responsive }, // Scale lg up to xl on large screens
       )}
@@ -68,11 +68,11 @@ const Avatar: FunctionComponent<AvatarProps> = ({
         />
       </div>
       {notificationIconType ? (
-        <span className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white text-gray-1 outline outline-2 outline-gray-1">
+        <span className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white text-primary-bg outline outline-2 outline-primary-bg">
           {notificationIcons[notificationIconType]}
         </span>
       ) : isFollowed === false ? (
-        <span className="absolute bottom-0 right-0 flex size-3.5 items-center justify-center rounded-full bg-white text-gray-1 outline outline-2 outline-gray-1">
+        <span className="absolute bottom-0 right-0 flex size-3.5 items-center justify-center rounded-full bg-white text-primary-bg outline outline-2 outline-primary-bg">
           <FollowIcon />
         </span>
       ) : null}

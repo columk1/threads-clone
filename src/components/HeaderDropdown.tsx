@@ -13,7 +13,7 @@ export const HeaderDropdown: FunctionComponent<HeaderDropdownProps> = ({ pathnam
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="rounded-full dark:data-[state=open]:text-primary-text">
-        <div className="flex size-[22px] items-center justify-center rounded-full border-[0.5px] border-gray-5 bg-active-bg transition duration-200 hover:scale-110 hover:text-primary-text active:scale-90">
+        <div className="flex size-[22px] items-center justify-center rounded-full border-[0.5px] border-primary-outline bg-elevated-bg transition duration-200 hover:scale-110 hover:text-primary-text active:scale-90">
           <CaretIcon />
         </div>
       </DropdownMenuTrigger>

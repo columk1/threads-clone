@@ -17,7 +17,7 @@ import { LikeIcon, ReplyIcon, RepostedIcon, RepostIcon, ShareIcon } from './icon
 import ReplyModal from './ReplyModal'
 
 const iconStyle =
-  'flex h-full z-10 items-center gap-1 rounded-full px-2.5 hover:bg-gray-3 active:scale-85 transition overflow-y-hidden'
+  'flex h-full z-10 items-center gap-1 rounded-full px-2.5 hover:bg-tertiary-bg active:scale-85 transition overflow-y-hidden'
 
 type ThreadActionsProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }
@@ -134,7 +134,7 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
   }
 
   return (
-    <div className={cx('-ml-2.5 mt-1 flex h-9 items-center text-[13px] text-secondary-text', className)}>
+    <div className={cx('-ml-2.5 mt-1 flex h-9 items-center text-[13px] text-charcoal-text', className)}>
       <button type="button" className={iconStyle} onClick={() => handleInteraction('like')}>
         <LikeIcon className={isLiked ? 'fill-notification stroke-notification' : ''} />
         <span className={cx('tabular-nums', isLiked && 'text-notification')}>

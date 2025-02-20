@@ -149,7 +149,7 @@ const Input = ({
         <button
           type="button"
           onClick={togglePasswordVisiblity}
-          className="absolute right-2 top-[14px] hidden text-gray-7 peer-[&:not(:placeholder-shown)]:block"
+          className="absolute right-2 top-[14px] hidden text-secondary-text peer-[&:not(:placeholder-shown)]:block"
         >
           {passwordVisible ? <EyeOff className="w-6" /> : <Eye />}
         </button>

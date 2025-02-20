@@ -4,7 +4,7 @@ import type { FunctionComponent } from 'react'
 import { formatDate, getRelativeTime } from '@/utils/dateUtils'
 
 const RelativeTimeLabel = ({ timestamp }: { timestamp: number }) => {
-  return <span className="text-gray-7">{getRelativeTime(timestamp)}</span>
+  return <span className="text-secondary-text">{getRelativeTime(timestamp)}</span>
 }
 
 type TimeAgoProps = {

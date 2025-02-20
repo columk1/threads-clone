@@ -28,11 +28,13 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
   if (isDesktop) {
     return (
       <Dialog open={isOpen && modalType === 'auth-prompt'} onOpenChange={handleOpenChange}>
-        <DialogContent className="flex w-[520px] flex-col items-center justify-center gap-8 border-none px-14 pb-14 pt-12 dark:bg-gray-1 max-md:hidden">
+        <DialogContent className="flex w-[520px] flex-col items-center justify-center gap-8 border-none px-14 pb-14 pt-12 dark:bg-primary-bg max-md:hidden">
           <div className="flex flex-col items-center gap-1">
             {Icon && <Icon className="mb-2" />}
             <DialogTitle className="flex place-self-center text-3xl font-bold">{title}</DialogTitle>
-            <DialogDescription className="w-[21rem] text-center text-[15px] text-gray-8">{caption}</DialogDescription>
+            <DialogDescription className="w-[21rem] text-center text-[15px] text-secondary-text">
+              {caption}
+            </DialogDescription>
           </div>
           <GoogleAuthButton iconSize="45" className="h-20">
             Log in with Google
@@ -44,14 +46,14 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
 
   return (
     <Drawer open={isOpen && modalType === 'auth-prompt'} onOpenChange={handleOpenChange}>
-      <DrawerContent className="min-w-full p-6 dark:bg-gray-1">
+      <DrawerContent className="min-w-full p-6 dark:bg-primary-bg">
         <DialogHeader className="grid h-9 grid-cols-[minmax(64px,100px)_minmax(0,1fr)_minmax(64px,100px)]">
           <DialogClose asChild>
             <div className="flex">
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex w-9 items-center justify-center rounded-lg text-[17px] text-gray-8"
+                className="flex w-9 items-center justify-center rounded-lg text-[17px] text-secondary-text"
               >
                 <span className="sr-only">Close</span>
                 <CloseIcon />
@@ -63,7 +65,7 @@ const AuthPromptModal: FunctionComponent<AuthPromptModalProps> = () => {
           <div className="flex flex-col items-center gap-2">
             {Icon && <Icon className="mb-1 size-10" />}
             <DialogTitle className="flex place-self-center text-2xl font-bold">{title}</DialogTitle>
-            <DialogDescription className="w-[21rem] text-center text-[15px] text-gray-8">{caption}</DialogDescription>
+            <DialogDescription className="text-gray-8 w-[21rem] text-center text-[15px]">{caption}</DialogDescription>
           </div>
           <GoogleAuthButton iconSize="45" className="h-20">
             Log in with Google

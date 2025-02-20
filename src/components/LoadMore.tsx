@@ -113,7 +113,7 @@ const LoadMore = ({ children, initialOffset, loadMoreAction }: LoadMoreProps) =>
         ref={ref}
         disabled={disabled || loading}
         onClick={() => loadMore()}
-        className="w-full pb-2 pt-4 text-gray-7"
+        className="w-full pb-2 pt-4 text-secondary-text"
       >
         {loading ? <Spinner size={10} /> : disabled ? '' : 'More'}
       </button>

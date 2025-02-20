@@ -90,11 +90,11 @@ const SearchButton = ({ value, onClick }: { value: string; onClick: () => void }
   return (
     <button type="button" className="subtle-focus flex w-full items-center gap-6" onClick={onClick}>
       <div className="py-[16px] pl-6">
-        <SearchIcon className="size-[16px] text-gray-6" />
+        <SearchIcon className="size-[16px] text-navigation-icon" />
       </div>
       <div className="flex w-full justify-between border-b-[0.5px] border-primary-outline py-[21px] pr-6">
         <div className="font-semibold">{value}</div>
-        <Continue className="text-gray-6" />
+        <Continue className="text-navigation-icon" />
       </div>
     </button>
   )
@@ -176,7 +176,7 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
     <div className="flex flex-1 flex-col pt-[18px] text-[15px]">
       <div className="px-6 pb-1">
         <div className="relative">
-          <SearchIcon className="absolute left-6 top-1/2 size-[16px] -translate-y-1/2 text-gray-6" />
+          <SearchIcon className="absolute left-6 top-1/2 size-[16px] -translate-y-1/2 text-navigation-icon" />
           <form ref={formRef} action="/search" onSubmit={handleSubmit}>
             <input
               ref={selectInput}
@@ -185,7 +185,7 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
               placeholder="Search"
               value={currentQuery}
               onChange={(e) => setCurrentQuery(e.target.value)}
-              className="w-full rounded-2xl border-[0.5px] border-gray-5 bg-gray-0 py-3 pl-12 pr-4 placeholder:text-gray-7 hover:border-gray-6 focus:border-gray-6 focus:outline-none"
+              className="w-full rounded-2xl border-[0.5px] border-primary-outline bg-secondary-bg py-3 pl-12 pr-4 placeholder:text-secondary-text hover:border-primary-outline focus:border-primary-outline focus:outline-none"
             />
           </form>
         </div>
@@ -204,7 +204,7 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
         ))}
 
       {isSearching ? (
-        <div className="my-auto flex justify-center text-gray-8">
+        <div className="my-auto flex justify-center text-secondary-text">
           <Spinner size={10} />
         </div>
       ) : (

@@ -18,7 +18,7 @@ const MobileHeader: FunctionComponent = async () => {
     <nav
       id="header"
       className={cx(
-        'fixed top-0 z-20 grid w-screen grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] bg-gray-1 place-items-center md:hidden md:grid-cols-[1fr_minmax(auto,65%)_1fr]',
+        'fixed top-0 z-20 grid w-screen grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] bg-primary-bg place-items-center md:hidden md:grid-cols-[1fr_minmax(auto,65%)_1fr]',
         user ? 'h-[60px]' : 'h-[74px]',
       )}
     >

@@ -15,9 +15,9 @@ type UnfollowModalProps = {
 const UnfollowModal: FunctionComponent<UnfollowModalProps> = ({ user, handleUnfollow, open, onOpenChange }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex w-[278px] flex-col items-center justify-center gap-4 dark:bg-gray-2">
+      <DialogContent className="flex w-[278px] flex-col items-center justify-center gap-4 dark:bg-elevated-bg">
         <div className="flex flex-col items-center gap-3 p-6 pb-1">
-          <div className="pb-0.5 text-center text-[15px] text-gray-7">
+          <div className="pb-0.5 text-center text-[15px] text-secondary-text">
             <Avatar url={user.avatar} size="lg" />
           </div>
           <DialogTitle className="px-6 text-center text-[15px] font-bold">{`Unfollow ${user.username}?`}</DialogTitle>
@@ -27,7 +27,7 @@ const UnfollowModal: FunctionComponent<UnfollowModalProps> = ({ user, handleUnfo
           <DialogClose asChild>
             <button
               type="button"
-              className="w-full rounded-bl-2xl border-r border-t border-gray-5 px-4 py-3.5 active:bg-gray-0"
+              className="w-full rounded-bl-2xl border-r border-t border-primary-outline px-4 py-3.5 active:bg-secondary-bg"
             >
               Cancel
             </button>
@@ -36,7 +36,7 @@ const UnfollowModal: FunctionComponent<UnfollowModalProps> = ({ user, handleUnfo
             <button
               type="button"
               onClick={handleUnfollow}
-              className="w-full rounded-br-2xl border-t border-gray-5 px-4 py-3.5 font-bold text-error-text active:bg-gray-0 disabled:opacity-50"
+              className="w-full rounded-br-2xl border-t border-primary-outline px-4 py-3.5 font-bold text-error-text active:bg-secondary-bg disabled:opacity-50"
             >
               Unfollow
             </button>

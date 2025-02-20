@@ -10,7 +10,7 @@ const Skeleton = () => {
             <div
               aria-label="Loading..."
               role="status"
-              className="size-9 animate-glimmer rounded-full bg-gray-4"
+              className="size-9 animate-glimmer rounded-full bg-glimmer-bg"
               tabIndex={-1}
               style={{
                 animationDelay: `calc(${index} * 500ms)`,
@@ -28,7 +28,7 @@ const Skeleton = () => {
                 <div
                   aria-label="Loading..."
                   role="status"
-                  className="h-[15px] w-full animate-glimmer rounded-md bg-gray-4"
+                  className="h-[15px] w-full animate-glimmer rounded-md bg-glimmer-bg"
                   tabIndex={-1}
                   style={{
                     animationDelay: `calc(${innerIndex} * 500ms)`,

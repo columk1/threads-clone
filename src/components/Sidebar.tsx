@@ -29,7 +29,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
   return (
     <nav
       aria-label="Primary navigation"
-      className="fixed left-0 top-0 z-10 flex h-full w-sidebar-width flex-col items-center justify-between overflow-x-visible pb-5 max-md:hidden"
+      className="fixed left-0 top-0 z-10 flex h-full w-sidebar-width flex-col items-center justify-between overflow-x-visible pb-5 text-navigation-icon max-md:hidden"
     >
       <Link href="/" className="flex w-[34px] items-center justify-center gap-4 py-[15px]">
         <Logo />
@@ -47,7 +47,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
                 onClick={() => (user ? openModal('new-thread') : openModal('auth-prompt', 'post'))}
               >
                 <div className="z-10">{link.icon && <link.icon />}</div>
-                <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg"></div>
+                <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
               </button>
             )
           }
@@ -61,7 +61,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
                 onClick={() => openModal('auth-prompt', 'activity')}
               >
                 <div className="z-10">{link.icon && <link.icon />}</div>
-                <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg"></div>
+                <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
               </button>
             )
           }
@@ -76,7 +76,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
                   onClick={() => openModal('auth-prompt', 'profile')}
                 >
                   <div className="z-10">{link.icon && <link.icon />}</div>
-                  <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg"></div>
+                  <div className="absolute z-0 scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
                 </button>
               )
             }
@@ -87,7 +87,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
                 className={`group relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${isActive(`/@${user.username}`) && 'text-primary-text'} ${link?.classNames}`}
               >
                 <div className="z-10">{link.icon && <link.icon isActive={isActive(`/@${user.username}`)} />}</div>
-                <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg"></div>
+                <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
               </Link>
             )
           }
@@ -99,7 +99,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
               className={`group relative my-[6px] flex h-[48px] w-[60px] items-center justify-center rounded-lg transition duration-200 active:scale-90 ${isActive(link.route) && 'text-primary-text'} ${link?.classNames}`}
             >
               <div className="z-10">{link.icon && <link.icon isActive={isActive(link.route)} />}</div>
-              <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-active-bg"></div>
+              <div className="absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg"></div>
             </Link>
           )
         })}

@@ -53,7 +53,7 @@ export default async function PostPage({ params }: Props) {
     <>
       <HydrateStore initialPosts={data} />
       <Header title="Thread" />
-      {/* <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-gray-4 md:bg-active-bg"> */}
+      {/* <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-primary-outline md:bg-elevated-bg"> */}
       <ContentPane>
         <ThreadView
           parentThread={parentThread}
@@ -63,7 +63,7 @@ export default async function PostPage({ params }: Props) {
           isAuthenticated={isAuthenticated}
         />
 
-        <div className="mx-6 h-[0.5px] bg-gray-5"></div>
+        <div className="mx-6 h-[0.5px] bg-primary-outline"></div>
         <div className="px-6 py-3 text-[15px] font-semibold">Replies</div>
 
         {/* Replies */}

@@ -53,7 +53,7 @@ type ModalContentProps = {
 
 export const ThreadMediaContent = ({ image, children }: { image: string | null; children?: React.ReactNode }) => {
   return (
-    <div className="flex pl-12 text-gray-7">
+    <div className="flex pl-12 text-secondary-text">
       <div className="flex-1">
         {image && (
           <div className="mb-1 mt-2">
@@ -152,7 +152,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
                 autoFocus
                 placeholder={isReply ? `Reply to ${parentUsername}...` : "What's new?"}
                 minLength={1}
-                className="col-start-2 mb-[2px] w-full resize-none bg-transparent placeholder:text-gray-7 focus:outline-none focus:ring-0"
+                className="col-start-2 mb-[2px] w-full resize-none bg-transparent placeholder:text-secondary-text focus:outline-none focus:ring-0"
                 rows={1}
                 value={text}
                 onInput={handleTextInput}
@@ -176,7 +176,10 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
         </div>
       </div>
       <div
-        className={cx('flex items-center justify-between py-4 mt-auto text-[15px] text-gray-7', !isDrawer && 'px-6')}
+        className={cx(
+          'flex items-center justify-between py-4 mt-auto text-[15px] text-secondary-text',
+          !isDrawer && 'px-6',
+        )}
       >
         Anyone can reply & quote
         <div className="flex items-center gap-3">
@@ -185,7 +188,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
             type="submit"
             variant={isDrawer ? 'light' : 'dark'}
             disabled={!isValid || isPending}
-            className={isDrawer ? 'rounded-full text-gray-0' : ''}
+            className={isDrawer ? 'rounded-full text-secondary-bg' : ''}
           >
             {uploading ? <Spinner /> : 'Post'}
           </Button>
@@ -238,7 +241,7 @@ export const ModalHeader = ({
         </DialogClose>
         <DialogTitle className="col-start-2 place-self-center text-[16px] font-bold">{title}</DialogTitle>
       </div>
-      <div className={cx('h-[0.25px] bg-gray-6', isDrawer && '-mx-6')}></div>
+      <div className={cx('h-[0.25px] bg-primary-outline', isDrawer && '-mx-6')}></div>
     </DialogHeader>
   </>
 )

@@ -44,8 +44,8 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
       <DropdownMenu modal>
         <DropdownMenuTrigger className="dark:data-[state=open]:text-primary-text">
           <div className="group relative flex items-center justify-center rounded-full transition duration-200 active:scale-90">
-            <KebabMenuIcon className="z-10 text-gray-7" />
-            <div className="absolute size-8 rounded-full transition group-hover:bg-gray-3 group-active:bg-gray-3"></div>
+            <KebabMenuIcon className="z-10 text-secondary-text" />
+            <div className="absolute size-8 rounded-full transition group-hover:bg-tertiary-bg group-active:bg-tertiary-bg"></div>
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent

@@ -6,26 +6,25 @@
   :root {
     color-scheme: dark; /* Hack to remove white artifacts from corners of autofilled form inputs */
     --font-family-system: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+
+    /* Colors */
     --primary-bg: rgb(16, 16, 16);
     --secondary-bg: rgb(10, 10, 10);
     --tertiary-bg: rgb(30, 30, 30);
-    --active-bg: rgb(23, 23, 23);
+    --elevated-bg: rgb(24, 24, 24);
+    --hovered-bg: rgb(33, 33, 33);
+    --glimmer-bg: rgb(45, 45, 45);
+
+    --primary-outline: rgba(243, 245, 247, 0.15);
+    --primary-border: rgb(45, 45, 45);
+
     --primary-text: rgb(243, 245, 247);
-    --secondary-text: rgb(204, 204, 204);
+    --secondary-text: rgb(119, 119, 119);
+    --charcoal-text: rgb(204, 204, 204);
     --placeholder-text: rgb(138, 141, 145);
     --error-text: rgb(255, 48, 64);
-    --hovered-bg: rgb(33, 33, 33);
-    --gray-0: rgb(10, 10, 10);
-    --gray-1: rgb(16, 16, 16);
-    --gray-2: rgb(24, 24, 24);
-    --gray-3: rgb(30, 30, 30);
-    --gray-4: rgb(45, 45, 45);
-    --gray-5: rgb(57, 57, 57);
-    --gray-6: rgb(77, 77, 77);
-    --gray-7: rgb(119, 119, 119);
-    --gray-8: rgb(126, 126, 126);
-    --primary-outline: rgba(243, 245, 247, 0.15);
     --secondary-button: rgb(16, 16, 16);
+    --navigation-icon: rgb(77, 77, 77);
     --notification: color(display-p3 1 0.18 0.25 / 1);
 
     /* Spacing */

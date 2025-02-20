@@ -25,7 +25,7 @@ const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
   return (
     <nav
       aria-label="Primary navigation"
-      className="fixed bottom-0 z-20 flex h-[68px] w-screen items-center justify-evenly md:hidden"
+      className="fixed bottom-0 z-20 flex h-[68px] w-screen items-center justify-evenly text-navigation-icon md:hidden"
     >
       <div className="pointer-events-none fixed bottom-0 h-[102px] w-full bg-[rgba(16,16,16,.9)] backdrop-blur-2xl mask-gradient"></div>
       {footerLinks.map((link) => {

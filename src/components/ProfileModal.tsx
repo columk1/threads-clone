@@ -31,7 +31,7 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
         <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent
           onOpenAutoFocus={(e) => e.preventDefault()}
-          className="min-w-[519px] p-6 dark:bg-gray-1 max-md:hidden"
+          className="min-w-[519px] p-6 dark:bg-primary-bg max-md:hidden"
         >
           <div className="sr-only">
             <DialogTitle>Profile</DialogTitle>
@@ -43,7 +43,7 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
               <div className="flex flex-1 flex-col gap-0.5">
                 <div className="font-semibold">Name</div>
                 <div className="">{`${user.name} (@${user.username})`}</div>
-                <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
+                <div className="mt-2.5 h-[0.25px] bg-primary-outline"></div>
               </div>
               <div>
                 <ProfileImageDropDown username={user.username} avatarUrl={user.avatar} />
@@ -57,8 +57,10 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                   <div className="flex flex-1 flex-col gap-0.5">
                     <div className="font-semibold">Bio</div>
                     {/* TODO: Wrap in button to open edit bio modal */}
-                    <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
-                    <div className="my-2 h-[0.25px] bg-gray-6"></div>
+                    <div className="">
+                      {user?.bio ? user.bio : <span className="text-secondary-text">+ Write bio</span>}
+                    </div>
+                    <div className="my-2 h-[0.25px] bg-primary-outline"></div>
                   </div>
                 </div>
               }
@@ -66,7 +68,7 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
             <button
               type="button"
               onClick={closeModal}
-              className="h-[52px] w-full rounded-lg border border-gray-5 bg-primary-text font-semibold text-black transition active:scale-95 disabled:opacity-30"
+              className="h-[52px] w-full rounded-lg border border-primary-outline bg-primary-text font-semibold text-black transition active:scale-95 disabled:opacity-30"
             >
               Done
             </button>
@@ -80,7 +82,7 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DrawerContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="h-full min-w-full border-none px-4 dark:bg-gray-0"
+        className="h-full min-w-full border-none px-4 dark:bg-secondary-bg"
       >
         <div className="sr-only">
           <DialogTitle>Profile</DialogTitle>
@@ -104,16 +106,16 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
             Done
           </button>
         </DialogHeader>
-        <div className="-mx-4 h-[0.25px] bg-gray-6"></div>
+        <div className="-mx-4 h-[0.25px] bg-primary-outline"></div>
         <div className="flex h-full flex-col justify-center">
-          <div className="rounded-2xl border-[0.5px] border-gray-5 p-6 dark:bg-gray-1">
+          <div className="rounded-2xl border-[0.5px] border-primary-outline p-6 dark:bg-primary-bg">
             <div className="flex flex-col gap-3 text-[15px]">
               {/* Name & Avatar */}
               <div className="flex gap-4">
                 <div className="flex flex-1 flex-col gap-0.5">
                   <div className="font-semibold">Name</div>
                   <div className="">{`${user.name} (@${user.username})`}</div>
-                  <div className="mt-2.5 h-[0.25px] bg-gray-6"></div>
+                  <div className="mt-2.5 h-[0.25px] bg-primary-outline"></div>
                 </div>
                 <div>
                   <ProfileImageDropDown username={user.username} avatarUrl={user.avatar} />
@@ -126,7 +128,9 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                   <div className="flex cursor-pointer gap-4">
                     <div className="flex flex-1 flex-col gap-0.5">
                       <div className="font-semibold">Bio</div>
-                      <div className="">{user?.bio ? user.bio : <span className="text-gray-7">+ Write bio</span>}</div>
+                      <div className="">
+                        {user?.bio ? user.bio : <span className="text-secondary-text">+ Write bio</span>}
+                      </div>
                     </div>
                   </div>
                 }

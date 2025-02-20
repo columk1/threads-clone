@@ -23,7 +23,7 @@ const UserCard: FunctionComponent<UserCardProps> = ({ user, isCurrentUser = fals
       </div>
       <div className="flex flex-col gap-1.5 self-start">
         <div>{user.bio}</div>
-        <div className="text-gray-7">
+        <div className="text-secondary-text">
           {`${Intl.NumberFormat().format(user.followerCount)} follower${user.followerCount !== 1 ? 's' : ''}`}
         </div>
       </div>

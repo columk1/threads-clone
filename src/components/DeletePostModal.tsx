@@ -22,16 +22,16 @@ const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) =>
   }
 
   return (
-    <DialogContent className="flex w-[278px] flex-col items-center justify-center gap-4 dark:bg-gray-2">
+    <DialogContent className="flex w-[278px] flex-col items-center justify-center gap-4 dark:bg-elevated-bg">
       <DialogTitle className="px-6 pt-6 text-base font-bold">Delete post?</DialogTitle>
-      <div className="px-6 pb-0.5 text-center text-[15px] text-gray-7">
+      <div className="px-6 pb-0.5 text-center text-[15px] text-secondary-text">
         If you delete this post, you won't be able to restore it.
       </div>
       <div className="flex w-full">
         <DialogClose asChild>
           <button
             type="button"
-            className="w-full rounded-bl-2xl border-r border-t border-gray-5 px-4 py-3.5 active:bg-gray-0"
+            className="w-full rounded-bl-2xl border-r border-t border-primary-outline px-4 py-3.5 active:bg-secondary-bg"
           >
             Cancel
           </button>
@@ -39,7 +39,7 @@ const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) =>
         <button
           type="button"
           onClick={onDelete}
-          className="w-full rounded-br-2xl border-t border-gray-5 px-4 py-3.5 font-bold text-error-text active:bg-gray-0 disabled:opacity-50"
+          className="w-full rounded-br-2xl border-t border-primary-outline px-4 py-3.5 font-bold text-error-text active:bg-secondary-bg disabled:opacity-50"
         >
           Delete
         </button>
