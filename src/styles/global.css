@@ -26,6 +26,7 @@
     --secondary-button: rgb(16, 16, 16);
     --navigation-icon: rgb(77, 77, 77);
     --notification: color(display-p3 1 0.18 0.25 / 1);
+    --link-text: rgb(0, 149, 246);
 
     /* Spacing */
     --radius: 0.5rem;
@@ -50,7 +51,7 @@
       scrollbar-color: transparent rgb(44, 44, 44);
     }
   }
-  /* This is a splash screen that fades out when the threads are loaded for a public user */
+  /* Splash screen that fades out when the threads are loaded for a public user */
   @supports selector(:has(*)) {
     html:has([data-threads-loaded='true']) .splash-overlay {
       opacity: 0;

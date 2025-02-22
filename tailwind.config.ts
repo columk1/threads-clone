@@ -43,6 +43,7 @@ export default {
         'secondary-button': 'var(--secondary-button)',
         'navigation-icon': 'var(--navigation-icon)',
         notification: 'var(--notification)',
+        'link-text': 'var(--link-text)',
       },
       scale: {
         80: '.8',

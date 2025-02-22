@@ -21,6 +21,46 @@ import TimeAgo from './TimeAgo'
 import UnfollowModal from './UnfollowModal'
 import UserModal from './UserModal'
 
+// URL regex pattern that matches URLs starting with http://, https://, or www.
+const URL_PATTERN = /(https?:\/\/\S+)|(www\.\S+)/g
+
+type ThreadTextProps = {
+  text: string
+}
+
+const ThreadText: FunctionComponent<ThreadTextProps> = ({ text }) => {
+  if (!text) {
+    return null
+  }
+
+  const parts = text.split(URL_PATTERN)
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (!part) {
+          return null
+        }
+        if (part.match(URL_PATTERN)) {
+          const href = part.startsWith('www.') ? `https://${part}` : part
+          return (
+            <a
+              key={i}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-link-text hover:underline"
+            >
+              {part}
+            </a>
+          )
+        }
+        return <span key={i}>{part}</span>
+      })}
+    </>
+  )
+}
+
 const applyConstraints = (width: number | null, height: number | null, maxWidth = 543, maxHeight = 430) => {
   if (!width || !height) {
     return {
@@ -189,7 +229,7 @@ const ThreadContent: FunctionComponent<{
             isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2',
           )}
         >
-          {post.text}
+          <ThreadText text={post.text} />
         </div>
       )}
 
