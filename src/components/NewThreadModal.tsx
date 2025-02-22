@@ -199,7 +199,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
           </Button>
         </div>
       </div>
-      <input ref={fileInputRef} type="file" name="imageFile" onChange={handleFileChange} className="hidden" />
+      <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden" />
       <input type="hidden" name="text" value={text} />
       {imageData && (
         <>
