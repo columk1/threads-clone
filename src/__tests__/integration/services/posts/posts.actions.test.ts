@@ -199,6 +199,28 @@ describe('Posts Actions', () => {
 
       expect(redirect).toHaveBeenCalledWith('/login')
     })
+
+    it('should normalize line breaks in text content', async () => {
+      const formData = new FormData()
+      formData.append('text', 'First paragraph\r\n\r\n\r\n\r\nSecond paragraph\r\n\r\n\r\n\r\n\r\nThird paragraph')
+
+      const result = await createPost(null, formData)
+
+      expect(result).toEqual({ success: true })
+
+      // Verify post was created in DB with normalized line breaks
+      const posts = await testDb.query.postSchema.findMany({
+        where: (posts, { eq }) => eq(posts.userId, testUser2.id),
+      })
+
+      expect(posts).toHaveLength(1)
+
+      const newPost = posts[0]
+
+      expect(JSON.stringify(newPost?.text)).toBe(
+        JSON.stringify('First paragraph\r\n\r\nSecond paragraph\r\n\r\nThird paragraph'),
+      )
+    })
   })
 
   describe('createReply', () => {

@@ -39,7 +39,12 @@ export const imageUrlSchema = z
 
 export const newPostSchema = z
   .object({
-    text: z.string().trim().max(500, { message: 'Maximum 500 characters' }).optional(),
+    text: z
+      .string()
+      .trim()
+      .max(500, { message: 'Maximum 500 characters' })
+      .transform((text) => text.replace(/(\r\n){3,}/g, '\r\n\r\n'))
+      .optional(),
     image: imageUrlSchema.optional(),
     imageWidth: z.number().optional(),
     imageHeight: z.number().optional(),
@@ -51,7 +56,12 @@ export const newPostSchema = z
 
 export const replySchema = z
   .object({
-    text: z.string().trim().max(500, { message: 'Maximum 500 characters' }).optional(),
+    text: z
+      .string()
+      .trim()
+      .max(500, { message: 'Maximum 500 characters' })
+      .transform((text) => text.replace(/(\r\n){3,}/g, '\r\n\r\n'))
+      .optional(),
     image: imageUrlSchema.optional(),
     imageWidth: z.number().optional(),
     imageHeight: z.number().optional(),
