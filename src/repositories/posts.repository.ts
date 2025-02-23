@@ -259,7 +259,8 @@ export const insertPost = async (userId: string, post: { text?: string; image?: 
     // If this is a reply, increment the parent's reply count and create a notification
     if (post.parentId) {
       const parentPost = await incrementReplyCount(tx, post.parentId)
-      if (parentPost) {
+      // Only create a notification if the parent post is not the current user's post
+      if (parentPost && parentPost.userId !== userId) {
         await tx
           .insert(notificationSchema)
           .values({
@@ -275,6 +276,7 @@ export const insertPost = async (userId: string, post: { text?: string; image?: 
               notificationSchema.userId,
               notificationSchema.sourceUserId,
               notificationSchema.postId,
+              notificationSchema.replyId,
               notificationSchema.type,
             ],
           })
