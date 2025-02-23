@@ -254,7 +254,13 @@ export const notificationSchema = sqliteTable(
       index('notif_user_seen_created_idx')
         .on(table.userId, table.seen, table.createdAt)
         .where(sql`${table.seen} = 0`),
-      unique('notif_user_seen_created_unique').on(table.userId, table.sourceUserId, table.postId, table.type),
+      unique('notif_user_seen_created_unique').on(
+        table.userId,
+        table.sourceUserId,
+        table.postId,
+        table.replyId,
+        table.type,
+      ),
 
       // This should work soon: https://github.com/drizzle-team/drizzle-orm/issues/3350
       // uniqueIndex('notif_unique_constraint').on(

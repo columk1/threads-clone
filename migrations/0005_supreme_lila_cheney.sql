@@ -1,0 +1,2 @@
+DROP INDEX IF EXISTS `notif_user_seen_created_unique`;--> statement-breakpoint
+CREATE UNIQUE INDEX `notif_user_seen_created_unique` ON `notifications` (`user_id`,`source_user_id`,`post_id`,`reply_id`,`type`);
