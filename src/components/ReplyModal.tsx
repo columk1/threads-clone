@@ -16,6 +16,7 @@ import Avatar from './Avatar'
 import { Dialog, DialogContent, DialogTrigger } from './Dialog'
 import { Drawer, DrawerContent } from './Drawer'
 import { ModalContent, ModalHeader, ThreadMediaContent } from './NewThreadModal'
+import { ThreadText } from './Thread'
 import TimeAgo from './TimeAgo'
 
 const ParentThread = ({ user, author, post }: { user: User; author: PostUser; post: Post }) => {
@@ -39,7 +40,7 @@ const ParentThread = ({ user, author, post }: { user: User; author: PostUser; po
             </a>
           </div>
         </div>
-        <div className="">{post.text}</div>
+        <ThreadText text={post.text} />
       </div>
       <ThreadMediaContent image={post.image} />
     </div>
