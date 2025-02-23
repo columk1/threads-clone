@@ -1,7 +1,7 @@
 'use client'
 
 import type { User } from 'lucia'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import type { Post } from '@/lib/db/Schema'
 import type { PostUser } from '@/services/users/users.queries'
@@ -30,12 +30,16 @@ export default function ThreadView({
   isCurrentUser,
   isAuthenticated,
 }: ThreadViewProps) {
+  const [mounted, setMounted] = useState(false)
   const targetRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <>
-      <ScrollManager targetRef={targetRef} />
-      {parentThread ? (
+      {mounted && parentThread && (
         <>
           <Thread
             key={parentThread.post.id}
@@ -46,29 +50,20 @@ export default function ThreadView({
             isAuthenticated={isAuthenticated}
             isParent
           />
-          <div ref={targetRef}>
-            <Thread
-              key={targetThread.post.id}
-              user={targetThread.user}
-              post={targetThread.post}
-              currentUser={currentUser}
-              isCurrentUser={isCurrentUser}
-              isAuthenticated={isAuthenticated}
-              isTarget
-            />
-          </div>
+          <div ref={targetRef} />
+          <ScrollManager targetRef={targetRef} />
         </>
-      ) : (
-        <Thread
-          key={targetThread.post.id}
-          user={targetThread.user}
-          post={targetThread.post}
-          currentUser={currentUser}
-          isCurrentUser={isCurrentUser}
-          isAuthenticated={isAuthenticated}
-          isTarget
-        />
       )}
+
+      <Thread
+        key={targetThread.post.id}
+        user={targetThread.user}
+        post={targetThread.post}
+        currentUser={currentUser}
+        isCurrentUser={isCurrentUser}
+        isAuthenticated={isAuthenticated}
+        isTarget
+      />
     </>
   )
 }

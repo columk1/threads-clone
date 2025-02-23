@@ -13,9 +13,9 @@ const Header: FunctionComponent<HeaderProps> = async ({ title, children }) => {
   const headersList = await headers()
   const referer = headersList.get('referer')
   return (
-    //  Use div instead of fragment here to prevent NextJS error "Skipping auto-scroll behavior due to position: sticky"
-    <div>
+    <>
       {/* Recreate the top outline of the main content to make header fixed/curved over the scrolling content */}
+      {/* Using sticky here causes NextJS error "Skipping auto-scroll behavior due to position: sticky" */}
       <div className="sticky top-0 -mt-header-height hidden h-header-height w-full md:grid">
         {/* Left corner */}
         <div className="absolute -bottom-12 left-0 size-12 overflow-hidden">
@@ -29,7 +29,7 @@ const Header: FunctionComponent<HeaderProps> = async ({ title, children }) => {
         <div className="absolute inset-x-12 bottom-[-0.5px] h-[0.5px] bg-primary-border" />
       </div>
       <nav
-        id="header"
+        role="banner"
         className="sticky top-0 z-20 hidden h-header-height w-full grid-rows-[1fr] place-items-center bg-secondary-bg md:grid md:grid-cols-[1fr_minmax(auto,65%)_1fr]"
       >
         <div className="col-start-1 flex h-[52px] w-full items-center justify-start pl-6">
@@ -44,7 +44,7 @@ const Header: FunctionComponent<HeaderProps> = async ({ title, children }) => {
           {children}
         </div>
       </nav>
-    </div>
+    </>
   )
 }
 

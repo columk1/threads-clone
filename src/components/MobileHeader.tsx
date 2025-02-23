@@ -16,10 +16,10 @@ const MobileHeader: FunctionComponent = async () => {
   const referer = headersList.get('referer')
   return (
     <nav
-      id="header"
+      role="banner"
       className={cx(
         'fixed top-0 z-20 grid w-screen grid-cols-[1fr_50vw_1fr] grid-rows-[1fr] bg-primary-bg place-items-center md:hidden md:grid-cols-[1fr_minmax(auto,65%)_1fr]',
-        user ? 'h-header-height' : 'h-[74px]',
+        user ? 'h-header-height' : 'h-header-height-extended',
       )}
     >
       <div className="col-start-1 mr-auto flex h-[52px] w-full items-center justify-start pl-6">

@@ -68,16 +68,19 @@ export default async function PostPage({ params }: Props) {
 
         {/* Replies */}
         <Suspense fallback={<Spinner size={10} />}>
-          {replies.map((e) => (
-            <Thread
-              key={e.post.id}
-              user={e.user}
-              post={e.post}
-              currentUser={currentUser}
-              isCurrentUser={e.user.username === currentUser?.username}
-              isAuthenticated={isAuthenticated}
-            />
-          ))}
+          {/* Use a min height here so that the parent thread can always be scrolled out of view */}
+          <div className="min-h-screen">
+            {replies.map((e) => (
+              <Thread
+                key={e.post.id}
+                user={e.user}
+                post={e.post}
+                currentUser={currentUser}
+                isCurrentUser={e.user.username === currentUser?.username}
+                isAuthenticated={isAuthenticated}
+              />
+            ))}
+          </div>
         </Suspense>
       </ContentPane>
     </>

@@ -25,17 +25,17 @@ import UserModal from './UserModal'
 const URL_PATTERN = /(https?:\/\/\S+)|(www\.\S+)/g
 
 type ThreadTextProps = {
-  text: string
+  text: string | null
 }
 
-const ThreadText: FunctionComponent<ThreadTextProps> = ({ text }) => {
+export const ThreadText: FunctionComponent<ThreadTextProps> = ({ text }) => {
   if (!text) {
     return null
   }
 
   const parts = text.split(URL_PATTERN)
   return (
-    <>
+    <div className="whitespace-pre-line leading-[1.35rem]">
       {parts.map((part, i) => {
         if (!part) {
           return null
@@ -57,7 +57,7 @@ const ThreadText: FunctionComponent<ThreadTextProps> = ({ text }) => {
         }
         return <span key={i}>{part}</span>
       })}
-    </>
+    </div>
   )
 }
 
@@ -222,16 +222,9 @@ const ThreadContent: FunctionComponent<{
         />
       </div>
 
-      {post.text && (
-        <div
-          className={cx(
-            'row-start-2 leading-[1.35rem] whitespace-pre-line',
-            isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2',
-          )}
-        >
-          <ThreadText text={post.text} />
-        </div>
-      )}
+      <div className={cx('row-start-2', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>
+        <ThreadText text={post.text} />
+      </div>
 
       <ThreadMedia image={post.image} imageWidth={post.imageWidth} imageHeight={post.imageHeight} isTarget={isTarget} />
 
