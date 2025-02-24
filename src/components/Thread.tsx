@@ -81,9 +81,16 @@ type ThreadMediaProps = {
   imageWidth: number | null
   imageHeight: number | null
   isTarget?: boolean
+  imagePriority?: boolean
 }
 
-export const ThreadMedia = ({ image, imageWidth, imageHeight, isTarget = false }: ThreadMediaProps) => {
+export const ThreadMedia = ({
+  image,
+  imageWidth,
+  imageHeight,
+  isTarget = false,
+  imagePriority = false,
+}: ThreadMediaProps) => {
   if (!image) {
     return null
   }
@@ -96,10 +103,14 @@ export const ThreadMedia = ({ image, imageWidth, imageHeight, isTarget = false }
         <Image
           src={image}
           alt="preview"
-          priority
+          priority={imagePriority}
           width={Number(containerWidth)}
           height={Number(containerHeight)}
           className="block size-auto max-h-[430px] rounded-lg object-contain"
+          style={{
+            width: `${containerWidth}px`,
+            height: `${containerHeight}px`,
+          }}
         />
       </div>
     </div>
@@ -115,6 +126,7 @@ type ThreadProps = {
   isTarget?: boolean
   isParent?: boolean
   reposted?: { username: string; createdAt: number }
+  imagePriority?: boolean
 }
 
 type ThreadLayoutProps = {
@@ -176,7 +188,8 @@ const ThreadContent: FunctionComponent<{
   isCurrentUser: boolean
   currentUser: User | null
   onToggleFollow?: () => Promise<void>
-}> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow }) => {
+  imagePriority?: boolean
+}> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow, imagePriority }) => {
   const canFollow = !isCurrentUser && !user.isFollowed
 
   return (
@@ -225,7 +238,13 @@ const ThreadContent: FunctionComponent<{
         <ThreadText text={post.text} />
       </div>
 
-      <ThreadMedia image={post.image} imageWidth={post.imageWidth} imageHeight={post.imageHeight} isTarget={isTarget} />
+      <ThreadMedia
+        image={post.image}
+        imageWidth={post.imageWidth}
+        imageHeight={post.imageHeight}
+        isTarget={isTarget}
+        imagePriority={imagePriority}
+      />
 
       <ThreadActions
         post={post}
@@ -247,6 +266,7 @@ export default function Thread({
   isTarget = false,
   isParent = false,
   reposted,
+  imagePriority = false,
 }: ThreadProps) {
   const router = useRouter()
   const {
@@ -270,6 +290,7 @@ export default function Thread({
           isCurrentUser={isCurrentUser}
           currentUser={currentUser}
           onToggleFollow={handleToggleFollow}
+          imagePriority={imagePriority}
         />
       </NestedLinkWrapper>
       <UnfollowModal {...unfollowModalProps} />

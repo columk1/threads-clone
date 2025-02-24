@@ -22,7 +22,7 @@ export type ThreadListProps = {
 const ThreadList = ({ posts, currentUser }: ThreadListProps) => {
   return (
     <div role="list" data-threads-loaded="true">
-      {posts.map((row) => (
+      {posts.map((row, index) => (
         <Thread
           key={row.post.id}
           post={row.post}
@@ -30,6 +30,7 @@ const ThreadList = ({ posts, currentUser }: ThreadListProps) => {
           currentUser={currentUser}
           isAuthenticated={!!currentUser}
           isCurrentUser={currentUser ? row.user.username === currentUser.username : false}
+          imagePriority={index < 5}
         />
       ))}
     </div>
