@@ -12,19 +12,15 @@ import {
   type Transaction,
   userSchema,
 } from '../lib/db/Schema'
-import { basePostSelect, baseUserSelect } from '../lib/db/selectors'
+import { authPostSelect, authUserSelect, publicPostSelect, publicUserSelect } from '../lib/db/selectors'
 
 export type PostData = Post & { isLiked: boolean; isReposted: boolean }
 
 export const listPublicPosts = async (authorUsername?: string) => {
   const query = db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: sql<boolean>`false`,
-        isReposted: sql<boolean>`false`,
-      },
-      user: baseUserSelect,
+      post: publicPostSelect,
+      user: publicUserSelect,
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -46,42 +42,8 @@ export const listPosts = async (username?: string, userId?: string, offset: numb
 
   const query = db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: userId
-          ? sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${likeSchema} 
-            WHERE ${likeSchema.userId} = ${userId} 
-              AND ${likeSchema.postId} = ${postSchema.id}
-          )`.as('isLiked')
-          : sql<boolean>`false`,
-        isReposted: userId
-          ? sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${repostSchema} 
-            WHERE ${repostSchema.userId} = ${userId} 
-              AND ${repostSchema.postId} = ${postSchema.id}
-          )`.as('isReposted')
-          : sql<boolean>`false`,
-      },
-      user: {
-        ...baseUserSelect,
-        ...(userId && {
-          isFollowed: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${userSchema.id} 
-              AND ${followerSchema.followerId} = ${userId}
-          )`.as('isFollowed'),
-          isFollower: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${userId} 
-              AND ${followerSchema.followerId} = ${userSchema.id}
-          )`.as('isFollower'),
-        }),
-      },
+      post: userId ? authPostSelect(userId) : publicPostSelect,
+      user: userId ? authUserSelect(userId) : publicUserSelect,
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -96,36 +58,8 @@ export const listPosts = async (username?: string, userId?: string, offset: numb
 export const listFollowingPosts = async (userId: string, offset: number = 0, limit: number = 10) => {
   return await db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${likeSchema} 
-          WHERE ${likeSchema.userId} = ${userId} 
-            AND ${likeSchema.postId} = ${postSchema.id}
-        )`.as('isLiked'),
-        isReposted: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${repostSchema} 
-          WHERE ${repostSchema.userId} = ${userId} 
-            AND ${repostSchema.postId} = ${postSchema.id}
-        )`.as('isReposted'),
-      },
-      user: {
-        ...baseUserSelect,
-        isFollowed: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id} 
-            AND ${followerSchema.followerId} = ${userId}
-        )`.as('isFollowed'),
-        isFollower: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userId} 
-            AND ${followerSchema.followerId} = ${userSchema.id}
-        )`.as('isFollower'),
-      },
+      post: authPostSelect(userId),
+      user: authUserSelect(userId),
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -140,42 +74,8 @@ export const listFollowingPosts = async (userId: string, offset: number = 0, lim
 export const listReplies = async (authorUsername: string, userId?: string) => {
   return await db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: userId
-          ? sql<boolean>`EXISTS (
-            SELECT 1
-            FROM ${likeSchema}
-            WHERE ${likeSchema.userId} = ${userId}
-              AND ${likeSchema.postId} = ${postSchema.id}
-          )`.as('isLiked')
-          : sql<boolean>`false`,
-        isReposted: userId
-          ? sql<boolean>`EXISTS (
-            SELECT 1
-            FROM ${repostSchema}
-            WHERE ${repostSchema.userId} = ${userId}
-              AND ${repostSchema.postId} = ${postSchema.id}
-          )`.as('isReposted')
-          : sql<boolean>`false`,
-      },
-      user: {
-        ...baseUserSelect,
-        ...(userId && {
-          isFollowed: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${userSchema.id} 
-              AND ${followerSchema.followerId} = ${userId}
-          )`.as('isFollowed'),
-          isFollower: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${userId} 
-              AND ${followerSchema.followerId} = ${userSchema.id}
-          )`.as('isFollower'),
-        }),
-      },
+      post: userId ? authPostSelect(userId) : publicPostSelect,
+      user: userId ? authUserSelect(userId) : publicUserSelect,
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -198,35 +98,8 @@ export const listReposts = async (username: string, currentUserId?: string) => {
 
   return await db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: currentUserId
-          ? sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${likeSchema} 
-          WHERE ${likeSchema.userId} = ${currentUserId} 
-            AND ${likeSchema.postId} = ${postSchema.id}
-        )`.as('isLiked')
-          : sql<boolean>`false`,
-        isReposted: sql<boolean>`true`.as('isReposted'),
-      },
-      user: {
-        ...baseUserSelect,
-        ...(currentUserId && {
-          isFollowed: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${userSchema.id} 
-              AND ${followerSchema.followerId} = ${currentUserId}
-          )`.as('isFollowed'),
-          isFollower: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${currentUserId} 
-              AND ${followerSchema.followerId} = ${userSchema.id}
-          )`.as('isFollower'),
-        }),
-      },
+      post: currentUserId ? authPostSelect(currentUserId) : publicPostSelect,
+      user: currentUserId ? authUserSelect(currentUserId) : publicUserSelect,
       repost: {
         username: sql<string>`${username}`.as('username'),
         createdAt: repostSchema.createdAt,
@@ -284,12 +157,8 @@ export const insertPost = async (userId: string, post: { text?: string; image?: 
 export const getPublicPostWithReplies = async (postId: string) => {
   return await db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: sql<boolean>`false`,
-        isReposted: sql<boolean>`false`,
-      },
-      user: baseUserSelect,
+      post: publicPostSelect,
+      user: publicUserSelect,
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -307,36 +176,8 @@ export const getPublicPostWithReplies = async (postId: string) => {
 export const getAuthPostWithReplies = async (postId: string, userId: string) => {
   return await db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${likeSchema} 
-          WHERE ${likeSchema.userId} = ${userId} 
-            AND ${likeSchema.postId} = ${postSchema.id}
-        )`.as('isLiked'),
-        isReposted: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${repostSchema} 
-          WHERE ${repostSchema.userId} = ${userId} 
-            AND ${repostSchema.postId} = ${postSchema.id}
-        )`.as('isReposted'),
-      },
-      user: {
-        ...baseUserSelect,
-        isFollowed: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id}
-            AND ${followerSchema.followerId} = ${userId}
-        )`.as('isFollowed'),
-        isFollower: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userId}
-            AND ${followerSchema.followerId} = ${userSchema.id}
-        )`.as('isFollower'),
-      },
+      post: authPostSelect(userId),
+      user: authUserSelect(userId),
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -351,16 +192,11 @@ export const getAuthPostWithReplies = async (postId: string, userId: string) => 
     .all()
 }
 
-// TODO: Remove if not used, this doesn't have a corresponding auth version
 export const getPostById = async (id: string) => {
   return await db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: sql<boolean>`false`,
-        isReposted: sql<boolean>`false`,
-      },
-      user: baseUserSelect,
+      post: publicPostSelect,
+      user: publicUserSelect,
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
@@ -488,42 +324,8 @@ export const incrementShareCount = async (postId: string) => {
 export const searchPosts = (searchTerm: string, userId?: string, limit: number = 8) => {
   const query = db
     .select({
-      post: {
-        ...basePostSelect,
-        isLiked: userId
-          ? sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${likeSchema} 
-            WHERE ${likeSchema.userId} = ${userId} 
-              AND ${likeSchema.postId} = ${postSchema.id}
-          )`.as('isLiked')
-          : sql<boolean>`false`,
-        isReposted: userId
-          ? sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${repostSchema} 
-            WHERE ${repostSchema.userId} = ${userId} 
-              AND ${repostSchema.postId} = ${postSchema.id}
-          )`.as('isReposted')
-          : sql<boolean>`false`,
-      },
-      user: {
-        ...baseUserSelect,
-        ...(userId && {
-          isFollowed: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${userSchema.id} 
-              AND ${followerSchema.followerId} = ${userId}
-          )`.as('isFollowed'),
-          isFollower: sql<boolean>`EXISTS (
-            SELECT 1 
-            FROM ${followerSchema} 
-            WHERE ${followerSchema.userId} = ${userId} 
-              AND ${followerSchema.followerId} = ${userSchema.id}
-          )`.as('isFollower'),
-        }),
-      },
+      post: userId ? authPostSelect(userId) : publicPostSelect,
+      user: userId ? authUserSelect(userId) : publicUserSelect,
     })
     .from(postSchema)
     .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))

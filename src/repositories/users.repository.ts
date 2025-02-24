@@ -2,16 +2,15 @@ import { aliasedTable, and, count, desc, eq, or, sql } from 'drizzle-orm'
 import { ulid } from 'ulidx'
 
 import { db } from '../lib/db/Drizzle'
+import { followerSchema, notificationSchema, postSchema, type User, userSchema } from '../lib/db/Schema'
 import {
-  followerSchema,
-  likeSchema,
-  notificationSchema,
-  postSchema,
-  repostSchema,
-  type User,
-  userSchema,
-} from '../lib/db/Schema'
-import { basePostSelect, baseUserSelect, getAliasedBasePostSelect } from '../lib/db/selectors'
+  authUserSelect,
+  basePostSelect,
+  baseUserSelect,
+  getAliasedBasePostSelect,
+  getAuthAliasedPostSelect,
+  publicUserSelect,
+} from '../lib/db/selectors'
 
 type UserField = keyof User
 
@@ -128,21 +127,7 @@ export const getFollowStatus = async (targetUserId: string, userId: string) => {
 export const getAuthUserDetails = async (targetUsername: string, userId: string) => {
   return await db
     .select({
-      ...baseUserSelect,
-      isFollowed: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id}
-          AND ${followerSchema.followerId} = ${userId}
-          LIMIT 1
-        )`.as('isFollowed'),
-      isFollower: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userId}
-          AND ${followerSchema.followerId} = ${userSchema.id}
-          LIMIT 1
-        )`.as('isFollower'),
+      ...authUserSelect(userId),
     })
     .from(userSchema)
     .where(eq(userSchema.username, targetUsername))
@@ -150,7 +135,7 @@ export const getAuthUserDetails = async (targetUsername: string, userId: string)
 }
 
 export const getPublicUserDetails = async (username: string) => {
-  return await db.select(baseUserSelect).from(userSchema).where(eq(userSchema.username, username)).get()
+  return await db.select(publicUserSelect).from(userSchema).where(eq(userSchema.username, username)).get()
 }
 
 export const updateUserAvatar = async (userId: string, url: string) => {
@@ -163,21 +148,7 @@ export const searchUsers = async (query: string, userId?: string, limit: number 
 
   return await db
     .select({
-      ...baseUserSelect,
-      ...(userId && {
-        isFollowed: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id} 
-            AND ${followerSchema.followerId} = ${userId}
-        )`.as('isFollowed'),
-        isFollower: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userId} 
-            AND ${followerSchema.followerId} = ${userSchema.id}
-        )`.as('isFollower'),
-      }),
+      ...(userId ? authUserSelect(userId) : publicUserSelect),
       priority: sql<number>`
         CASE 
           WHEN lower(${userSchema.username}) LIKE lower(${startsWithTerm}) THEN 1
@@ -239,7 +210,7 @@ export const updateUserBio = async (userId: string, bio: string) => {
 }
 
 const reply = aliasedTable(postSchema, 'reply')
-const replySelect = getAliasedBasePostSelect(reply)
+// const replySelect = getAliasedBasePostSelect(reply)
 
 export const getNotifications = async (userId: string, options?: { seen?: boolean }) => {
   const seenCondition = options?.seen !== undefined ? eq(notificationSchema.seen, options.seen) : undefined
@@ -247,36 +218,10 @@ export const getNotifications = async (userId: string, options?: { seen?: boolea
     .select({
       notification: notificationSchema,
       sourceUser: {
-        ...baseUserSelect,
-        isFollowed: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userSchema.id} 
-            AND ${followerSchema.followerId} = ${userId}
-        )`.as('isFollowed'),
-        isFollower: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${followerSchema} 
-          WHERE ${followerSchema.userId} = ${userId} 
-            AND ${followerSchema.followerId} = ${userSchema.id}
-        )`.as('isFollower'),
+        ...authUserSelect(userId),
       },
       post: basePostSelect,
-      reply: {
-        ...replySelect,
-        isLiked: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${likeSchema} 
-          WHERE ${likeSchema.postId} = ${reply.id} 
-            AND ${likeSchema.userId} = ${userId}
-        )`.as('isLiked'),
-        isReposted: sql<boolean>`EXISTS (
-          SELECT 1 
-          FROM ${repostSchema} 
-          WHERE ${repostSchema.postId} = ${reply.id} 
-            AND ${repostSchema.userId} = ${userId}
-        )`.as('isReposted'),
-      },
+      reply: getAuthAliasedPostSelect(reply, userId),
     })
     .from(notificationSchema)
     .where(
@@ -284,7 +229,6 @@ export const getNotifications = async (userId: string, options?: { seen?: boolea
     )
     .innerJoin(userSchema, eq(notificationSchema.sourceUserId, userSchema.id))
     .leftJoin(postSchema, eq(notificationSchema.postId, postSchema.id))
-    // .leftJoin(userSchema, eq(postSchema.userId, userSchema.id))
     .leftJoin(reply, and(eq(notificationSchema.type, 'REPLY'), eq(notificationSchema.replyId, reply.id)))
     .orderBy(desc(notificationSchema.createdAt))
     .limit(50)
@@ -336,7 +280,7 @@ export const getUnseenNotifications = async (userId: string) => {
         ...baseUserSelect,
       },
       post: basePostSelect,
-      reply: replySelect,
+      reply: getAliasedBasePostSelect(reply),
     })
     .from(notificationSchema)
     .where(
