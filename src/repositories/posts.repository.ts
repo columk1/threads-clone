@@ -267,25 +267,13 @@ export const insertPost = async (userId: string, post: { text?: string; image?: 
       const parentPost = await incrementReplyCount(tx, post.parentId)
       // Only create a notification if the parent post is not the current user's post
       if (parentPost && parentPost.userId !== userId) {
-        await tx
-          .insert(notificationSchema)
-          .values({
-            userId: parentPost.userId,
-            type: 'REPLY',
-            sourceUserId: userId,
-            postId: parentPost.id,
-            replyId: newPost.id,
-          })
-          // Don't recreate notifications
-          .onConflictDoNothing({
-            target: [
-              notificationSchema.userId,
-              notificationSchema.sourceUserId,
-              notificationSchema.postId,
-              notificationSchema.replyId,
-              notificationSchema.type,
-            ],
-          })
+        await tx.insert(notificationSchema).values({
+          userId: parentPost.userId,
+          type: 'REPLY',
+          sourceUserId: userId,
+          postId: parentPost.id,
+          replyId: newPost.id,
+        })
       }
     }
 
@@ -400,23 +388,26 @@ export const insertLike = async (postId: string, userId: string) => {
 
     // Create a notification for the post's author
     if (post.userId !== userId) {
-      await trx
-        .insert(notificationSchema)
-        .values({
+      const existingNotification = await trx
+        .select()
+        .from(notificationSchema)
+        .where(
+          and(
+            eq(notificationSchema.userId, post.userId),
+            eq(notificationSchema.sourceUserId, userId),
+            eq(notificationSchema.type, 'LIKE'),
+          ),
+        )
+        .get()
+      if (!existingNotification) {
+        await trx.insert(notificationSchema).values({
           userId: post.userId,
-          type: 'LIKE',
           sourceUserId: userId,
           postId,
+          replyId: null,
+          type: 'LIKE',
         })
-        // Don't recreate notifications
-        .onConflictDoNothing({
-          target: [
-            notificationSchema.userId,
-            notificationSchema.sourceUserId,
-            notificationSchema.postId,
-            notificationSchema.type,
-          ],
-        })
+      }
     }
   })
 }
@@ -454,23 +445,25 @@ export const insertRepost = async (postId: string, userId: string) => {
 
     // Create a notification for the post's author
     if (post.userId !== userId) {
-      await tx
-        .insert(notificationSchema)
-        .values({
+      const existingNotification = await tx
+        .select()
+        .from(notificationSchema)
+        .where(
+          and(
+            eq(notificationSchema.userId, post.userId),
+            eq(notificationSchema.sourceUserId, userId),
+            eq(notificationSchema.type, 'REPOST'),
+          ),
+        )
+        .get()
+      if (!existingNotification) {
+        await tx.insert(notificationSchema).values({
           userId: post.userId,
           type: 'REPOST',
           sourceUserId: userId,
           postId,
         })
-        // Don't recreate notifications
-        .onConflictDoNothing({
-          target: [
-            notificationSchema.userId,
-            notificationSchema.sourceUserId,
-            notificationSchema.postId,
-            notificationSchema.type,
-          ],
-        })
+      }
     }
   })
 }

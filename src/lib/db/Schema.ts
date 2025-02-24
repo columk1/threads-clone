@@ -9,7 +9,6 @@ import {
   type SQLiteColumn,
   sqliteTable,
   text,
-  unique,
 } from 'drizzle-orm/sqlite-core'
 import { ulid } from 'ulidx'
 
@@ -251,16 +250,17 @@ export const notificationSchema = sqliteTable(
   },
   (table) => {
     return [
+      // Check constraint for field requirements based on type
+      check(
+        'notification_type_fields',
+        sql`(${table.type} = 'FOLLOW' AND ${table.postId} IS NULL AND ${table.replyId} IS NULL)
+          OR (${table.type} IN ('LIKE', 'REPOST') AND ${table.postId} IS NOT NULL AND ${table.replyId} IS NULL)
+          OR (${table.type} = 'REPLY' AND ${table.postId} IS NOT NULL AND ${table.replyId} IS NOT NULL)`,
+      ),
+
       index('notif_user_seen_created_idx')
         .on(table.userId, table.seen, table.createdAt)
         .where(sql`${table.seen} = 0`),
-      unique('notif_user_seen_created_unique').on(
-        table.userId,
-        table.sourceUserId,
-        table.postId,
-        table.replyId,
-        table.type,
-      ),
 
       // This should work soon: https://github.com/drizzle-team/drizzle-orm/issues/3350
       // uniqueIndex('notif_unique_constraint').on(
@@ -270,17 +270,9 @@ export const notificationSchema = sqliteTable(
       //   sql`COALESCE(${table.replyId}, '')`,
       //   table.type,
       // ),
-      check(
-        'valid_reference',
-        sql`(type = 'FOLLOW' AND post_id IS NULL AND reply_id IS NULL) 
-          OR (type IN ('LIKE', 'REPOST') AND post_id IS NOT NULL AND reply_id IS NULL) 
-          OR (type = 'REPLY' AND post_id IS NOT NULL AND reply_id IS NOT NULL)`,
-      ),
     ]
   },
 )
-
-// sql`CREATE UNIQUE INDEX notif_unique_idx ON notifications(user_id, source_user_id, COALESCE(post_id, ''), COALESCE(reply_id, ''), type)`,
 
 export type Notification = InferSelectModel<typeof notificationSchema>
 

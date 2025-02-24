@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ccc4f308-f8fc-4126-b02a-423ee3e60e16",
+  "id": "dcbcc012-1a92-4505-9a9c-d5bed0aa3584",
   "prevId": "0edf2804-2101-449f-967a-1ee0a5cc3ed0",
   "tables": {
     "email_verification_code": {
@@ -267,17 +267,6 @@
           ],
           "isUnique": false,
           "where": "\"notifications\".\"seen\" = 0"
-        },
-        "notif_user_seen_created_unique": {
-          "name": "notif_user_seen_created_unique",
-          "columns": [
-            "user_id",
-            "source_user_id",
-            "post_id",
-            "reply_id",
-            "type"
-          ],
-          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -337,9 +326,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {
-        "valid_reference": {
-          "name": "valid_reference",
-          "value": "(type = 'FOLLOW' AND post_id IS NULL AND reply_id IS NULL) \n          OR (type IN ('LIKE', 'REPOST') AND post_id IS NOT NULL AND reply_id IS NULL) \n          OR (type = 'REPLY' AND post_id IS NOT NULL AND reply_id IS NOT NULL)"
+        "notification_type_fields": {
+          "name": "notification_type_fields",
+          "value": "(\"notifications\".\"type\" = 'FOLLOW' AND \"notifications\".\"post_id\" IS NULL AND \"notifications\".\"reply_id\" IS NULL)\n          OR (\"notifications\".\"type\" IN ('LIKE', 'REPOST') AND \"notifications\".\"post_id\" IS NOT NULL AND \"notifications\".\"reply_id\" IS NULL)\n          OR (\"notifications\".\"type\" = 'REPLY' AND \"notifications\".\"post_id\" IS NOT NULL AND \"notifications\".\"reply_id\" IS NOT NULL)"
         }
       }
     },
