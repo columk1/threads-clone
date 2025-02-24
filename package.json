@@ -13,6 +13,7 @@
     "check-types": "tsc --noEmit --pretty",
     "test": "vitest run --no-file-parallelism",
     "test:watch": "vitest watch --no-file-parallelism",
+    "test:coverage": "vitest run --no-file-parallelism --coverage",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "dotenv -c production -- drizzle-kit migrate",

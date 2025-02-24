@@ -1,4 +1,4 @@
-import type { Like, Post, Repost } from './Schema'
+import type { Like, Post, Repost } from '../Schema'
 
 /**
  * Updates the counts (likes, reposts, replies) for a collection of posts based on their interactions

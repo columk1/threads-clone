@@ -5,8 +5,8 @@ import bcrypt from 'bcrypt'
 import { logger } from '../../Logger.ts'
 import { db } from '../Drizzle.ts'
 import { likeSchema, postSchema, repostSchema, userSchema } from '../Schema.ts'
-import { updatePostCounts } from '../updateCounts.ts'
 import { generateFakeLikes, generateFakePosts, generateFakeReposts, generateFakeUsers } from './fakerData.ts'
+import { updatePostCounts } from './updateCounts.ts'
 
 async function seed() {
   // Delete all existing rows
