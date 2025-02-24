@@ -47,53 +47,51 @@ const ThreadActions: FunctionComponent<ThreadActionsProps> = ({
 
   const router = useRouter()
 
-  const toggleLike = () => {
-    const newLikeCount = likeCount + (isLiked ? -1 : 1)
-    if (cachedPost) {
-      updatePost(post.id, {
-        isLiked: !isLiked,
-        likeCount: newLikeCount,
-        replyCount: post.replyCount,
-        isReposted,
-        repostCount,
-      })
-    }
+  const toggleLike = (state?: boolean) => {
+    const isToggling = state === undefined
+    updatePost(post.id, {
+      isLiked: isToggling ? !isLiked : isLiked,
+      likeCount: isToggling ? likeCount + (!isLiked ? 1 : -1) : post.likeCount,
+      replyCount: post.replyCount,
+      isReposted,
+      repostCount,
+    })
   }
 
-  const toggleRepost = () => {
-    const newRepostCount = repostCount + (isReposted ? -1 : 1)
-    if (cachedPost) {
-      updatePost(post.id, {
-        isLiked,
-        likeCount,
-        replyCount,
-        isReposted: !isReposted,
-        repostCount: newRepostCount,
-      })
-    }
+  const toggleRepost = (state?: boolean) => {
+    const isToggling = state === undefined
+    updatePost(post.id, {
+      isLiked,
+      likeCount,
+      replyCount,
+      isReposted: isToggling ? !isReposted : isReposted,
+      repostCount: isToggling ? repostCount + (!isReposted ? 1 : -1) : post.repostCount,
+    })
   }
 
   const handleToggleLike = async () => {
+    const previousIsLiked = isLiked
     setHasLikeIconBeenToggled(true)
     toggleLike()
     const likeAction = isLiked ? 'unlike' : 'like'
     const result = await handleLikeAction(likeAction, post.id)
     if (result.error) {
-      // revert optimistic update
-      toggleLike()
+      // revert optimistic update to previous state
+      toggleLike(previousIsLiked)
       toast(result.error)
     }
   }
 
   const handleToggleRepost = async () => {
+    const previousIsReposted = isReposted
     toggleRepost()
     const repostAction = isReposted ? 'unrepost' : 'repost'
     const successMessage = isReposted ? 'Removed' : 'Reposted'
     const result = await handleRepostAction(repostAction, post.id)
     router.refresh()
     if (result.error) {
-      // revert optimistic update
-      toggleRepost()
+      // revert optimistic update to previous state
+      toggleRepost(previousIsReposted)
       toast(result.error)
       return
     }
