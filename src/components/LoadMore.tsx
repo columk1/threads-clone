@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
+import Spinner from '@/components/Spinner/Spinner'
 import { useAppStore } from '@/hooks/useAppStore'
-
-import Spinner from './spinner/Spinner'
 
 type LoadMoreProps = {
   children: React.ReactNode

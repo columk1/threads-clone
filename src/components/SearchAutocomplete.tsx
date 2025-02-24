@@ -8,15 +8,14 @@ import Avatar from '@/components/Avatar'
 import FollowButton from '@/components/FollowButton'
 import { SearchIcon } from '@/components/icons'
 import Continue from '@/components/icons/Continue'
+import PostAuthor from '@/components/PostAuthor'
+import Spinner from '@/components/Spinner/Spinner'
+import UnfollowModal from '@/components/UnfollowModal'
 import { useSearch } from '@/contexts/SearchContext'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useFollow } from '@/hooks/useFollow'
 import type { PostUser } from '@/services/users/users.queries'
 import { handleNestedInteraction } from '@/utils/handleNestedInteraction'
-
-import PostAuthor from './PostAuthor'
-import Spinner from './spinner/Spinner'
-import UnfollowModal from './UnfollowModal'
 
 // Autocomplete search results (user cards)
 

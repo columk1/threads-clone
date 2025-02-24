@@ -3,12 +3,11 @@
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import Spinner from '@/components/spinner/Spinner'
+import AuthInput from '@/components/AuthInput'
+import Divider from '@/components/Divider'
+import GoogleAuthButton from '@/components/GoogleAuthButton'
+import Spinner from '@/components/Spinner/Spinner'
 import { login } from '@/services/auth/auth.actions'
-
-import AuthInput from './AuthInput'
-import Divider from './Divider'
-import GoogleAuthButton from './GoogleAuthButton'
 
 const LoginForm = () => {
   const [state, formAction, isPending] = useActionState(login, null)

@@ -1,12 +1,11 @@
 import type { User } from 'lucia'
 import type { FunctionComponent } from 'react'
 
+import HydrateStore from '@/components/HydrateStore'
+import LoadMore from '@/components/LoadMore'
+import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
 import { getFollowingPosts, getPosts, QUERY_LIMIT } from '@/services/posts/posts.queries'
-
-import HydrateStore from './HydrateStore'
-import LoadMore from './LoadMore'
-import Thread from './Thread'
 
 type ThreadsProps = {
   filter?: string

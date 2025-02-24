@@ -4,17 +4,16 @@ import { useRouter } from 'next/navigation'
 import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
 
+import CountWheel from '@/components/CountWheel'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/DropdownMenu'
+import { LikeIcon, ReplyIcon, RepostedIcon, RepostIcon, ShareIcon } from '@/components/icons'
+import ReplyModal from '@/components/ReplyModal'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/lib/db/Schema'
 import { handleLikeAction, handleRepostAction, handleShareAction } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
 import { formatCount } from '@/utils/format/formatCount'
-
-import CountWheel from './CountWheel'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './DropdownMenu'
-import { LikeIcon, ReplyIcon, RepostedIcon, RepostIcon, ShareIcon } from './icons'
-import ReplyModal from './ReplyModal'
 
 const iconStyle =
   'flex h-full z-10 items-center gap-1 rounded-full px-2.5 hover:bg-tertiary-bg active:scale-85 transition overflow-y-hidden'

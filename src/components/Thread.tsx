@@ -7,19 +7,18 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
+import Avatar from '@/components/Avatar'
+import { RepostIcon } from '@/components/icons'
+import NestedLinkWrapper from '@/components/NestedLinkWrapper'
+import PostAuthor from '@/components/PostAuthor'
+import PostDropDownMenu from '@/components/PostDropDownMenu'
+import ThreadActions from '@/components/ThreadActions'
+import TimeAgo from '@/components/TimeAgo'
+import UnfollowModal from '@/components/UnfollowModal'
+import UserModal from '@/components/UserModal'
 import { useFollow } from '@/hooks/useFollow'
 import type { Post } from '@/lib/db/Schema'
 import type { PostUser } from '@/services/users/users.queries'
-
-import Avatar from './Avatar'
-import { RepostIcon } from './icons'
-import NestedLinkWrapper from './NestedLinkWrapper'
-import PostAuthor from './PostAuthor'
-import PostDropDownMenu from './PostDropDownMenu'
-import ThreadActions from './ThreadActions'
-import TimeAgo from './TimeAgo'
-import UnfollowModal from './UnfollowModal'
-import UserModal from './UserModal'
 
 // URL regex pattern that matches URLs starting with http://, https://, or www.
 const URL_PATTERN = /(https?:\/\/\S+)|(www\.\S+)/g

@@ -4,6 +4,12 @@ import { useRouter } from 'next/navigation'
 import { type FunctionComponent, useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
+import Avatar from '@/components/Avatar'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/Dialog'
+import { Drawer, DrawerContent } from '@/components/Drawer'
+import { ModalContent, ModalHeader, ThreadMediaContent } from '@/components/NewThreadModal'
+import { ThreadText } from '@/components/Thread'
+import TimeAgo from '@/components/TimeAgo'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useImageForm } from '@/hooks/useImageForm'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -11,13 +17,6 @@ import { usePostForm } from '@/hooks/usePostForm'
 import type { Post } from '@/lib/db/Schema'
 import { createReply } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
-
-import Avatar from './Avatar'
-import { Dialog, DialogContent, DialogTrigger } from './Dialog'
-import { Drawer, DrawerContent } from './Drawer'
-import { ModalContent, ModalHeader, ThreadMediaContent } from './NewThreadModal'
-import { ThreadText } from './Thread'
-import TimeAgo from './TimeAgo'
 
 const ParentThread = ({ user, author, post }: { user: User; author: PostUser; post: Post }) => {
   return (

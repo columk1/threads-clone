@@ -6,19 +6,18 @@ import { useRouter } from 'next/navigation'
 import { type FunctionComponent, useActionState, useCallback, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
+import Avatar from '@/components/Avatar'
+import Button from '@/components/Button'
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/Dialog'
+import { Drawer, DrawerContent } from '@/components/Drawer'
+import { ImageIcon } from '@/components/icons'
+import Spinner from '@/components/Spinner/Spinner'
 import { useImageForm } from '@/hooks/useImageForm'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
 import { usePostForm } from '@/hooks/usePostForm'
 import { MAX_CHARACTERS } from '@/lib/constants'
 import { createPost } from '@/services/posts/posts.actions'
-
-import Avatar from './Avatar'
-import Button from './Button'
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './Dialog'
-import { Drawer, DrawerContent } from './Drawer'
-import { ImageIcon } from './icons'
-import Spinner from './spinner/Spinner'
 
 type ModalActions = {
   closeModal?: () => void
