@@ -368,3 +368,23 @@ export const markNotificationsAsSeenDb = async (userId: string): Promise<{ count
     })
     .get()
 }
+
+export type UpdateGoogleUserParams = {
+  id: string
+  googleId: string
+  avatar?: string
+  emailVerified: number
+}
+
+export const updateUserWithGoogleCredentials = async (user: UpdateGoogleUserParams) => {
+  return await db
+    .update(userSchema)
+    .set({
+      googleId: user.googleId,
+      avatar: user.avatar,
+      emailVerified: user.emailVerified,
+    })
+    .where(eq(userSchema.id, user.id))
+    .returning()
+    .get()
+}

@@ -1,5 +1,4 @@
-import type { OAuth2Tokens } from 'arctic'
-import { decodeIdToken } from 'arctic'
+import { decodeIdToken, type OAuth2Tokens } from 'arctic'
 import { cookies } from 'next/headers'
 
 import { logger } from '@/lib/Logger'
@@ -7,64 +6,61 @@ import { lucia } from '@/lib/Lucia'
 import { google } from '@/lib/oauth'
 import type { GoogleClaims } from '@/lib/schemas/zod.schema'
 import { googleClaimsSchema } from '@/lib/schemas/zod.schema'
-import { getUserByGoogleId } from '@/repositories/auth.repository'
-import { createGoogleUser, getUserByUsername } from '@/repositories/users.repository'
+import { getUserByEmail, getUserByGoogleId } from '@/repositories/auth.repository'
+import { createGoogleUser, getUserByUsername, updateUserWithGoogleCredentials } from '@/repositories/users.repository'
 
 function isGoogleClaims(claims: unknown): claims is GoogleClaims {
   return googleClaimsSchema.safeParse(claims).success
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const url = new URL(request.url)
-  const code = url.searchParams.get('code')
-  const state = url.searchParams.get('state')
-  const cookieStore = await cookies()
-  const storedState = cookieStore.get('google_oauth_state')?.value ?? null
-  const codeVerifier = cookieStore.get('google_code_verifier')?.value ?? null
-
-  if (code === null || state === null || storedState === null || codeVerifier === null) {
-    return new Response(null, {
-      status: 400,
-    })
-  }
-
-  if (state !== storedState) {
-    return new Response(null, {
-      status: 400,
-    })
-  }
-
-  let tokens: OAuth2Tokens
   try {
-    tokens = await google.validateAuthorizationCode(code, codeVerifier)
-  } catch (err) {
-    logger.error(err, 'Failed to validate Google authorization code')
-    return new Response(null, {
-      status: 400,
-    })
-  }
+    const url = new URL(request.url)
+    const code = url.searchParams.get('code')
+    const state = url.searchParams.get('state')
+    const cookieStore = await cookies()
+    const storedState = cookieStore.get('google_oauth_state')?.value ?? null
+    const codeVerifier = cookieStore.get('google_code_verifier')?.value ?? null
 
-  const claims = decodeIdToken(tokens.idToken())
+    if (code === null || state === null || storedState === null || codeVerifier === null) {
+      return new Response(null, {
+        status: 400,
+      })
+    }
 
-  if (!isGoogleClaims(claims)) {
-    logger.error('Invalid Google claims format')
-    return new Response(null, {
-      status: 400,
-    })
-  }
+    if (state !== storedState) {
+      return new Response(null, {
+        status: 400,
+      })
+    }
 
-  const googleUserId = claims.sub
-  const name = `${claims.given_name} ${claims.family_name}`.trim()
-  const email = claims.email
-  const avatar = claims.picture
+    let tokens: OAuth2Tokens
+    try {
+      tokens = await google.validateAuthorizationCode(code, codeVerifier)
+    } catch (err) {
+      logger.error(err, 'Failed to validate Google authorization code')
+      return new Response(null, {
+        status: 400,
+      })
+    }
 
-  try {
-    // Check if user exists
-    const existingUser = await getUserByGoogleId(googleUserId)
+    const claims = decodeIdToken(tokens.idToken())
 
-    if (existingUser?.id) {
-      // Create session with Lucia
-      const session = await lucia.createSession(existingUser.id, {})
+    if (!isGoogleClaims(claims)) {
+      throw new Error('Invalid Google claims format')
+    }
+
+    const googleUserId = claims.sub
+    const name = `${claims.given_name} ${claims.family_name}`.trim()
+    const email = claims.email
+    const avatar = claims.picture
+
+    // First check if user exists by Google ID
+    const existingGoogleUser = await getUserByGoogleId(googleUserId)
+
+    if (existingGoogleUser?.id) {
+      // User already exists with this Google account
+      const session = await lucia.createSession(existingGoogleUser.id, {})
       const sessionCookie = lucia.createSessionCookie(session.id)
       cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
 
@@ -76,10 +72,42 @@ export async function GET(request: Request): Promise<Response> {
       })
     }
 
-    // Create new user
+    // Check if user exists by email
+    const existingEmailUser = await getUserByEmail(email)
+
+    if (existingEmailUser) {
+      // Link Google account to existing email account
+      const updatedUser = await updateUserWithGoogleCredentials({
+        id: existingEmailUser.id,
+        googleId: googleUserId,
+        avatar: existingEmailUser.avatar ?? avatar,
+        emailVerified: 1,
+      })
+
+      if (!updatedUser) {
+        throw new Error('Failed to update user with Google credentials')
+      }
+
+      // Create session with Lucia
+      const session = await lucia.createSession(updatedUser.id, {})
+      const sessionCookie = lucia.createSessionCookie(session.id)
+      cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: '/',
+        },
+      })
+    }
+
+    // Create new user if no existing account found
     const usernamePart = email.split('@')[0]
     if (!usernamePart) {
-      throw new Error('Failed to create username')
+      return new Response(null, {
+        status: 400,
+        statusText: 'Invalid email format',
+      })
     }
 
     // Generate base username
@@ -101,7 +129,7 @@ export async function GET(request: Request): Promise<Response> {
       avatar, // Add the Google profile picture as avatar
     })
 
-    if (!user?.id) {
+    if (!user) {
       throw new Error('Failed to create user')
     }
 
