@@ -56,6 +56,7 @@
   @supports selector(:has(*)) {
     html:has([data-threads-loaded='true']) .splash-overlay {
       opacity: 0;
+      pointer-events: none;
       & .splash-logo {
         transform: scale(1.3);
       }

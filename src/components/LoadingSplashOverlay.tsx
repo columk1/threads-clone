@@ -20,7 +20,7 @@ export default function LoadingSplashOverlay() {
   const overlayRef = (node: HTMLDivElement) => {
     // Set a timeout to hide the overlay after 2 seconds
     const timeoutId = setTimeout(() => {
-      node?.classList.add('opacity-0', 'scale-125')
+      node?.classList.add('opacity-0', 'scale-125', 'pointer-events-none')
     }, 1500)
 
     return () => clearTimeout(timeoutId)
