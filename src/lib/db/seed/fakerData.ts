@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer'
 import { faker } from '@faker-js/faker'
 import sharp from 'sharp'
 
-import type { Like, Post, Repost, User } from './Schema'
+import type { Like, Post, Repost, User } from '../Schema'
 
 const PROBABILITIES = {
   bio: 0.7,
