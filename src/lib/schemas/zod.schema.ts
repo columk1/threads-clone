@@ -37,40 +37,34 @@ export const imageUrlSchema = z
     return extension ? ['jpg', 'jpeg', 'png', 'webp', 'heic'].includes(extension) : false
   }, 'Invalid image format. Only jpg, jpeg, png, webp and heic are supported.')
 
-export const newPostSchema = z
-  .object({
-    text: z
-      .string()
-      .trim()
-      .max(500, { message: 'Maximum 500 characters' })
-      .transform((text) => text.replace(/(\r\n){3,}/g, '\r\n\r\n'))
-      .optional(),
-    image: imageUrlSchema.optional(),
-    imageWidth: z.number().optional(),
-    imageHeight: z.number().optional(),
-  })
-  .refine((data) => data.text || (data.image && data.imageWidth && data.imageHeight), {
-    message: 'Either text or image is required',
-    path: ['text'],
-  })
+// Shared schema for new posts and replies
+const basePostSchema = z.object({
+  text: z
+    .string()
+    .trim()
+    .max(500, { message: 'Maximum 500 characters' })
+    .transform((text) => text.replace(/(\r\n){3,}/g, '\r\n\r\n'))
+    .optional(),
+  image: imageUrlSchema.optional(),
+  imageWidth: z.number().optional(),
+  imageHeight: z.number().optional(),
+})
 
-export const replySchema = z
-  .object({
-    text: z
-      .string()
-      .trim()
-      .max(500, { message: 'Maximum 500 characters' })
-      .transform((text) => text.replace(/(\r\n){3,}/g, '\r\n\r\n'))
-      .optional(),
-    image: imageUrlSchema.optional(),
-    imageWidth: z.number().optional(),
-    imageHeight: z.number().optional(),
-    parentId: z.string({ required_error: 'Parent ID is required' }),
-  })
-  .refine((data) => data.text || (data.image && data.imageWidth && data.imageHeight), {
-    message: 'Either text or image is required',
-    path: ['text'],
-  })
+// Adds the shared refinement for posts and accepts a schema for additional fields
+export function refinePostSchema<T extends z.ZodRawShape>(schema?: T) {
+  return basePostSchema
+    .extend(schema || {})
+    .refine((data) => data.text || (data.image && data.imageWidth && data.imageHeight), {
+      message: 'Either text or image is required',
+      path: ['text'],
+    })
+}
+
+export const newPostSchema = refinePostSchema()
+
+export const replySchema = refinePostSchema({
+  parentId: z.string({ required_error: 'Parent ID is required' }),
+})
 
 export const usernameParamSchema = z
   .string()
