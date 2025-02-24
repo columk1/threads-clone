@@ -85,7 +85,7 @@ const LoadMore = ({ children, initialOffset, loadMoreAction }: LoadMoreProps) =>
         }
       },
       {
-        rootMargin: '200px',
+        rootMargin: '400px',
       },
     )
 
