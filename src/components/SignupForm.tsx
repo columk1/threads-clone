@@ -57,7 +57,7 @@ const SignupForm: FunctionComponent = () => {
             customValidator={validateUniqueEmail}
             delay={VALIDATION_DELAY}
             icons
-            validateForm={setCustomValidity}
+            setFormValidity={setCustomValidity}
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c]"
           />
           <AuthInput
@@ -97,7 +97,7 @@ const SignupForm: FunctionComponent = () => {
             required
             error={state?.error?.username && state?.error?.username[0]}
             customValidator={validateUniqueUsername}
-            validateForm={setCustomValidity}
+            setFormValidity={setCustomValidity}
             delay={VALIDATION_DELAY}
             icons
             className="text-input h-[3.25rem] rounded-xl border border-transparent bg-tertiary-bg p-4 font-sans font-light selection:bg-[#3b587c] placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0"

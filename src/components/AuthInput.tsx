@@ -19,7 +19,7 @@ type AuthInputProps = {
   error?: string | null
   customValidator?: (value: string) => Promise<{ error: string }>
   delay?: number
-  validateForm?: (isValid: boolean) => void
+  setFormValidity?: (isValid: boolean) => void
   icons?: boolean
   className?: string
 }
@@ -38,12 +38,12 @@ const Input = ({
   error = null,
   customValidator,
   delay = 1000,
-  validateForm,
+  setFormValidity,
   icons = false,
   className = '',
 }: AuthInputProps) => {
   const [validationMessage, setValidationMessage] = useState<string | null>(error)
-  const [activeError, setActiveError] = useState(false)
+  const [showError, setShowError] = useState(false)
   const [passwordVisible, setPasswordVisible] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -52,7 +52,7 @@ const Input = ({
   useEffect(() => {
     if (inputRef.current && error) {
       inputRef.current.setCustomValidity(error)
-      setActiveError(true)
+      setShowError(true)
     }
   }, [error])
 
@@ -65,12 +65,12 @@ const Input = ({
           if (error) {
             message = error
             input.setCustomValidity(message) // CSS: Activates :invalid pseudo-class
-            validateForm?.(false)
+            setFormValidity?.(false)
           }
         }
         setValidationMessage(message)
-        setActiveError(true)
-        validateForm?.(!message)
+        setShowError(true)
+        setFormValidity?.(!message)
       }
     },
     delay,
@@ -79,7 +79,7 @@ const Input = ({
   const onChange = () => {
     inputRef.current?.setCustomValidity('')
     setValidationMessage(null)
-    setActiveError(false)
+    setShowError(false)
   }
 
   const onBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +105,7 @@ const Input = ({
           'text-input p-4 peer h-12 w-full rounded-xl border border-transparent bg-tertiary-bg font-sans font-light placeholder:text-placeholder-text focus:border focus:border-primary-outline focus:outline-0',
           !placeholder && '[&:not(:placeholder-shown)]:pb-0',
           `${className}`,
-          activeError && '[&:user-invalid]:border-red-500',
+          showError && '[&:user-invalid]:border-red-500',
           error && 'peer-invalid:border-red-500',
           isPassword ? 'pr-[72px]' : 'pr-10',
         )}
@@ -133,12 +133,12 @@ const Input = ({
       </label>
       {icons && (
         <>
-          {activeError && (
+          {showError && (
             <CircleX
               className={`absolute ${isPassword ? 'right-[40px]' : 'right-2'} top-[14px] hidden text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`}
             />
           )}
-          {activeError && !validationMessage && (
+          {showError && !validationMessage && (
             <CircleCheck
               className={`absolute ${isPassword ? 'right-[40px]' : 'right-2'} right-2 top-[14px] hidden text-placeholder-text peer-[&:not(:focus-within):user-valid]:block`}
             />
@@ -154,7 +154,7 @@ const Input = ({
           {passwordVisible ? <EyeOff className="w-6" /> : <Eye />}
         </button>
       )}
-      {activeError && (
+      {showError && (
         <p
           className={`hidden py-1 pl-4 text-sm text-red-500 ${error && 'peer-invalid:block'} peer-[&:user-invalid]:block`}
         >
