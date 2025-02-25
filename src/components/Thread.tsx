@@ -106,6 +106,7 @@ export const ThreadMedia = ({
           priority={imagePriority}
           width={Number(containerWidth)}
           height={Number(containerHeight)}
+          quality={65}
           className="block size-auto max-h-[430px] rounded-lg object-contain"
           style={{
             width: `${containerWidth}px`,
@@ -212,6 +213,7 @@ const ThreadContent: FunctionComponent<{
             <Link href={`/@${user.username}`} className="group !ring-0 !ring-offset-0">
               <Avatar
                 url={user.avatar}
+                priority={imagePriority}
                 className="group-focus-visible:outline-2 group-focus-visible:outline-white group-focus-visible:ring-2 group-focus-visible:ring-blue-500 group-focus-visible:ring-offset-2"
               />
             </Link>

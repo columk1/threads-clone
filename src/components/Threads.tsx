@@ -7,6 +7,8 @@ import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
 import { getFollowingPosts, getPosts, QUERY_LIMIT } from '@/services/posts/posts.queries'
 
+import Delay from './Delay'
+
 type ThreadsProps = {
   filter?: string
 }
@@ -49,9 +51,6 @@ async function loadMorePosts(offset: number, filter?: string) {
 const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
   const { user: currentUser } = await validateRequest()
   const getPostsQuery = filter === undefined ? getPosts : getFollowingPosts
-  // const getPostsQuery = () => {
-  //   throw new Promise(() => {})
-  // }
   const { posts } = await getPostsQuery()
 
   return (
@@ -64,6 +63,8 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
       ) : (
         <ThreadList posts={posts} currentUser={currentUser} />
       )}
+      {/* Add a delay to keep displaying the parent's fallback while images load */}
+      <Delay delay={1500} />
     </>
   )
 }
