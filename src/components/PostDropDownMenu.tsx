@@ -15,10 +15,9 @@ import { REPORTED_CONFIRMATION_MESSAGE } from '@/lib/constants'
 import { moderatePost } from '@/services/posts/posts.actions'
 
 import DeletePostDialogContent from './DeletePostModal'
-import { BookmarkIcon, DeleteIcon, KebabMenuIcon, LinkIcon, ReportIcon, UnfollowIcon } from './icons'
+import { DeleteIcon, KebabMenuIcon, LinkIcon, ReportIcon, UnfollowIcon } from './icons'
 
 type PostDropDownMenuProps = {
-  // username: string
   isFollowed: boolean
   onToggleFollow?: () => Promise<void>
   isAuthenticated?: boolean
@@ -55,13 +54,6 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
         >
           {isAuthenticated && (
             <>
-              <DropdownMenuItem asChild className="leading-none">
-                <button type="button" className="flex w-full items-center justify-between">
-                  Save
-                  <BookmarkIcon />
-                </button>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
               {isFollowed && (
                 <button onClick={onToggleFollow} type="button" className="flex w-full justify-between leading-none">
                   <DropdownMenuItem className="flex w-full items-center justify-between">
