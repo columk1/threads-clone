@@ -1,5 +1,6 @@
 import type { SQLWrapper } from 'drizzle-orm'
 import { and, desc, eq, isNotNull, isNull, or, sql } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/sqlite-core'
 
 import { db } from '../lib/db/Drizzle'
 import {
@@ -16,7 +17,7 @@ import {
 } from '../lib/db/Schema'
 import { authPostSelect, authUserSelect, publicPostSelect, publicUserSelect } from '../lib/db/selectors'
 
-export type PostData = Post & { isLiked: boolean; isReposted: boolean }
+export type PostData = Post & { isLiked?: boolean; isReposted?: boolean; replyingTo?: string | null }
 
 export const getPost = async (postId: string) => {
   return await db.select().from(postSchema).where(eq(postSchema.id, postId)).get()
@@ -80,6 +81,30 @@ export const listFollowingPosts = async (userId: string, offset: number = 0, lim
     .innerJoin(followerSchema, eq(postSchema.userId, followerSchema.userId))
     .where(and(isNull(postSchema.parentId), eq(followerSchema.followerId, userId)))
     .orderBy(desc(postSchema.createdAt))
+    .offset(offset)
+    .limit(limit)
+    .all()
+}
+
+export const listLikedPosts = async (userId: string, offset: number = 0, limit: number = 10) => {
+  const parentPosts = alias(postSchema, 'parent_posts')
+  const parentUsers = alias(userSchema, 'parent_users')
+
+  return await db
+    .select({
+      post: {
+        ...authPostSelect(userId),
+        replyingTo: parentUsers.username,
+      },
+      user: authUserSelect(userId),
+    })
+    .from(postSchema)
+    .innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    .innerJoin(likeSchema, eq(postSchema.id, likeSchema.postId))
+    .leftJoin(parentPosts, eq(postSchema.parentId, parentPosts.id))
+    .leftJoin(parentUsers, eq(parentPosts.userId, parentUsers.id))
+    .where(eq(likeSchema.userId, userId))
+    .orderBy(desc(likeSchema.createdAt))
     .offset(offset)
     .limit(limit)
     .all()

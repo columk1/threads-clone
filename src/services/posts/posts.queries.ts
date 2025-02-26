@@ -7,6 +7,7 @@ import {
   getPostById,
   getPublicPostWithReplies,
   listFollowingPosts,
+  listLikedPosts,
   listPosts,
   listReplies,
   listReposts,
@@ -65,6 +66,22 @@ export const getFollowingPosts = async (offset: number = 0) => {
   }
 
   const data = await listFollowingPosts(user.id, offset, QUERY_LIMIT)
+  return {
+    posts: formatPostsData(data),
+    nextOffset: data.length >= QUERY_LIMIT ? offset + QUERY_LIMIT : null,
+  }
+}
+
+/**
+ * Get Liked Posts
+ */
+export const getLikedPosts = async (offset: number = 0) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect(ROUTES.LOGIN)
+  }
+
+  const data = await listLikedPosts(user.id, offset, QUERY_LIMIT)
   return {
     posts: formatPostsData(data),
     nextOffset: data.length >= QUERY_LIMIT ? offset + QUERY_LIMIT : null,

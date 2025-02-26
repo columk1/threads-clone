@@ -17,7 +17,7 @@ import TimeAgo from '@/components/TimeAgo'
 import UnfollowModal from '@/components/UnfollowModal'
 import UserModal from '@/components/UserModal'
 import { useFollow } from '@/hooks/useFollow'
-import type { Post } from '@/lib/db/Schema'
+import type { PostData } from '@/repositories/posts.repository'
 import type { PostUser } from '@/services/users/users.queries'
 
 // URL regex pattern that matches URLs starting with http://, https://, or www.
@@ -119,7 +119,7 @@ export const ThreadMedia = ({
 }
 
 type ThreadProps = {
-  post: Post & { isLiked?: boolean; isReposted?: boolean }
+  post: PostData
   user: PostUser
   currentUser: User | null
   isCurrentUser: boolean
@@ -182,7 +182,7 @@ const RepostHeader: FunctionComponent<{
 )
 
 const ThreadContent: FunctionComponent<{
-  post: Post
+  post: PostData
   user: PostUser
   isTarget: boolean
   isAuthenticated: boolean
@@ -237,6 +237,7 @@ const ThreadContent: FunctionComponent<{
       </div>
 
       <div className={cx('row-start-2', isTarget ? 'col-span-2 mt-[7px]' : 'col-start-2')}>
+        {post.replyingTo && <span className="text-secondary-text">{`Replying to ${post.replyingTo}`}</span>}
         <ThreadText text={post.text} />
       </div>
 

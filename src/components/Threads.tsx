@@ -5,7 +5,7 @@ import HydrateStore from '@/components/HydrateStore'
 import LoadMore from '@/components/LoadMore'
 import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
-import { getFollowingPosts, getPosts, QUERY_LIMIT } from '@/services/posts/posts.queries'
+import { getFollowingPosts, getLikedPosts, getPosts, QUERY_LIMIT } from '@/services/posts/posts.queries'
 
 import Delay from './Delay'
 
@@ -41,7 +41,8 @@ const ThreadList = ({ posts, currentUser }: ThreadListProps) => {
 
 async function loadMorePosts(offset: number, filter?: string) {
   'use server'
-  const getPostsQuery = filter === undefined ? getPosts : getFollowingPosts
+  const getPostsQuery = filter === 'following' ? getFollowingPosts : filter === 'liked' ? getLikedPosts : getPosts
+
   const { posts, nextOffset } = await getPostsQuery(undefined, offset)
   const { user } = await validateRequest()
 
@@ -50,7 +51,7 @@ async function loadMorePosts(offset: number, filter?: string) {
 
 const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
   const { user: currentUser } = await validateRequest()
-  const getPostsQuery = filter === undefined ? getPosts : getFollowingPosts
+  const getPostsQuery = filter === 'following' ? getFollowingPosts : filter === 'liked' ? getLikedPosts : getPosts
   const { posts } = await getPostsQuery()
 
   return (

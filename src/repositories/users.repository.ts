@@ -199,7 +199,6 @@ export const updateUserBio = async (userId: string, bio: string) => {
 }
 
 const reply = aliasedTable(postSchema, 'reply')
-// const replySelect = getAliasedBasePostSelect(reply)
 
 export const getNotifications = async (userId: string, options?: { seen?: boolean }) => {
   const seenCondition = options?.seen !== undefined ? eq(notificationSchema.seen, options.seen) : undefined
