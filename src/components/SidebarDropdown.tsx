@@ -33,7 +33,11 @@ const SidebarDropdown: FunctionComponent<SidebarDropdownProps> = ({ isAuthentica
             <DropdownMenuSeparator />
           </>
         )} */}
-        <DropdownMenuItem>Report a problem</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a href="https://github.com/columk1/threads-clone/issues/new" target="_blank" rel="noopener noreferrer">
+            Report a problem
+          </a>
+        </DropdownMenuItem>
         {isAuthenticated && (
           <DropdownMenuItem asChild className="leading-none text-error-text dark:focus:text-error-text">
             <button type="button" onClick={logout} className="w-full text-left">

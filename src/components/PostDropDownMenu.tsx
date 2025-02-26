@@ -1,6 +1,7 @@
 'use client'
 
 import type { FunctionComponent } from 'react'
+import { toast } from 'sonner'
 
 import { Dialog, DialogTrigger } from '@/components/Dialog'
 import {
@@ -10,6 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/DropdownMenu'
+import { REPORTED_CONFIRMATION_MESSAGE } from '@/lib/constants'
+import { moderatePost } from '@/services/posts/posts.actions'
 
 import DeletePostDialogContent from './DeletePostModal'
 import { BookmarkIcon, DeleteIcon, KebabMenuIcon, LinkIcon, ReportIcon, UnfollowIcon } from './icons'
@@ -38,6 +41,11 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
   //   })
   // }
   // onMouseEnter={handleMouseEnter}
+
+  const handleReport = () => {
+    moderatePost(postId)
+    toast(REPORTED_CONFIRMATION_MESSAGE)
+  }
 
   return (
     <Dialog>
@@ -71,10 +79,22 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
                   </DropdownMenuItem>
                 </button>
               )}
+              {!isCurrentUser && (
+                <DropdownMenuItem asChild className="leading-none text-error-text dark:focus:text-error-text">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between text-left"
+                    onClick={handleReport}
+                  >
+                    Report
+                    <ReportIcon />
+                  </button>
+                </DropdownMenuItem>
+              )}
             </>
           )}
 
-          {isCurrentUser ? (
+          {isCurrentUser && (
             <DropdownMenuItem className="leading-none text-error-text dark:focus:text-error-text">
               <DialogTrigger asChild>
                 <button type="button" className="flex w-full items-center justify-between text-left">
@@ -82,13 +102,6 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
                   <DeleteIcon />
                 </button>
               </DialogTrigger>
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem asChild className="leading-none text-error-text dark:focus:text-error-text">
-              <button type="button" className="flex w-full items-center justify-between text-left">
-                Report
-                <ReportIcon />
-              </button>
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />

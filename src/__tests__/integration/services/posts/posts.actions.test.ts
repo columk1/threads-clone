@@ -1,13 +1,17 @@
 import { sql } from 'drizzle-orm'
 import type { Session } from 'lucia'
 import { redirect } from 'next/navigation'
+import type OpenAI from 'openai'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createTestPost, createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
+import { DEFAULT_ERROR } from '@/lib/constants'
 import { likeSchema, notificationSchema, postSchema, repostSchema } from '@/lib/db/Schema'
+import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
+import { moderateContent } from '@/lib/OpenAi'
 import {
   createPost,
   createReply,
@@ -15,6 +19,7 @@ import {
   handleLikeAction,
   handleRepostAction,
   handleShareAction,
+  moderatePost,
 } from '@/services/posts/posts.actions'
 
 setupIntegrationTest()
@@ -37,6 +42,17 @@ vi.mock('@/lib/Logger', () => ({
     error: vi.fn(),
     info: vi.fn(),
   },
+}))
+
+// Mock OpenAI moderation
+vi.mock('@/lib/OpenAi', () => ({
+  moderateContent: vi.fn(),
+}))
+
+// Mock next/server after() to execute synchronously
+vi.mock('next/server', () => ({
+  after: async (fn: () => Promise<void>) => await fn(),
+  redirect: vi.fn(), // Keep the existing redirect mock
 }))
 
 describe('Posts Actions', () => {
@@ -630,15 +646,127 @@ describe('Posts Actions', () => {
     })
 
     it('should handle database errors', async () => {
-      // Drop the posts table to simulate a database error
-      await testDb.run(sql`DROP TABLE posts`)
+      // Force a database error by executing invalid SQL
+      await testDb.run(sql`ALTER TABLE posts RENAME TO posts_temp`)
 
       const result = await handleDeleteAction(testPost.id)
 
       expect(result).toEqual({
-        error: expect.any(String),
+        error: DEFAULT_ERROR,
         success: false,
       })
+
+      // Restore the table
+      await testDb.run(sql`ALTER TABLE posts_temp RENAME TO posts`)
+    })
+  })
+
+  describe('moderatePost', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    afterEach(() => {
+      vi.clearAllTimers()
+    })
+
+    it('should successfully moderate a clean post', async () => {
+      // Log initial state
+      const initialPost = await testDb.query.postSchema.findFirst({
+        where: (posts, { eq }) => eq(posts.id, testPost.id),
+      })
+      logger.info({ message: 'Initial post:', post: initialPost })
+
+      vi.mocked(moderateContent).mockResolvedValueOnce({
+        results: [{ flagged: false }],
+      } as OpenAI.ModerationCreateResponse)
+
+      const result = await moderatePost(testPost.id)
+      logger.info({ message: 'Result:', result })
+
+      expect(result).toEqual({ success: true })
+      expect(moderateContent).toHaveBeenCalledWith(testPost.text, testPost.image)
+
+      // Log state after moderation
+      const postAfterModeration = await testDb.query.postSchema.findFirst({
+        where: (posts, { eq }) => eq(posts.id, testPost.id),
+      })
+      logger.info({ message: 'Post after moderation, before wait:', post: postAfterModeration })
+
+      // Wait for the async moderation to complete
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      // Log final state
+      const finalPost = await testDb.query.postSchema.findFirst({
+        where: (posts, { eq }) => eq(posts.id, testPost.id),
+      })
+      logger.info({ message: 'Final post:', post: finalPost })
+
+      // Verify post still exists
+      const post = await testDb.query.postSchema.findFirst({
+        where: (posts, { eq }) => eq(posts.id, testPost.id),
+      })
+
+      expect(post).toBeDefined()
+
+      // Verify report status was updated
+      const reportedPost = await testDb.query.reportedPostSchema.findFirst({
+        where: (posts, { eq }) => eq(posts.postId, testPost.id),
+      })
+
+      expect(reportedPost).toBeDefined()
+      expect(reportedPost?.status).toBe('REVIEWED')
+    })
+
+    it('should delete post when moderation flags content', async () => {
+      vi.mocked(moderateContent).mockResolvedValueOnce({
+        results: [{ flagged: true }],
+      } as OpenAI.ModerationCreateResponse)
+
+      const result = await moderatePost(testPost.id)
+
+      expect(result).toEqual({ success: true })
+      expect(moderateContent).toHaveBeenCalledWith(testPost.text, testPost.image)
+
+      // Wait for the async deletion to complete
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Verify post was deleted
+      const post = await testDb.query.postSchema.findFirst({
+        where: (posts, { eq }) => eq(posts.id, testPost.id),
+      })
+
+      expect(post).toBeUndefined()
+    })
+
+    it('should handle non-existent posts', async () => {
+      const nonExistentId = 'non-existent-id'
+      const result = await moderatePost(nonExistentId)
+
+      expect(result).toEqual({
+        error: DEFAULT_ERROR,
+        success: false,
+      })
+      expect(moderateContent).not.toHaveBeenCalled()
+    })
+
+    it('should handle moderation service failures', async () => {
+      vi.mocked(moderateContent).mockRejectedValueOnce(new Error('Moderation service error'))
+
+      const result = await moderatePost(testPost.id)
+
+      // The initial call succeeds because error happens in after()
+      expect(result).toEqual({ success: true })
+
+      // Wait for the async moderation to complete
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Verify post still exists since moderation failed
+      const post = await testDb.query.postSchema.findFirst({
+        where: (posts, { eq }) => eq(posts.id, testPost.id),
+      })
+
+      expect(post).toBeDefined()
     })
   })
 })

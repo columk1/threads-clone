@@ -3,19 +3,25 @@
 import { parseWithZod } from '@conform-to/zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { after } from 'next/server'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
+import { reportedPostStatusEnum } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Lucia'
+import { moderateContent } from '@/lib/OpenAi'
 import { newPostSchema, replySchema } from '@/lib/schemas/zod.schema'
 import {
   deleteLike,
   deletePost,
   deleteRepost,
+  getPost,
   incrementShareCount,
   insertLike,
   insertPost,
   insertRepost,
+  reportPost,
+  updateReportedPostStatus,
 } from '@/repositories/posts.repository'
 
 /*
@@ -155,6 +161,45 @@ export const handleDeleteAction = async (postId: string) => {
     return { success: true }
   } catch (err) {
     logger.error(err, 'Error deleting post')
+    return { error: DEFAULT_ERROR, success: false }
+  }
+}
+
+/*
+ * Moderate Post
+ */
+export const moderatePost = async (postId: string) => {
+  const { user } = await validateRequest()
+  if (!user) {
+    return redirect(ROUTES.LOGIN)
+  }
+  try {
+    const post = await getPost(postId)
+    if (!post) {
+      throw new Error('Post not found')
+    }
+    await reportPost(user.id, postId, post.userId)
+
+    after(async () => {
+      try {
+        logger.info(`Text: ${!!post.text}, Image: ${!!post.image}`)
+        const moderation = await moderateContent(post.text, post.image)
+        logger.info(moderation)
+
+        if (moderation.results.some((result) => result.flagged)) {
+          logger.info(post, 'Post flagged')
+          await deletePost(postId)
+          logger.info('Post deleted')
+        } else {
+          await updateReportedPostStatus(user.id, postId, reportedPostStatusEnum.REVIEWED)
+        }
+      } catch (error) {
+        logger.error(error, 'Error in moderation after hook')
+      }
+    })
+    return { success: true }
+  } catch (err) {
+    logger.error(err, 'Error moderating post')
     return { error: DEFAULT_ERROR, success: false }
   }
 }

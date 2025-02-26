@@ -8,6 +8,8 @@ import {
   notificationSchema,
   type Post,
   postSchema,
+  reportedPostSchema,
+  type reportedPostStatusEnum,
   repostSchema,
   type Transaction,
   userSchema,
@@ -15,6 +17,10 @@ import {
 import { authPostSelect, authUserSelect, publicPostSelect, publicUserSelect } from '../lib/db/selectors'
 
 export type PostData = Post & { isLiked: boolean; isReposted: boolean }
+
+export const getPost = async (postId: string) => {
+  return await db.select().from(postSchema).where(eq(postSchema.id, postId)).get()
+}
 
 export const listPublicPosts = async (authorUsername?: string) => {
   const query = db
@@ -356,4 +362,19 @@ export const deletePost = async (postId: string) => {
         .where(eq(postSchema.id, post.parentId))
     }
   })
+}
+
+export const reportPost = async (userId: string, postId: string, authorId: string) => {
+  await db.insert(reportedPostSchema).values({ userId, postId, authorId })
+}
+
+export const updateReportedPostStatus = async (
+  userId: string,
+  postId: string,
+  status: keyof typeof reportedPostStatusEnum,
+) => {
+  await db
+    .update(reportedPostSchema)
+    .set({ status, userId })
+    .where(and(eq(reportedPostSchema.postId, postId), eq(reportedPostSchema.userId, userId)))
 }
