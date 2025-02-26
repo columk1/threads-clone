@@ -32,7 +32,6 @@ export const updateAvatar = async (url: string) => {
 /*
  * Follow/Unfollow Action
  */
-
 enum FollowStatus {
   Followed = 'Followed',
   Unfollowed = 'Unfollowed',

@@ -125,7 +125,6 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
           replyCount: (cachedPost.replyCount ?? post.replyCount) + 1,
         })
       }
-      // router.refresh()
       closeModal()
     }
   }, [state?.success, state?.error, router, closeModal, updatePost, post.id, post.replyCount, cachedPost])
@@ -144,7 +143,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
                 <ParentThread user={user} author={author} post={post} />
               </ModalContent>
             </form>
-            {/* Vertical Line - uncomment for multiple replies in thread feature */}
+            {/* Vertical Line to be used for multiple replies in thread feature */}
             {/* <div className="absolute bottom-1.5 left-[17px] top-[50px] w-[2px] bg-primary-outline"></div> */}
           </DialogContent>
         )}

@@ -9,7 +9,6 @@ import Avatar from './Avatar'
 import PostButton from './PostButton'
 
 const NewThread: FunctionComponent = async () => {
-  // TODO: Come up with lighter way of getting user here
   const { user } = await validateRequest()
   if (!user) {
     return notFound()

@@ -2,8 +2,6 @@ import type { FunctionComponent } from 'react'
 
 import { useNotifications } from '@/contexts/NotificationsContext'
 
-// import { validateRequest } from '@/lib/Lucia'
-
 type NotificationsProps = {
   className?: string
   isActive?: boolean
@@ -12,15 +10,6 @@ type NotificationsProps = {
 const Notifications: FunctionComponent<NotificationsProps> = ({ className, isActive }) => {
   const { unseenCount } = useNotifications()
   const hasNotifications = unseenCount > 0 && !isActive
-  // const [hasNotification, setHasNotification] = useState(false)
-
-  // const { user } = await validateRequest()
-
-  // useEffect(() => {
-  //   if (user) {
-  //     setHasNotification(true)
-  //   }
-  // }, [user])
 
   return (
     <svg

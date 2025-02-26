@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// The presence of this import in the main schema file caused issues in client components
+// This module doesn't work on the client so this schema is kept separate for server-side use only
 import { isUniqueUserField } from '@/services/users/users.queries'
 
 const required_error = 'This field is required.'

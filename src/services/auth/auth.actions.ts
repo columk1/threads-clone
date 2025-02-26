@@ -52,8 +52,16 @@ export async function sendEmailVerificationCode(userId: string, name: string, em
   }
 }
 
-/*
- * Sign Up
+/**
+ * Handles user signup process including:
+ * - Creating new user account
+ * - Sending verification email
+ * - Creating session
+ * - Setting cookies
+ * @param _ - Unused parameter (required by form action)
+ * @param formData - Form data containing signup information
+ * @returns Redirect to email verification page on success or else back to the signup form with validation errors
+ * @throws Error if user creation fails or if there are issues during signup process
  */
 export async function signup(_: unknown, formData: FormData) {
   const userId = ulid()
@@ -96,8 +104,15 @@ export async function signup(_: unknown, formData: FormData) {
   return redirect(ROUTES.VERIFY_EMAIL)
 }
 
-/*
- * Verify Email
+/**
+ * Verifies a user's email using a verification code
+ * - Validates the code
+ * - Updates user's email verification status
+ * - Creates new session
+ * @param _ - Unused parameter (required by form action)
+ * @param formData - Form data containing verification code
+ * @returns Redirect to home page or form validation errors
+ * @throws Error if user is not found
  */
 export async function verifyEmail(_: unknown, formData: FormData) {
   const submission = await parseWithZod(formData, {
@@ -158,6 +173,9 @@ export async function verifyEmail(_: unknown, formData: FormData) {
   return redirect('/')
 }
 
+/*
+ * Time From Now
+ */
 const timeFromNow = (time: Date) => {
   const now = new Date()
   const diff = time.getTime() - now.getTime()
@@ -193,8 +211,14 @@ export async function resendVerificationEmail(): Promise<{
   return { success: true }
 }
 
-/*
- * Login
+/**
+ * Handles user login process including:
+ * - Validating credentials
+ * - Creating session
+ * - Setting cookies
+ * @param _ - Unused parameter (required by form action)
+ * @param formData - Form data containing login credentials
+ * @returns Redirect to appropriate page or form validation errors
  */
 export async function login(_: unknown, formData: FormData) {
   const submission = await parseWithZod(formData, {
@@ -247,8 +271,12 @@ export async function login(_: unknown, formData: FormData) {
   return redirect('/')
 }
 
-/*
- * Logout
+/**
+ * Handles user logout process including:
+ * - Invalidating current session
+ * - Clearing cookies
+ * - Cleaning up expired sessions
+ * @returns Redirect to login page or error if not authorized
  */
 export const logout = async () => {
   const { session } = await validateRequest()

@@ -25,14 +25,6 @@ const sizeClass = {
   xl: 'size-[84px]',
 }
 
-// Used for dynamic Image component sizing (likely better to have one size for all images)
-// const sizePx = {
-//   sm: 36,
-//   md: 52,
-//   lg: 64,
-//   xl: 84,
-// }
-
 const notificationIcons = {
   LIKE: <LikeNotification />,
   FOLLOW: <FollowNotification />,

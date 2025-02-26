@@ -3,14 +3,7 @@ import { ulid } from 'ulidx'
 
 import { db } from '../lib/db/Drizzle'
 import { followerSchema, notificationSchema, postSchema, type User, userSchema } from '../lib/db/Schema'
-import {
-  authUserSelect,
-  basePostSelect,
-  baseUserSelect,
-  getAliasedBasePostSelect,
-  getAuthAliasedPostSelect,
-  publicUserSelect,
-} from '../lib/db/selectors'
+import { authUserSelect, basePostSelect, getAuthAliasedPostSelect, publicUserSelect } from '../lib/db/selectors'
 
 type UserField = keyof User
 
@@ -90,16 +83,6 @@ export const handleFollow = async (userId: string, followerId: string, action: '
           seen: false,
         })
       }
-      // Don't recreate notifications
-      // .onConflictDoNothing({
-      //   target: [
-      //     notificationSchema.userId,
-      //     notificationSchema.sourceUserId,
-      //     notificationSchema.type,
-      //     sql`ifnull(${notificationSchema.postId}, '')`, // Null is unique in SQLite
-      //     sql`ifnull(${notificationSchema.replyId}, '')`, // Null is unique in SQLite
-      //   ],
-      // })
     }
   })
 }
@@ -124,6 +107,12 @@ export const getFollowStatus = async (targetUserId: string, userId: string) => {
   return Boolean(result?.isFollowed)
 }
 
+/**
+ * Gets user details by username for an authenticated user
+ * @param targetUsername - The username to look up
+ * @param userId - The ID of the authenticated user
+ * @returns The target user's details
+ */
 export const getAuthUserDetails = async (targetUsername: string, userId: string) => {
   return await db
     .select({
@@ -237,11 +226,6 @@ export const getNotifications = async (userId: string, options?: { seen?: boolea
 
 export type Notification = Awaited<ReturnType<typeof getNotifications>>[number]
 
-/**
- * Get the count of unseen notifications for a user
- * @param userId - The ID of the user to count notifications for
- * @returns The number of unseen notifications
- */
 export const getUnseenNotificationsCount = async (userId: string): Promise<number> => {
   const result = await db
     .select({
@@ -267,41 +251,6 @@ export const markNotificationsAsSeen = async (userId: string) => {
     .where(and(eq(notificationSchema.userId, userId), eq(notificationSchema.seen, false)))
 }
 
-/**
- * Get unseen notifications for a user
- * @param userId - The ID of the user to get notifications for
- * @returns An array of unseen notifications with their associated data
- */
-export const getUnseenNotifications = async (userId: string) => {
-  return await db
-    .select({
-      notification: notificationSchema,
-      sourceUser: {
-        ...baseUserSelect,
-      },
-      post: basePostSelect,
-      reply: getAliasedBasePostSelect(reply),
-    })
-    .from(notificationSchema)
-    .where(
-      and(
-        eq(notificationSchema.userId, userId),
-        eq(notificationSchema.seen, false),
-        sql`${notificationSchema.sourceUserId} IS NOT NULL`,
-      ),
-    )
-    .leftJoin(userSchema, eq(notificationSchema.sourceUserId, userSchema.id))
-    .leftJoin(postSchema, and(eq(notificationSchema.type, 'LIKE'), eq(notificationSchema.postId, postSchema.id)))
-    .leftJoin(reply, and(eq(notificationSchema.type, 'REPLY'), eq(notificationSchema.replyId, reply.id)))
-    .orderBy(desc(notificationSchema.createdAt))
-    .all()
-}
-
-/**
- * Marks all unseen notifications as seen for a given user
- * @param userId - The ID of the user whose notifications should be marked as seen
- * @returns The number of notifications that were marked as seen
- */
 export const markNotificationsAsSeenDb = async (userId: string): Promise<{ count: number }> => {
   return await db
     .update(notificationSchema)
@@ -320,6 +269,7 @@ export type UpdateGoogleUserParams = {
   emailVerified: number
 }
 
+// For when a user with an existing account logs in with Google for the first time
 export const updateUserWithGoogleCredentials = async (user: UpdateGoogleUserParams) => {
   return await db
     .update(userSchema)

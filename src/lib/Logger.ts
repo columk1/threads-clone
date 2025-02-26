@@ -1,4 +1,3 @@
-import logtail from '@logtail/pino'
 import pino, { type DestinationStream } from 'pino'
 import pretty from 'pino-pretty'
 
@@ -6,22 +5,12 @@ import { Env } from './Env.ts'
 
 let stream: DestinationStream
 
-if (Env.LOGTAIL_SOURCE_TOKEN) {
-  stream = pino.multistream([
-    await logtail({
-      sourceToken: Env.LOGTAIL_SOURCE_TOKEN,
-      options: {
-        sendLogsToBetterStack: true,
-      },
-    }),
-    {
-      stream: pretty(), // Prints logs to the console
-    },
-  ])
-} else {
+if (Env.NODE_ENV !== 'production') {
   stream = pretty({
     colorize: true,
   })
+} else {
+  stream = pino.destination(1)
 }
 
 export const logger = pino({ base: undefined }, stream)

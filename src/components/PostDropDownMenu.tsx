@@ -33,15 +33,6 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
   isCurrentUser,
   postId,
 }) => {
-  // const handleMouseEnter = () => {
-  //   isFollowing(username).then((status) => {
-  //     if (status !== isFollowed) {
-  //       onFollowToggle()
-  //     }
-  //   })
-  // }
-  // onMouseEnter={handleMouseEnter}
-
   const handleReport = () => {
     moderatePost(postId)
     toast(REPORTED_CONFIRMATION_MESSAGE)

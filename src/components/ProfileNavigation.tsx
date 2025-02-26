@@ -9,7 +9,6 @@ export default function ProfileNavigation() {
   if (!profile) {
     return notFound()
   }
-  // const username = profile?.slice(1)
   const subpath = pathname.split('/').pop()
   return (
     <>

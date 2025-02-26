@@ -1,3 +1,5 @@
+// Unused module that can be used to pre-cache a next/image before a post is submitted to enable instant display
+// It would not be required if using <img> tags with optimization/transformation done by Cloudinary
 import Image from 'next/image'
 import ReactDOM from 'react-dom/client'
 

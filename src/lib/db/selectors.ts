@@ -85,13 +85,7 @@ export const getAliasedBasePostSelect = (table: typeof postSchema) => ({
   createdAt: table.createdAt,
 })
 
-/**
- * Helper function to generate auth selectors for an aliased post table
- * Useful when we need to join the same table multiple times (e.g. for replies)
- * @param table - The aliased post table
- * @param userId - The ID of the user to check interactions for
- * @returns The auth selectors for the aliased table
- */
+// Helper function to generate auth selectors for an aliased post table
 export const getAuthAliasedPostSelect = (table: typeof postSchema, userId: string) => ({
   ...getAliasedBasePostSelect(table),
   isLiked: sql<boolean>`EXISTS (

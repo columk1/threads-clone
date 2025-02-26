@@ -23,7 +23,7 @@ type Post = PostsResponse[number]['post']
 type User = PostsResponse[number]['user']
 type PostWithUser = PostsResponse[number]
 
-/**
+/*
  * Formats an object's boolean fields from numeric (0/1) to actual booleans
  */
 const formatBooleans = <T extends Record<string, any>>(obj: T, fields: Array<keyof T>) =>
@@ -32,7 +32,7 @@ const formatBooleans = <T extends Record<string, any>>(obj: T, fields: Array<key
     ...Object.fromEntries(fields.map((field) => [field, Boolean(obj[field])])),
   }) as T
 
-/**
+/*
  * Helper to format posts data returned from query
  */
 const formatPostsData = (data: PostWithUser[]): PostWithUser[] => {

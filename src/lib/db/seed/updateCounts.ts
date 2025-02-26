@@ -1,12 +1,5 @@
 import type { Like, Post, Repost } from '../Schema'
 
-/**
- * Updates the counts (likes, reposts, replies) for a collection of posts based on their interactions
- * @param posts The posts to update counts for
- * @param likes The likes to process
- * @param reposts The reposts to process
- * @returns The updated posts array
- */
 export function updatePostCounts(posts: Post[], likes: Like[], reposts: Repost[]): Post[] {
   // Create a map for faster lookups
   const postMap = new Map(posts.map((post) => [post.id, post]))

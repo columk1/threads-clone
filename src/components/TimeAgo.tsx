@@ -1,4 +1,3 @@
-// import dynamic from 'next/dynamic'
 import type { FunctionComponent } from 'react'
 
 import { formatDate, getRelativeTime } from '@/utils/dateUtils'
@@ -20,9 +19,5 @@ const TimeAgo: FunctionComponent<TimeAgoProps> = ({ publishedAt }) => {
     </time>
   )
 }
-
-// const DynamicTimeAgo = dynamic(() => Promise.resolve(TimeAgo), {
-//   ssr: false,
-// })
 
 export default TimeAgo

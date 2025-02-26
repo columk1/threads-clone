@@ -14,9 +14,6 @@ import { logout } from '@/services/auth/auth.actions'
 import { HamburgerMenuIcon } from './icons'
 
 export const MobileSidebarDropdown = () => {
-  // const user = await currentUser()
-  // const pathname = usePathname()
-
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="ml-auto dark:data-[state=open]:text-primary-text md:hidden">

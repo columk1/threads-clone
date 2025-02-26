@@ -1,6 +1,3 @@
-// import { getBaseUrl } from '@/utils/getBaseUrl'
-
-// const logoSrc = `${getBaseUrl()}/favicon-192x192.png`
 const logoSrc = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTojg1TJp0qn4kkGj3Jeut8WNMs5O9uuDkvsg&s'
 
 export const verificationEmailTemplate = (name: string, email: string, code: string) => `

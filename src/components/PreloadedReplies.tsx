@@ -1,3 +1,4 @@
+// Unused component that will be used to suspend replies behind a fallback until images are loaded. Doesn't work with next/image
 'use client'
 
 import type { User } from 'lucia'

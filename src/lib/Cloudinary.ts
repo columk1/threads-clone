@@ -1,3 +1,4 @@
+// This module generates a signature for the image upload in the create post/reply form so the client can upload to Cloudinary
 'use server'
 
 import 'server-only'

@@ -22,17 +22,6 @@ const SidebarDropdown: FunctionComponent<SidebarDropdownProps> = ({ isAuthentica
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" alignOffset={5} sideOffset={-51} className="w-60 origin-bottom-left text-ms">
-        {/* These are optional features to add from the Threads UI */}
-        {/* <DropdownMenuItem>Appearance</DropdownMenuItem> */}
-        {/* {isAuthenticated && (
-          <>
-            <DropdownMenuItem>Insights</DropdownMenuItem>
-            <DropdownMenuItem asChild className="leading-none">
-              <Link href="/settings">Settings</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
-        )} */}
         <DropdownMenuItem asChild>
           <a href="https://github.com/columk1/threads-clone/issues/new" target="_blank" rel="noopener noreferrer">
             Report a problem

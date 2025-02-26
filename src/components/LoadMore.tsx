@@ -65,6 +65,7 @@ const LoadMore = ({ children, initialOffset, loadMoreAction }: LoadMoreProps) =>
     }
   }, [loadMore, initialOffset])
 
+  // TODO: Load one more section of posts on mount
   // useEffect(() => {
   //   //  On mount, load a second section
   //   if (currentOffsetRef.current) {

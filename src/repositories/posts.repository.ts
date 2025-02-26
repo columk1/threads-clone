@@ -40,6 +40,14 @@ export const listPublicPosts = async (authorUsername?: string) => {
   return await query.all()
 }
 
+/**
+ * Lists posts with pagination and optional filtering
+ * @param username - Optional username to filter posts by author
+ * @param userId - Optional user ID for authenticated post details
+ * @param offset - Number of posts to skip (default: 0)
+ * @param limit - Maximum number of posts to return (default: 8)
+ * @returns Array of posts with their authors
+ */
 export const listPosts = async (username?: string, userId?: string, offset: number = 0, limit: number = 8) => {
   const filters: SQLWrapper[] = [isNull(postSchema.parentId)]
   if (username) {
@@ -364,6 +372,12 @@ export const deletePost = async (postId: string) => {
   })
 }
 
+/**
+ * Reports a post for moderation
+ * @param userId - The ID of the user reporting the post
+ * @param postId - The ID of the post being reported
+ * @param authorId - The ID of the post's author
+ */
 export const reportPost = async (userId: string, postId: string, authorId: string) => {
   await db.insert(reportedPostSchema).values({ userId, postId, authorId })
 }

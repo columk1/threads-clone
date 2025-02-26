@@ -56,7 +56,6 @@ const ProfileModal: FunctionComponent<ProfileModalProps> = ({ user, trigger }) =
                 <div className="flex cursor-pointer gap-4">
                   <div className="flex flex-1 flex-col gap-0.5">
                     <div className="font-semibold">Bio</div>
-                    {/* TODO: Wrap in button to open edit bio modal */}
                     <div className="">
                       {user?.bio ? user.bio : <span className="text-secondary-text">+ Write bio</span>}
                     </div>

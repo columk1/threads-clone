@@ -20,14 +20,12 @@ import Avatar from './Avatar'
 const ProfileImageDropdown = ({ username, avatarUrl }: { username: string; avatarUrl: string | null }) => {
   const [avatar, setAvatar] = useState(avatarUrl)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  // const clearPosts = useAppStore(s => s.clearPosts)
 
   const handleUploadButtonClick = () => {
     fileInputRef?.current?.click()
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // e.target.blur()
     const file = e.target.files?.[0]
     if (file) {
       const optimisticUrl = URL.createObjectURL(file)
@@ -61,7 +59,6 @@ const ProfileImageDropdown = ({ username, avatarUrl }: { username: string; avata
         return
       }
 
-      // clearPosts()
       const result = await updateAvatar(data.secure_url)
 
       if (result.error) {
@@ -75,7 +72,6 @@ const ProfileImageDropdown = ({ username, avatarUrl }: { username: string; avata
     <>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger className="mb-2">
-          {/* {trigger} */}
           <Avatar size="md" url={avatar} />
         </DropdownMenuTrigger>
         <DropdownMenuContent

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export const MobileHomeFeedFilter = () => {
-  // const user = await currentUser()
   const pathname = usePathname()
 
   return (
@@ -24,7 +23,6 @@ export const MobileHomeFeedFilter = () => {
         </Link>
       </div>
       <div className="h-[0.5px] w-full bg-primary-outline md:hidden"></div>
-      {/* {`Hello ${user?.emailAddresses[0]?.emailAddress}`} */}
     </>
   )
 }

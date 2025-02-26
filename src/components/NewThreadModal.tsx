@@ -108,8 +108,9 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
     if (!node) {
       return
     }
+    // Todo: This is a hack, the scroll position should be fixed before paint, with no ambiguity
     // 75 is quite arbitrary but it is the smallest value that I found to work consistently,
-    // it could be trying a callback on the image component to scroll this container
+    // it could be worth trying a callback on the image component to scroll this container
     const delayScroll = setTimeout(() => {
       node.scrollTop = node.scrollHeight
     }, 75)
@@ -119,14 +120,6 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
   const submitForm = useCallback(() => {
     formRef.current?.requestSubmit()
   }, [formRef])
-
-  // const submitForm = useCallback(
-  //   (e: React.FormEvent<HTMLFormElement>) => {
-  //     e.preventDefault()
-  //     handleSubmit()
-  //   },
-  //   [handleSubmit],
-  // )
 
   return (
     <div
@@ -263,24 +256,6 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
   const closeModal = useCallback(() => {
     handleOpenChange(false)
   }, [handleOpenChange])
-
-  // preloadNextImage(image.url, Number(image.width), Number(image.height))
-  // TODO: Stop using next/image to preload images in a simpler way (but must use Cloudinary transformations)
-  // const img = new Image()
-  // img.src = image.url
-
-  // const handleSubmit = () => {
-  //   startTransition(() => {
-  //     const formData = new FormData()
-  //     formData.append('text', text)
-  //     if (imageData) {
-  //       formData.append('image', imageData.url)
-  //       formData.append('imageWidth', imageData.width)
-  //       formData.append('imageHeight', imageData.height)
-  //     }
-  //     formAction(formData)
-  //   })
-  // }
 
   useEffect(() => {
     if (state?.error) {

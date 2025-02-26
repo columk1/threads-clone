@@ -2,13 +2,6 @@ import OpenAI from 'openai'
 
 const openai = new OpenAI()
 
-/**
- * Moderates content using OpenAI's moderation API
- * @param text - The text to moderate
- * @param imageUrl - The image URL to moderate
- * @returns OpenAI moderation response
- * @throws Error if no content is provided
- */
 export const moderateContent = async (text: string | null, imageUrl: string | null) => {
   if (!text && !imageUrl) {
     throw new Error('No content to moderate')

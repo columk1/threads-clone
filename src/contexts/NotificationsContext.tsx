@@ -10,10 +10,7 @@ const NotificationsContext = createContext<NotificationsContextType>({
   unseenCount: 0,
 })
 
-/**
- * Hook to use the notifications context
- * @throws {Error} If used outside of NotificationsProvider
- */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useNotifications = () => {
   const context = use(NotificationsContext)
   if (!context) {

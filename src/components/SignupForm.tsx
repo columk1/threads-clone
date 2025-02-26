@@ -31,15 +31,6 @@ const SignupForm: FunctionComponent = () => {
   return (
     <form ref={formRef} action={formAction} autoComplete="off" onInput={handleInput}>
       <div className="flex w-full flex-col gap-4 text-ms">
-        {/* {state?.error && (
-          <div>
-            {Object.entries(state.error).map(([key, value]) => (
-              <p key={key} className="text-red-500">
-                {value.join(', ')}
-              </p>
-            ))}
-          </div>
-        )} */}
         <GoogleAuthButton iconSize="30" className="h-[3.25rem]">
           Log in with Google
         </GoogleAuthButton>

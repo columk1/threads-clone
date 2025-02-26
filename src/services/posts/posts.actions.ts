@@ -78,7 +78,7 @@ export async function createReply(_: unknown, formData: FormData) {
 }
 
 /*
- * Like/Unlike
+ * Like/Unlike Post
  */
 export type LikeAction = 'like' | 'unlike'
 
@@ -87,6 +87,9 @@ const likeQueries = {
   unlike: deleteLike,
 }
 
+/*
+ * Handle Like/Unlike Post
+ */
 export const handleLikeAction = async (actionType: LikeAction, postId: string) => {
   const { user } = await validateRequest()
   if (!user) {
@@ -105,7 +108,7 @@ export const handleLikeAction = async (actionType: LikeAction, postId: string) =
 }
 
 /*
- * Repost/Unrepost
+ * Repost/Unrepost Post
  */
 export type RepostAction = 'repost' | 'unrepost'
 
@@ -133,7 +136,7 @@ export const handleRepostAction = async (actionType: RepostAction, postId: strin
 }
 
 /*
- * Share
+ * Share Post
  */
 export const handleShareAction = async (postId: string) => {
   try {
@@ -165,8 +168,15 @@ export const handleDeleteAction = async (postId: string) => {
   }
 }
 
-/*
- * Moderate Post
+/**
+ * Reports a post for moderation and triggers content moderation check
+ * - Reports post for review
+ * - Runs async moderation check using OpenAI
+ * - Deletes post if flagged or marks as reviewed if safe
+ * @param postId - The ID of the post to moderate
+ * @returns Object indicating success or error
+ * @throws Redirects to login if user is not authenticated
+ * @throws Error if post is not found
  */
 export const moderatePost = async (postId: string) => {
   const { user } = await validateRequest()

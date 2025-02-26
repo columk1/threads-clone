@@ -20,6 +20,8 @@ import { ulid } from 'ulidx'
 
 export type Transaction = Parameters<Parameters<LibSQLDatabase<any>['transaction']>[0]>[0]
 
+// Sqlite's enum option doesn't add a check constraint, this custom function will enforce runtime checks
+// https://www.answeroverflow.com/m/1111315266761138176
 const textEnum = <V extends Record<string, string>, RV = V[keyof V]>(
   columnName: string,
   enumObj: V,
@@ -57,6 +59,9 @@ export const reportedPostStatusEnum = {
   REVIEWED: 'REVIEWED',
 } as const
 
+/*
+ * User Table
+ */
 export const userSchema = sqliteTable(
   'users',
   {
@@ -78,6 +83,9 @@ export const userSchema = sqliteTable(
 
 export type User = InferSelectModel<typeof userSchema>
 
+/*
+ * Session Table
+ */
 export const sessionSchema = sqliteTable('sessions', {
   id: text('id').primaryKey(),
   userId: text('user_id')
@@ -89,6 +97,9 @@ export const sessionSchema = sqliteTable('sessions', {
   expiresAt: integer('expires_at').notNull(),
 })
 
+/*
+ * Email Verification Code Table
+ */
 export const emailVerificationCodeSchema = sqliteTable('email_verification_code', {
   id: text('id')
     .primaryKey()
@@ -103,6 +114,9 @@ export const emailVerificationCodeSchema = sqliteTable('email_verification_code'
   expiresAt: integer('expires_at').notNull(),
 })
 
+/*
+ * Post Table
+ */
 export const postSchema = sqliteTable(
   'posts',
   {
@@ -146,6 +160,9 @@ export const postSchema = sqliteTable(
 
 export type Post = InferSelectModel<typeof postSchema>
 
+/*
+ * Follower Table
+ */
 export const followerSchema = sqliteTable(
   'followers',
   {
@@ -173,6 +190,9 @@ export const followerSchema = sqliteTable(
 
 export type Follower = InferSelectModel<typeof followerSchema>
 
+/*
+ * Like Table
+ */
 export const likeSchema = sqliteTable(
   'likes',
   {
@@ -197,6 +217,9 @@ export const likeSchema = sqliteTable(
 
 export type Like = InferSelectModel<typeof likeSchema>
 
+/*
+ * Repost Table
+ */
 export const repostSchema = sqliteTable(
   'reposts',
   {
@@ -223,6 +246,9 @@ export const repostSchema = sqliteTable(
 
 export type Repost = InferSelectModel<typeof repostSchema>
 
+/*
+ * Notification Table
+ */
 export const notificationSchema = sqliteTable(
   'notifications',
   {
@@ -268,6 +294,7 @@ export const notificationSchema = sqliteTable(
         .where(sql`${table.seen} = 0`),
 
       // This should work soon: https://github.com/drizzle-team/drizzle-orm/issues/3350
+      // However, running it as a custom migration didn't work either.
       // uniqueIndex('notif_unique_constraint').on(
       //   table.userId,
       //   table.sourceUserId,
@@ -281,6 +308,9 @@ export const notificationSchema = sqliteTable(
 
 export type Notification = InferSelectModel<typeof notificationSchema>
 
+/*
+ * Reported Post Table
+ */
 export const reportedPostSchema = sqliteTable(
   'reported_posts',
   {
@@ -313,6 +343,11 @@ export const reportedPostSchema = sqliteTable(
   (table) => [index('reported_post_idx').on(table.postId), index('reported_user_idx').on(table.authorId)],
 )
 
+export type ReportedPost = InferSelectModel<typeof reportedPostSchema>
+
+/*
+ * Relations
+ */
 export const userRelations = relations(userSchema, ({ many }) => ({
   session: many(sessionSchema),
   emailVerificationCode: many(emailVerificationCodeSchema),

@@ -64,6 +64,7 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
         <ThreadList posts={posts} currentUser={currentUser} />
       )}
       {/* Add a delay to keep displaying the parent's fallback while images load */}
+      {/* TODO: replace with preload-images component */}
       <Delay delay={1500} />
     </>
   )

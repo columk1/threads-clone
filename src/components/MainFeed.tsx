@@ -13,7 +13,6 @@ type Props = {
 }
 
 const MainFeed: FunctionComponent<Props> = ({ user, filter }) => {
-  // user = undefined
   return (
     <>
       {user ? (
@@ -24,8 +23,6 @@ const MainFeed: FunctionComponent<Props> = ({ user, filter }) => {
       ) : (
         <LoadingSplashOverlay />
       )}
-
-      {/* Posts Here */}
       <Suspense fallback={<Skeleton />}>
         <Threads filter={filter} />
       </Suspense>
