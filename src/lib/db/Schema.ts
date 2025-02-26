@@ -52,6 +52,11 @@ export const notificationTypeEnum = {
   REPOST: 'REPOST',
 } as const
 
+export const reportedPostStatusEnum = {
+  PENDING: 'PENDING',
+  REVIEWED: 'REVIEWED',
+} as const
+
 export const userSchema = sqliteTable(
   'users',
   {
@@ -276,6 +281,38 @@ export const notificationSchema = sqliteTable(
 
 export type Notification = InferSelectModel<typeof notificationSchema>
 
+export const reportedPostSchema = sqliteTable(
+  'reported_posts',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => ulid()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => userSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
+    postId: text('post_id')
+      .notNull()
+      .references(() => postSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
+    authorId: text('author_id')
+      .notNull()
+      .references(() => userSchema.id, {
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      }),
+    createdAt: integer('created_at')
+      .notNull()
+      .default(sql`(cast(unixepoch() as int))`),
+    status: textEnum('status', reportedPostStatusEnum).notNull().default('PENDING'),
+  },
+  (table) => [index('reported_post_idx').on(table.postId), index('reported_user_idx').on(table.authorId)],
+)
+
 export const userRelations = relations(userSchema, ({ many }) => ({
   session: many(sessionSchema),
   emailVerificationCode: many(emailVerificationCodeSchema),
@@ -357,5 +394,20 @@ export const notificationRelations = relations(notificationSchema, ({ one }) => 
   post: one(postSchema, {
     fields: [notificationSchema.postId],
     references: [postSchema.id],
+  }),
+}))
+
+export const reportedPostRelations = relations(reportedPostSchema, ({ one }) => ({
+  user: one(userSchema, {
+    fields: [reportedPostSchema.userId],
+    references: [userSchema.id],
+  }),
+  post: one(postSchema, {
+    fields: [reportedPostSchema.postId],
+    references: [postSchema.id],
+  }),
+  author: one(userSchema, {
+    fields: [reportedPostSchema.authorId],
+    references: [userSchema.id],
   }),
 }))
