@@ -54,7 +54,7 @@ export default async function PostPage({ params }: Props) {
       <HydrateStore initialPosts={data} />
       <Header title="Thread" />
       {/* <div className="flex min-h-[120vh] w-full flex-col pt-2 md:rounded-t-3xl md:border-[0.5px] md:border-primary-outline md:bg-elevated-bg"> */}
-      <ContentPane>
+      <ContentPane className="pt-5">
         <ThreadView
           parentThread={parentThread}
           targetThread={targetThread}

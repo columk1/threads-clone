@@ -87,6 +87,7 @@ export const listFollowingPosts = async (userId: string, offset: number = 0, lim
 }
 
 export const listLikedPosts = async (userId: string, offset: number = 0, limit: number = 10) => {
+  // use alias from sqlite-core instead of Drizzle's aliasedTable here: https://github.com/drizzle-team/drizzle-orm/issues/2989
   const parentPosts = alias(postSchema, 'parent_posts')
   const parentUsers = alias(userSchema, 'parent_users')
 

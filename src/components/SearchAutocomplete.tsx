@@ -172,7 +172,7 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: User
   }, [currentQuery, performSearch])
 
   return (
-    <div className="flex flex-1 flex-col pt-[18px] text-ms">
+    <div className="flex flex-1 flex-col pt-5 text-ms">
       <div className="px-6 pb-1">
         <div className="relative">
           <SearchIcon className="absolute left-6 top-1/2 size-[16px] -translate-y-1/2 text-navigation-icon" />

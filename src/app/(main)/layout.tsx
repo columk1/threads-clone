@@ -48,5 +48,3 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
     </div>
   )
 }
-
-// export const dynamic = 'force-dynamic'

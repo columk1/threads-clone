@@ -36,7 +36,7 @@ const SearchResults = async ({ query, user }: { query: string; user: User | null
   )
 }
 
-export default async function Search({
+export default async function SearchPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
