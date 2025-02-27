@@ -45,10 +45,11 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               {props.children}
               <Toaster
                 position="bottom-center"
-                className="flex justify-center"
+                className="flex w-fit justify-center text-ms font-semibold"
                 toastOptions={{
+                  unstyled: true,
                   classNames: {
-                    toast: 'text-base w-fit py-3 px-5',
+                    toast: 'bg-primary-text rounded-lg text-black w-fit py-3.5 px-5',
                     icon: 'hidden',
                   },
                   duration: 2500,
