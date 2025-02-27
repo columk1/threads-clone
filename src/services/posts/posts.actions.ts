@@ -1,7 +1,6 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
-import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { after } from 'next/server'
 
@@ -41,8 +40,8 @@ export const createPost = async (_: unknown, formData: FormData) => {
     return { error: submission.error?.text || DEFAULT_ERROR }
   }
   try {
-    await insertPost(userId, submission.value)
-    return { success: true }
+    const newPost = await insertPost(userId, submission.value)
+    return { success: true, data: { postId: newPost.id } }
   } catch (err) {
     logger.error(err, 'Error creating new thread')
     return { error: DEFAULT_ERROR }
@@ -69,7 +68,7 @@ export async function createReply(_: unknown, formData: FormData) {
 
   try {
     const reply = await insertPost(user.id, submission.value)
-    revalidatePath(`/@${user.username}/posts/${reply.parentId}`, 'page')
+    // revalidatePath(`/@${user.username}/posts/${reply.parentId}`, 'page') // purges the router cache, will work more granularly in a later next version
     return { data: reply, success: true }
   } catch (error) {
     logger.error(error, 'Error creating reply')
@@ -161,6 +160,7 @@ export const handleDeleteAction = async (postId: string) => {
       throw new TypeError('Invalid post ID')
     }
     await deletePost(postId)
+    // revalidatePath(`/@${user.username}`, 'page')
     return { success: true }
   } catch (err) {
     logger.error(err, 'Error deleting post')

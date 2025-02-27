@@ -7,8 +7,6 @@ import Thread from '@/components/Thread'
 import { validateRequest } from '@/lib/Lucia'
 import { getFollowingPosts, getLikedPosts, getPosts, QUERY_LIMIT } from '@/services/posts/posts.queries'
 
-import Delay from './Delay'
-
 type ThreadsProps = {
   filter?: string
 }
@@ -66,7 +64,7 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
       )}
       {/* Add a delay to keep displaying the parent's fallback while images load */}
       {/* TODO: replace with preload-images component */}
-      <Delay delay={1500} />
+      {/* <Delay delay={1500} /> */}
     </>
   )
 }

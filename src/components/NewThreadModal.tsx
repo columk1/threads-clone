@@ -2,8 +2,8 @@
 
 import { DialogDescription } from '@radix-ui/react-dialog'
 import cx from 'clsx'
-import { useRouter } from 'next/navigation'
-import { type FunctionComponent, useActionState, useCallback, useEffect, useRef } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { type FunctionComponent, useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import Avatar from '@/components/Avatar'
@@ -12,6 +12,7 @@ import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@
 import { Drawer, DrawerContent } from '@/components/Drawer'
 import { ImageIcon } from '@/components/icons'
 import Spinner from '@/components/Spinner/Spinner'
+import { showPostSuccessToast } from '@/components/ui/toast'
 import { useImageForm } from '@/hooks/useImageForm'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
@@ -37,7 +38,6 @@ type ModalState = {
   text: string
   isValid: boolean
   isPending: boolean
-  uploading: boolean
   fileInputRef: React.RefObject<HTMLInputElement | null>
   parentId?: string
   parentUsername?: string
@@ -84,7 +84,6 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
     text,
     isValid,
     isPending,
-    uploading,
     fileInputRef,
     parentId,
     parentUsername,
@@ -187,7 +186,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({ state, actions, chil
             disabled={!isValid || isPending}
             className={isDrawer ? 'rounded-full text-secondary-bg' : ''}
           >
-            {uploading ? <Spinner /> : 'Post'}
+            {isPending ? <Spinner /> : 'Post'}
           </Button>
         </div>
       </div>
@@ -248,25 +247,53 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
   const { text, handleTextInput, isTextValid } = usePostForm()
   const { image, imageData, uploading, fileInputRef, handleFileChange, handleUploadButtonClick } = useImageForm()
   const formRef = useRef<HTMLFormElement>(null)
-
+  const [pendingSubmission, setPendingSubmission] = useState(false)
   const router = useRouter()
+  const currentPath = usePathname()
 
-  const isValid = isTextValid || imageData !== null
+  const isValid = isTextValid || imageData !== null || uploading
+  const canSubmit = !uploading && pendingSubmission
 
   const closeModal = useCallback(() => {
     handleOpenChange(false)
   }, [handleOpenChange])
 
+  const handleSubmit = useCallback(
+    async (formData: FormData) => {
+      if (uploading) {
+        // If image is uploading, mark as pending submission and wait
+        setPendingSubmission(true)
+        return
+      }
+      await formAction(formData)
+    },
+    [formAction, uploading],
+  )
+
   useEffect(() => {
     if (state?.error) {
       toast(state.error)
+      setPendingSubmission(false)
     } else {
       if (state?.success) {
+        showPostSuccessToast({
+          router,
+          username,
+          postId: state.data?.postId,
+        })
         router.refresh()
         closeModal()
       }
     }
-  }, [state, router, closeModal])
+  }, [state, router, currentPath, closeModal, username])
+
+  // Submit form automatically when image upload completes and we have a pending submission
+  useEffect(() => {
+    if (canSubmit && formRef.current) {
+      setPendingSubmission(false)
+      formRef.current.requestSubmit()
+    }
+  }, [canSubmit])
 
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
@@ -277,8 +304,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     image,
     imageData,
     isValid,
-    isPending,
-    uploading,
+    isPending: isPending || pendingSubmission,
     fileInputRef,
     formRef,
   }
@@ -295,8 +321,8 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
       <Dialog open onOpenChange={handleOpenChange}>
         <DialogContent className="min-w-[620px] max-md:hidden">
           <ModalHeader title="New thread" description="Create a new thread" />
-          <form ref={formRef} action={formAction}>
-            <ModalContent state={{ ...modalState }} actions={modalActions} />
+          <form ref={formRef} action={handleSubmit}>
+            <ModalContent state={modalState} actions={modalActions} />
           </form>
         </DialogContent>
       </Dialog>
@@ -307,7 +333,7 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     <Drawer open onOpenChange={handleOpenChange}>
       <DrawerContent className="h-full min-w-full border-none">
         <ModalHeader title="New thread" description="Create a new thread" isDrawer />
-        <form ref={formRef} action={formAction}>
+        <form ref={formRef} action={handleSubmit}>
           <ModalContent state={{ ...modalState, isDrawer: true }} actions={modalActions} />
         </form>
       </DrawerContent>

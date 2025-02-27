@@ -15,7 +15,7 @@ const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) =>
   const onDelete = async () => {
     const result = await handleDeleteAction(postId)
     if (result.success) {
-      setTimeout(() => toast.success('Deleted'), 1500)
+      setTimeout(() => toast.success('Deleted'), 500)
       router.refresh()
     } else {
       toast.error('Something went wrong')

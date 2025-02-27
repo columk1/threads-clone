@@ -1,7 +1,7 @@
 import type { User } from 'lucia'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { type FunctionComponent, useActionState, useCallback, useEffect, useRef, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { type FunctionComponent, useActionState, useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 
 import Avatar from '@/components/Avatar'
@@ -10,6 +10,7 @@ import { Drawer, DrawerContent } from '@/components/Drawer'
 import { ModalContent, ModalHeader, ThreadMediaContent } from '@/components/NewThreadModal'
 import { ThreadText } from '@/components/Thread'
 import TimeAgo from '@/components/TimeAgo'
+import { showPostSuccessToast } from '@/components/ui/toast'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useImageForm } from '@/hooks/useImageForm'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -70,10 +71,12 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
   } = useImageForm()
   const updatePost = useAppStore((state) => state.updatePost)
   const cachedPost = useAppStore((state) => state.posts[post.id])
+  const [isSubmitting, startTransition] = useTransition()
 
   const router = useRouter()
+  const currentPath = usePathname()
 
-  const isValid = isTextValid || imageData !== null
+  const isValid = isTextValid || imageData !== null || uploading
 
   const resetForm = useCallback(() => {
     setText('')
@@ -89,28 +92,16 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
     resetForm()
   }, [resetForm])
 
-  const modalState = {
-    isReply: true,
-    avatar: user.avatar,
-    username: user.username,
-    text,
-    image,
-    imageData,
-    isValid,
-    isPending,
-    uploading,
-    fileInputRef,
-    parentId: post.id,
-    parentUsername: author.username,
-    formRef,
-  }
-
-  const modalActions = {
-    closeModal,
-    handleUploadButtonClick,
-    handleFileChange,
-    handleTextInput,
-  }
+  const handleSubmit = useCallback(
+    async (formData: FormData) => {
+      if (!uploading) {
+        startTransition(async () => {
+          await formAction(formData)
+        })
+      }
+    },
+    [formAction, uploading],
+  )
 
   useEffect(() => {
     if (state?.error) {
@@ -125,9 +116,50 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
           replyCount: (cachedPost.replyCount ?? post.replyCount) + 1,
         })
       }
+      showPostSuccessToast({
+        router,
+        username: author.username,
+        postId: state.data?.id,
+      })
+      router.refresh()
       closeModal()
     }
-  }, [state?.success, state?.error, router, closeModal, updatePost, post.id, post.replyCount, cachedPost])
+  }, [
+    state?.success,
+    state?.error,
+    router,
+    currentPath,
+    closeModal,
+    updatePost,
+    post.id,
+    post.replyCount,
+    cachedPost,
+    author.username,
+    state?.data?.id,
+  ])
+
+  const modalState = {
+    isReply: true,
+    avatar: user.avatar,
+    username: user.username,
+    text,
+    image,
+    imageData,
+    isValid,
+    isPending: isPending || isSubmitting,
+    uploading,
+    fileInputRef,
+    parentId: post.id,
+    parentUsername: author.username,
+    formRef,
+  }
+
+  const modalActions = {
+    closeModal,
+    handleUploadButtonClick,
+    handleFileChange,
+    handleTextInput,
+  }
 
   const isDesktop = useMediaQuery('(min-width: 700px)')
 
@@ -138,7 +170,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
         {open && (
           <DialogContent className="min-w-[620px] max-md:hidden">
             <ModalHeader title="Reply" description="Reply to a thread" />
-            <form ref={formRef} action={formAction}>
+            <form ref={formRef} action={handleSubmit}>
               <ModalContent state={{ ...modalState }} actions={modalActions}>
                 <ParentThread user={user} author={author} post={post} />
               </ModalContent>
@@ -157,7 +189,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
       {open && (
         <DrawerContent onOpenAutoFocus={(e) => e.preventDefault()} className="h-full min-w-full border-none">
           <ModalHeader title="Reply" description="Reply to a thread" isDrawer />
-          <form ref={formRef} action={formAction}>
+          <form ref={formRef} action={handleSubmit}>
             <ModalContent state={{ ...modalState, isDrawer: true }} actions={modalActions}>
               <ParentThread user={user} author={author} post={post} />
             </ModalContent>
