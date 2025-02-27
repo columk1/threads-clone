@@ -15,6 +15,7 @@ const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) =>
   const onDelete = async () => {
     const result = await handleDeleteAction(postId)
     if (result.success) {
+      setTimeout(() => toast.success('Deleted'), 1500)
       router.refresh()
     } else {
       toast.error('Something went wrong')
@@ -36,13 +37,15 @@ const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) =>
             Cancel
           </button>
         </DialogClose>
-        <button
-          type="button"
-          onClick={onDelete}
-          className="w-full rounded-br-2xl border-t border-primary-outline px-4 py-3.5 font-bold text-error-text active:bg-secondary-bg disabled:opacity-50"
-        >
-          Delete
-        </button>
+        <DialogClose asChild>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="w-full rounded-br-2xl border-t border-primary-outline px-4 py-3.5 font-bold text-error-text active:bg-secondary-bg disabled:opacity-50"
+          >
+            Delete
+          </button>
+        </DialogClose>
       </div>
     </DialogContent>
   )
