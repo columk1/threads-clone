@@ -6,6 +6,7 @@ const Checkmark: FunctionComponent = () => {
       aria-label="Checkmark: selected"
       role="img"
       viewBox="0 0 24 24"
+      fill="transparent"
       stroke="currentColor"
       strokeWidth="3"
       height="16px"
