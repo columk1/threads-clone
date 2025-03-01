@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
-const Skeleton = () => {
-  const getRandomInRange = (min: number, max: number) => Math.random() * (max - min) + min
+const getRandomInRange = (min: number, max: number) => Math.random() * (max - min) + min
 
+const Skeleton = () => {
   return (
     <div className="flex flex-col gap-12 px-6 py-4">
       {[...Array(7)].map((_, index) => (
@@ -24,7 +24,7 @@ const Skeleton = () => {
               { width: `${getRandomInRange(75, 95)}%` },
               { width: `${getRandomInRange(20, 80)}%` },
             ].map((style, innerIndex) => (
-              <div key={innerIndex} className="" style={style}>
+              <div suppressHydrationWarning key={innerIndex} className="" style={style}>
                 <div
                   aria-label="Loading..."
                   role="status"
