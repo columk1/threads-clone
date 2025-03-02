@@ -5,9 +5,14 @@ import { drizzle as drizzleLibSql } from 'drizzle-orm/libsql'
 import { migrate as migrateLibSql } from 'drizzle-orm/libsql/migrator'
 
 import { Env } from '../Env.ts'
+import { logger } from '../Logger.ts'
 import * as schema from './Schema.ts'
 
-if (!Env.DATABASE_URL) {
+logger.info(Env.NODE_ENV, 'NODE ENV')
+
+const dbUrl = Env.NODE_ENV === 'test' ? 'file:test.db' : Env.DATABASE_URL
+
+if (!dbUrl) {
   throw new Error('DATABASE_URL is not defined')
 }
 
@@ -16,7 +21,7 @@ if (!Env.TURSO_AUTH_TOKEN) {
 }
 
 const client = createClient({
-  url: Env.DATABASE_URL,
+  url: dbUrl,
   authToken: Env.TURSO_AUTH_TOKEN,
 })
 
