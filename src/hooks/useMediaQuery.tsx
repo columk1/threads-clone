@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react'
 
 export function useMediaQuery(query: string) {
-  const [value, setValue] = useState(false)
+  // Default to true to always render the component and then remove it if the query doesn't match
+  // Note: Only render null where this hook is used when the value is false
+  const [value, setValue] = useState(true)
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia(query)
+    setValue(mediaQuery.matches)
+
     function onChange(event: MediaQueryListEvent) {
       setValue(event.matches)
     }
 
-    const result = matchMedia(query)
-    result.addEventListener('change', onChange)
-    setValue(result.matches)
-
-    return () => result.removeEventListener('change', onChange)
+    mediaQuery.addEventListener('change', onChange)
+    return () => mediaQuery.removeEventListener('change', onChange)
   }, [query])
 
   return value

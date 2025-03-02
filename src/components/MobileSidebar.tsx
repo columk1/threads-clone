@@ -23,9 +23,9 @@ type MobileSidebarProps = {
 const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {
   const pathname = usePathname()
   const { openModal } = useModal()
-  const isDesktop = useMediaQuery('(min-width: 700px)')
+  const isMobile = useMediaQuery('(max-width: 699px)')
 
-  if (isDesktop) {
+  if (!isMobile) {
     return null
   }
 

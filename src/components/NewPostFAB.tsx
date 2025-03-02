@@ -8,8 +8,8 @@ import { CreateIcon } from './icons'
 import PostButton from './PostButton'
 
 const NewPostFAB: FunctionComponent = () => {
-  const isDesktop = useMediaQuery('(min-width: 768px)')
-  if (!isDesktop) {
+  const isMobile = useMediaQuery('(max-width: 699px)')
+  if (!isMobile) {
     return null
   }
 

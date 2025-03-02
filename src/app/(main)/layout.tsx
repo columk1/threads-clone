@@ -22,7 +22,7 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-primary-bg md:bg-secondary-bg md:px-5">
       <MobileHeader />
-      <NotificationsProvider isAuthenticated={!!user}>
+      <NotificationsProvider isAuthenticated={Boolean(user)}>
         <Sidebar user={user} />
         <MobileSidebar user={user} />
       </NotificationsProvider>
