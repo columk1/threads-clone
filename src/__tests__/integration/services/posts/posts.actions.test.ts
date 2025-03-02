@@ -86,7 +86,12 @@ describe('Posts Actions', () => {
 
       const result = await createPost(null, formData)
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({
+          postId: expect.any(String),
+        }),
+      })
 
       // Verify post was created in DB
       const posts = await testDb.query.postSchema.findMany({
@@ -109,7 +114,12 @@ describe('Posts Actions', () => {
 
       const result = await createPost(null, formData)
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({
+          postId: expect.any(String),
+        }),
+      })
 
       // Verify post was created in DB
       const posts = await testDb.query.postSchema.findMany({
@@ -222,7 +232,12 @@ describe('Posts Actions', () => {
 
       const result = await createPost(null, formData)
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({
+          postId: expect.any(String),
+        }),
+      })
 
       // Verify post was created in DB with normalized line breaks
       const posts = await testDb.query.postSchema.findMany({
