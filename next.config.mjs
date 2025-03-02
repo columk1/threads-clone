@@ -34,12 +34,14 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   serverExternalPackages: ['pino', 'pino-pretty'],
+  // profiler: true,
   experimental: {
     staleTimes: {
       dynamic: 300,
       static: 300,
     },
     nodeMiddleware: true,
+    reactCompiler: true,
   },
 }
 

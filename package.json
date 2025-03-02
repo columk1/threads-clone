@@ -32,6 +32,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@t3-oss/env-nextjs": "^0.11.1",
     "arctic": "^3.2.1",
+    "babel-plugin-react-compiler": "19.0.0-beta-e1e972c-20250221",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",

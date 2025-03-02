@@ -35,6 +35,9 @@ importers:
       arctic:
         specifier: ^3.2.1
         version: 3.2.1
+      babel-plugin-react-compiler:
+        specifier: 19.0.0-beta-e1e972c-20250221
+        version: 19.0.0-beta-e1e972c-20250221
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
@@ -55,10 +58,10 @@ importers:
         version: 0.453.0(react@19.0.0)
       next:
         specifier: 15.2.1-canary.5
-        version: 15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next-client-cookies:
         specifier: ^2.0.1
-        version: 2.0.1(next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+        version: 2.0.1(next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       next-themes:
         specifier: ^0.3.0
         version: 0.3.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -233,7 +236,7 @@ importers:
         version: 15.4.3
       next-test-api-route-handler:
         specifier: ^4.0.15
-        version: 4.0.15(next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+        version: 4.0.15(next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       npm-run-all2:
         specifier: ^6.2.6
         version: 6.2.6
@@ -2482,6 +2485,9 @@ packages:
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
+
+  babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221:
+    resolution: {integrity: sha512-m3Y8KdwBwKj9l6bf1XPO2xm0WWzv/cYJPurkwP5j8SADGor6l9CdQVksrcOGzU/4Rylfa+tXW6+xaR3vAKs7Hg==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -8488,6 +8494,10 @@ snapshots:
 
   axobject-query@4.1.0: {}
 
+  babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221:
+    dependencies:
+      '@babel/types': 7.26.7
+
   balanced-match@1.0.2: {}
 
   base64-js@1.5.1: {}
@@ -10868,25 +10878,25 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next-client-cookies@2.0.1(next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
+  next-client-cookies@2.0.1(next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
     dependencies:
       js-cookie: 3.0.5
-      next: 15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next: 15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
 
-  next-test-api-route-handler@4.0.15(next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)):
+  next-test-api-route-handler@4.0.15(next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)):
     dependencies:
       '@whatwg-node/server': 0.9.70
       cookie: 1.0.2
       core-js: 3.40.0
-      next: 15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next: 15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   next-themes@0.3.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
-  next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  next@15.2.1-canary.5(@babel/core@7.26.7)(@playwright/test@1.50.0)(babel-plugin-react-compiler@19.0.0-beta-e1e972c-20250221)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       '@next/env': 15.2.1-canary.5
       '@swc/counter': 0.1.3
@@ -10907,6 +10917,7 @@ snapshots:
       '@next/swc-win32-arm64-msvc': 15.2.1-canary.5
       '@next/swc-win32-x64-msvc': 15.2.1-canary.5
       '@playwright/test': 1.50.0
+      babel-plugin-react-compiler: 19.0.0-beta-e1e972c-20250221
       sharp: 0.33.5
     transitivePeerDependencies:
       - '@babel/core'
