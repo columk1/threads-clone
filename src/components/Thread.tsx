@@ -110,7 +110,7 @@ export const ThreadMedia = ({
           className="block size-auto max-h-[430px] rounded-lg object-contain"
           style={{
             width: `${containerWidth}px`,
-            height: `${containerHeight}px`,
+            height: `auto`,
           }}
         />
       </div>
