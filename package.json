@@ -79,7 +79,6 @@
     "@vitest/coverage-v8": "^2.1.8",
     "@vitest/expect": "^2.1.8",
     "autoprefixer": "^10.4.20",
-    "commitizen": "^4.3.1",
     "cssnano": "^7.0.6",
     "dotenv-cli": "^7.4.4",
     "drizzle-kit": "^0.30.4",
