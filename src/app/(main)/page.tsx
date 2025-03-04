@@ -5,7 +5,7 @@ import Header from '@/components/Header'
 import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
 import { ROUTES } from '@/lib/constants'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 
 export const metadata = {
   title: 'Home',

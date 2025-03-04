@@ -1,6 +1,7 @@
 import { Env } from '@/lib/Env'
 
 export const VERIFIED_EMAIL_ALERT = 'VERIFIED_EMAIL_ALERT'
+export const EMAIL_VERIFICATION_MAX_AGE = 5 * 60 // 5 minutes
 
 export const REPORTED_CONFIRMATION_MESSAGE = 'Thanks for your feedback. Our team will review this soon.'
 

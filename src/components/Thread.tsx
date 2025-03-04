@@ -1,7 +1,6 @@
 'use client'
 
 import cx from 'clsx'
-import type { User } from 'lucia'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -17,6 +16,7 @@ import TimeAgo from '@/components/TimeAgo'
 import UnfollowModal from '@/components/UnfollowModal'
 import UserModal from '@/components/UserModal'
 import { useFollow } from '@/hooks/useFollow'
+import type { SessionUser } from '@/lib/Session'
 import type { PostData } from '@/repositories/posts.repository'
 import type { PostUser } from '@/services/users/users.queries'
 
@@ -121,7 +121,7 @@ export const ThreadMedia = ({
 type ThreadProps = {
   post: PostData
   user: PostUser
-  currentUser: User | null
+  currentUser: SessionUser | null
   isCurrentUser: boolean
   isAuthenticated: boolean
   isTarget?: boolean
@@ -134,7 +134,7 @@ type ThreadLayoutProps = {
   children: React.ReactNode
   isParent: boolean
   isTarget: boolean
-  currentUser: User | null
+  currentUser: SessionUser | null
 }
 
 const ThreadLayout: FunctionComponent<ThreadLayoutProps> = ({ children, isParent, isTarget, currentUser }) => {
@@ -187,7 +187,7 @@ const ThreadContent: FunctionComponent<{
   isTarget: boolean
   isAuthenticated: boolean
   isCurrentUser: boolean
-  currentUser: User | null
+  currentUser: SessionUser | null
   onToggleFollow?: () => Promise<void>
   imagePriority?: boolean
 }> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow, imagePriority }) => {

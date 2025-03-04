@@ -7,12 +7,12 @@ import { GET as followingRouteHandler } from '@/app/api/users/[userId]/following
 import { GET as searchRouteHandler } from '@/app/api/users/search/route'
 import { GET as validateRouteHandler } from '@/app/api/users/validate/route'
 import { NOT_AUTHORIZED_ERROR } from '@/lib/constants'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 import { getFollowStatus } from '@/repositories/users.repository'
 import { isUniqueUserField, searchUsers } from '@/services/users/users.queries'
 
 // Mock dependencies
-vi.mock('@/lib/Lucia', () => ({
+vi.mock('@/lib/Session', () => ({
   validateRequest: vi.fn(),
 }))
 
@@ -104,7 +104,6 @@ describe('User API Routes', () => {
           id: 'test-session',
           userId: testUser.id,
           expiresAt: new Date(),
-          fresh: true,
         },
       })
       vi.mocked(getFollowStatus).mockResolvedValueOnce(true)

@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 
 export async function middleware(_request: NextRequest) {
   logger.info('middleware')

@@ -1,10 +1,10 @@
 // Unused component that will be used to suspend replies behind a fallback until images are loaded. Doesn't work with next/image
 'use client'
 
-import type { User } from 'lucia'
 import { use } from 'react'
 
 import type { Post } from '@/lib/db/Schema'
+import type { SessionUser } from '@/lib/Session'
 import type { PostUser } from '@/services/users/users.queries'
 
 import Thread from './Thread'
@@ -14,7 +14,7 @@ type PreloadedRepliesProps = {
     post: Post & { isLiked?: boolean; isReposted?: boolean }
     user: PostUser
   }>
-  currentUser: User | null
+  currentUser: SessionUser | null
   isAuthenticated: boolean
 }
 

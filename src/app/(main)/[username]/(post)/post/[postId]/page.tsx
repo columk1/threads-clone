@@ -7,8 +7,8 @@ import HydrateStore from '@/components/HydrateStore'
 import Spinner from '@/components/Spinner/Spinner'
 import Thread from '@/components/Thread'
 import ThreadView from '@/components/ThreadView'
-import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
+import { validateRequest } from '@/lib/Session'
 import { getAuthPostById, getPublicPostById } from '@/services/posts/posts.queries'
 
 type Props = {

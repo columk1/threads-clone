@@ -1,11 +1,10 @@
-import type { Session } from 'lucia'
 import { redirect } from 'next/navigation'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
-import type { User } from '@/lib/db/Schema'
-import { validateRequest } from '@/lib/Lucia'
+import type { Session } from '@/lib/db/Schema'
+import { type SessionValidationResult, validateRequest } from '@/lib/Session'
 import { handleFollowAction } from '@/services/users/users.actions'
 import {
   getNotifications,
@@ -20,11 +19,11 @@ import {
 setupIntegrationTest()
 
 // Mock external dependencies
-vi.mock('@/lib/Lucia', () => ({
+vi.mock('@/lib/Session', () => ({
   validateRequest: vi.fn().mockResolvedValue({
     user: null,
     session: null,
-  } as { user: User | null; session: Session | null }),
+  } as SessionValidationResult),
 }))
 
 vi.mock('next/navigation', () => ({
@@ -43,7 +42,6 @@ describe('User Queries', () => {
     id: 'session-1',
     userId,
     expiresAt: new Date(Date.now() + 3600 * 1000),
-    fresh: false,
   })
 
   describe('isUniqueUserField', () => {

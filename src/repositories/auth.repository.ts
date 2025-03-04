@@ -11,14 +11,18 @@ export const getLatestVerificationCode = async (userId: string) => {
   return lastSent
 }
 
-export const createEmailVerificationCode = async (userId: string, code: string, expiresAt: number) => {
+export const createEmailVerificationCode = async (userId: string, code: string, expiresAt: Date) => {
   await db.delete(emailVerificationCodeSchema).where(eq(emailVerificationCodeSchema.userId, userId))
 
-  await db.insert(emailVerificationCodeSchema).values({
-    code,
-    expiresAt,
-    userId,
-  })
+  return await db
+    .insert(emailVerificationCodeSchema)
+    .values({
+      code,
+      expiresAt,
+      userId,
+    })
+    .returning()
+    .get()
 }
 
 export const getEmailVerificationCode = async (code: string) => {

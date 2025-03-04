@@ -2,10 +2,10 @@ import { decodeIdToken, type OAuth2Tokens } from 'arctic'
 import { cookies } from 'next/headers'
 
 import { logger } from '@/lib/Logger'
-import { lucia } from '@/lib/Lucia'
 import { google } from '@/lib/oauth'
 import type { GoogleClaims } from '@/lib/schemas/zod.schema'
 import { googleClaimsSchema } from '@/lib/schemas/zod.schema'
+import { createSession, generateSessionToken, setSessionTokenCookie } from '@/lib/Session'
 import { getUserByEmail, getUserByGoogleId } from '@/repositories/auth.repository'
 import { createGoogleUser, getUserByUsername, updateUserWithGoogleCredentials } from '@/repositories/users.repository'
 
@@ -60,9 +60,9 @@ export async function GET(request: Request): Promise<Response> {
 
     if (existingGoogleUser?.id) {
       // User already exists with this Google account
-      const session = await lucia.createSession(existingGoogleUser.id, {})
-      const sessionCookie = lucia.createSessionCookie(session.id)
-      cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+      const token = generateSessionToken()
+      const session = await createSession(token, existingGoogleUser.id)
+      setSessionTokenCookie(token, session.expiresAt)
 
       return new Response(null, {
         status: 302,
@@ -88,10 +88,10 @@ export async function GET(request: Request): Promise<Response> {
         throw new Error('Failed to update user with Google credentials')
       }
 
-      // Create session with Lucia
-      const session = await lucia.createSession(updatedUser.id, {})
-      const sessionCookie = lucia.createSessionCookie(session.id)
-      cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+      // Create session
+      const token = generateSessionToken()
+      const session = await createSession(token, updatedUser.id)
+      setSessionTokenCookie(token, session.expiresAt)
 
       return new Response(null, {
         status: 302,
@@ -133,10 +133,10 @@ export async function GET(request: Request): Promise<Response> {
       throw new Error('Failed to create user')
     }
 
-    // Create session with Lucia
-    const session = await lucia.createSession(user.id, {})
-    const sessionCookie = lucia.createSessionCookie(session.id)
-    cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+    // Create session
+    const token = generateSessionToken()
+    const session = await createSession(token, user.id)
+    setSessionTokenCookie(token, session.expiresAt)
 
     return new Response(null, {
       status: 302,

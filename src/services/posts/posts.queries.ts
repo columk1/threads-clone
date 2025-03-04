@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { ROUTES } from '@/lib/constants'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 import {
   getAuthPostWithReplies,
   getPostById,

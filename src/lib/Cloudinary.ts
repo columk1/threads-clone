@@ -8,7 +8,7 @@ import crypto from 'node:crypto'
 import { redirect } from 'next/navigation'
 
 import { Env } from '@/lib/Env'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 
 import { ROUTES } from './constants'
 

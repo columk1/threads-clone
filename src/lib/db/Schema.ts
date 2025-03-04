@@ -94,8 +94,10 @@ export const sessionSchema = sqliteTable('sessions', {
       onUpdate: 'cascade',
       onDelete: 'cascade',
     }),
-  expiresAt: integer('expires_at').notNull(),
+  expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
 })
+
+export type Session = InferSelectModel<typeof sessionSchema>
 
 /*
  * Email Verification Code Table
@@ -111,8 +113,10 @@ export const emailVerificationCodeSchema = sqliteTable('email_verification_code'
       onUpdate: 'cascade',
       onDelete: 'cascade',
     }),
-  expiresAt: integer('expires_at').notNull(),
+  expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
 })
+
+export type EmailVerificationCode = InferSelectModel<typeof emailVerificationCodeSchema>
 
 /*
  * Post Table

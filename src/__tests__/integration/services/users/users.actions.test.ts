@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm'
-import type { Session } from 'lucia'
 import { redirect } from 'next/navigation'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -7,9 +6,10 @@ import { createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
 import { DEFAULT_ERROR } from '@/lib/constants/errors'
+import type { Session } from '@/lib/db/Schema'
 import { followerSchema, notificationSchema, userSchema } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 import { handleFollowAction, updateAvatar, updateBio } from '@/services/users/users.actions'
 
 setupIntegrationTest()
@@ -23,7 +23,7 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }))
 
-vi.mock('@/lib/Lucia', () => ({
+vi.mock('@/lib/Session', () => ({
   validateRequest: vi.fn(),
 }))
 
@@ -39,7 +39,6 @@ describe('User Actions', () => {
     id: 'session-1',
     userId,
     expiresAt: new Date(Date.now() + 3600 * 1000),
-    fresh: false,
   })
 
   describe('updateAvatar', () => {

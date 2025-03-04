@@ -3,7 +3,7 @@ import { cache } from 'react'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
 import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 import {
   findUserByField,
   getAuthUserDetails,

@@ -6,8 +6,8 @@ import { redirect } from 'next/navigation'
 
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
 import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
 import { bioSchema, type FollowActionType, followSchema } from '@/lib/schemas/zod.schema'
+import { validateRequest } from '@/lib/Session'
 import { handleFollow, updateUserAvatar, updateUserBio } from '@/repositories/users.repository'
 
 /*

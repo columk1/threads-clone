@@ -2,20 +2,25 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import bcrypt from 'bcrypt'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { isWithinExpirationDate } from 'oslo'
 import { ulid } from 'ulidx'
 import { z } from 'zod'
 
-import { NOT_AUTHORIZED_ERROR, ROUTES, VERIFIED_EMAIL_ALERT } from '@/lib/constants'
+import { DEFAULT_ERROR, NOT_AUTHORIZED_ERROR, ROUTES } from '@/lib/constants'
 import { sendVerificationEmail } from '@/lib/email'
+import { createEmailVerificationCode, setEmailVerificationAlertCookie } from '@/lib/email-verification'
 import { logger } from '@/lib/Logger'
-import { lucia, validateRequest } from '@/lib/Lucia'
 import { loginSchema, verifyEmailSchema } from '@/lib/schemas/zod.schema'
 import { signupSchema } from '@/lib/schemas/zod.schema.server'
 import {
-  createEmailVerificationCode,
+  createSessionAndSetCookie,
+  deleteSessionTokenCookie,
+  deleteVerifiedEmailAlertCookie,
+  invalidateAllSessions,
+  invalidateSession,
+  validateRequest,
+} from '@/lib/Session'
+import {
   deleteEmailVerificationCode,
   getEmailVerificationCode,
   getLatestVerificationCode,
@@ -23,29 +28,19 @@ import {
   updateEmailVerified,
 } from '@/repositories/auth.repository'
 import { createUser, getUserById } from '@/repositories/users.repository'
-import { generateRandomString } from '@/utils/string/generateRandomString'
-
-/*
- * Generate Email Verification Code
- */
-const generateEmailVerificationCode = async (userId: string): Promise<string> => {
-  const code = generateRandomString(6)
-  const expiresAt = Date.now() + 5 * 60 * 1000 // 5 minutes
-
-  await createEmailVerificationCode(userId, code, expiresAt)
-
-  return code
-}
+import { isWithinExpirationDate, timeFromNow } from '@/utils/dateUtils'
 
 /*
  * Send Email Verification Code
  */
 export async function sendEmailVerificationCode(userId: string, name: string, email: string) {
   try {
-    const code = await generateEmailVerificationCode(userId)
-    logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // log OTP for local development
+    const { code, expiresAt } = await createEmailVerificationCode(userId)
     await sendVerificationEmail({ name, email, code })
+    await setEmailVerificationAlertCookie(expiresAt)
     logger.info(`Verification email sent to ${email}`)
+
+    logger.info(`\n🤫 OTP for ${email} is ${code}\n`) // log OTP for local development
   } catch (err) {
     logger.error(err, `Failed to send verification email to ${email}`)
     throw new Error('Failed to send verification email')
@@ -85,20 +80,12 @@ export async function signup(_: unknown, formData: FormData) {
 
   try {
     const firstName = name.split(' ')[0] || name
-    sendEmailVerificationCode(userId, firstName, email)
-
-    const cookieStore = await cookies()
-    cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
-      maxAge: 60 * 1000, // 1 minute
-    })
-
-    const session = await lucia.createSession(user.id, {})
-    const sessionCookie = lucia.createSessionCookie(session.id)
-    cookieStore.set(sessionCookie)
+    await sendEmailVerificationCode(userId, firstName, email)
+    await createSessionAndSetCookie(user.id)
     logger.info(`Session created successfully for user: ${userId}`)
   } catch (err) {
     logger.error(err, `Signup error for user ${userId}`)
-    throw new Error('Something went wrong. Please try again.')
+    throw new Error(DEFAULT_ERROR)
   }
 
   return redirect(ROUTES.VERIFY_EMAIL)
@@ -156,32 +143,15 @@ export async function verifyEmail(_: unknown, formData: FormData) {
     throw new Error('User not found')
   }
 
-  await lucia.invalidateUserSessions(user.id)
+  await invalidateAllSessions(user.id)
   await updateEmailVerified(user.id)
 
   logger.info(`\n😊 ${user.email} has been verified.\n`)
 
-  const session = await lucia.createSession(user.id, {})
-  const sessionCookie = lucia.createSessionCookie(session.id)
-  const cookieStore = await cookies()
-  cookieStore.set(sessionCookie)
-
-  cookieStore.set(VERIFIED_EMAIL_ALERT, 'true', {
-    maxAge: 10 * 60 * 1000, // 10 minutes
-  })
+  await createSessionAndSetCookie(user.id)
+  // setEmailVerificationAlertCookie(new Date(Date.now() + 5 * 60 * 1000)) // Not needed
 
   return redirect('/')
-}
-
-/*
- * Time From Now
- */
-const timeFromNow = (time: Date) => {
-  const now = new Date()
-  const diff = time.getTime() - now.getTime()
-  const minutes = Math.floor(diff / 1000 / 60)
-  const seconds = Math.floor(diff / 1000) % 60
-  return `${minutes}m ${seconds}s`
 }
 
 /*
@@ -256,12 +226,9 @@ export async function login(_: unknown, formData: FormData) {
 
   const user = submission.value
 
-  await lucia.invalidateUserSessions(user.id)
+  await invalidateAllSessions(user.id)
 
-  const session = await lucia.createSession(user.id, {})
-  const sessionCookie = lucia.createSessionCookie(session.id)
-  const cookieStore = await cookies()
-  cookieStore.set(sessionCookie)
+  await createSessionAndSetCookie(user.id)
 
   if (!user.emailVerified) {
     await sendEmailVerificationCode(user.id, user.name, user.email)
@@ -285,14 +252,9 @@ export const logout = async () => {
     return { error: NOT_AUTHORIZED_ERROR }
   }
 
-  await lucia.invalidateSession(session.id)
-
-  const sessionCookie = lucia.createBlankSessionCookie()
-  const cookieStore = await cookies()
-  cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
-  await lucia.deleteExpiredSessions()
-
-  cookieStore.delete(VERIFIED_EMAIL_ALERT)
+  await invalidateSession(session.id)
+  await deleteSessionTokenCookie()
+  await deleteVerifiedEmailAlertCookie()
 
   return redirect(ROUTES.LOGIN)
 }

@@ -4,7 +4,7 @@ import { ContentPane } from '@/components/ContentPane'
 import Header from '@/components/Header'
 import HydrateStore from '@/components/HydrateStore'
 import Notification from '@/components/Notification'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 import { getNotifications, markNotificationsAsSeen } from '@/services/users/users.queries'
 
 export const metadata = {

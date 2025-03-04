@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import Link from 'next/link'
 import type { FunctionComponent } from 'react'
 
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 
 import BackButton from './BackButton'
 import { BackIcon } from './icons'

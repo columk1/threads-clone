@@ -1,8 +1,7 @@
-import type { Session } from 'lucia'
 import { describe, expect, it, vi } from 'vitest'
 
-import { repostSchema, type User } from '@/lib/db/Schema'
-import { validateRequest } from '@/lib/Lucia'
+import { repostSchema, type Session } from '@/lib/db/Schema'
+import { type SessionValidationResult, validateRequest } from '@/lib/Session'
 import {
   getAuthPostById,
   getFollowingPosts,
@@ -22,11 +21,11 @@ import { testDb } from '../../../utils/testDb'
 setupIntegrationTest()
 
 // Mock validateRequest
-vi.mock('@/lib/Lucia', () => ({
+vi.mock('@/lib/Session', () => ({
   validateRequest: vi.fn().mockResolvedValue({
     user: null,
     session: null,
-  } as { user: User | null; session: Session | null }),
+  } as SessionValidationResult),
 }))
 
 describe('Posts Service Tests', () => {
@@ -34,7 +33,6 @@ describe('Posts Service Tests', () => {
     id: 'session-1',
     userId,
     expiresAt: new Date(),
-    fresh: false,
   })
 
   describe('getPosts', () => {

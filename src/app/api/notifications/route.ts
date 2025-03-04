@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 import { NOT_AUTHORIZED_ERROR, SERVER_ERROR } from '@/lib/constants'
 import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 import { getNotifications, getUnseenNotificationsCount } from '@/repositories/users.repository'
 
 /**

@@ -1,4 +1,3 @@
-import type { User } from 'lucia'
 import { Suspense } from 'react'
 
 import { ContentPane } from '@/components/ContentPane'
@@ -7,14 +6,14 @@ import HydrateStore from '@/components/HydrateStore'
 import SearchAutocomplete from '@/components/SearchAutocomplete'
 import Skeleton from '@/components/Skeleton'
 import Thread from '@/components/Thread'
-import { validateRequest } from '@/lib/Lucia'
+import { type SessionUser, validateRequest } from '@/lib/Session'
 import { searchPosts } from '@/services/posts/posts.queries'
 
 export const metadata = {
   title: 'Search',
 }
 
-const SearchResults = async ({ query, user }: { query: string; user: User | null }) => {
+const SearchResults = async ({ query, user }: { query: string; user: SessionUser | null }) => {
   const { posts } = await searchPosts(query)
 
   return posts.length > 0 ? (

@@ -1,6 +1,5 @@
 'use client'
 
-import type { User } from 'lucia'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { FunctionComponent } from 'react'
@@ -8,6 +7,7 @@ import type { FunctionComponent } from 'react'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
 import { footerLinks } from '@/lib/constants/navigation'
+import type { SessionUser } from '@/lib/Session'
 
 // Common styles for navigation items
 const navItemBaseStyles = 'group relative flex size-full items-center justify-center'
@@ -17,7 +17,7 @@ const navItemHoverBgStyles =
   'absolute z-0 flex size-[90%] scale-80 items-center justify-center rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-white/[0.027] group-active:scale-90'
 
 type MobileSidebarProps = {
-  user: User | null
+  user: SessionUser | null
 }
 
 const MobileSidebar: FunctionComponent<MobileSidebarProps> = ({ user }) => {

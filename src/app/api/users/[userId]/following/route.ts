@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 import { DEFAULT_ERROR, NOT_AUTHORIZED_ERROR } from '@/lib/constants'
 import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 import { getFollowStatus } from '@/repositories/users.repository'
 
 /*

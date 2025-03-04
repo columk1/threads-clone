@@ -1,4 +1,3 @@
-import type { User } from 'lucia'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { type FunctionComponent, useActionState, useCallback, useEffect, useRef, useState, useTransition } from 'react'
@@ -16,10 +15,11 @@ import { useImageForm } from '@/hooks/useImageForm'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usePostForm } from '@/hooks/usePostForm'
 import type { Post } from '@/lib/db/Schema'
+import type { SessionUser } from '@/lib/Session'
 import { createReply } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
 
-const ParentThread = ({ user, author, post }: { user: User; author: PostUser; post: Post }) => {
+const ParentThread = ({ user, author, post }: { user: SessionUser; author: PostUser; post: Post }) => {
   return (
     <div className="relative mb-5">
       {/* Vertical Line to Link to Parent Thread */}
@@ -50,7 +50,7 @@ const ParentThread = ({ user, author, post }: { user: User; author: PostUser; po
 type ReplyModalProps = {
   author: PostUser
   post: Post
-  user: User
+  user: SessionUser
   trigger: React.ReactNode
 }
 

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 
 export async function middleware(request: NextRequest) {
   const { user } = await validateRequest()

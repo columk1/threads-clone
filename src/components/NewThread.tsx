@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
 import { baseButtonStyles } from '@/components/ui/utils'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 
 import Avatar from './Avatar'
 import PostButton from './PostButton'

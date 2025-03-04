@@ -1,5 +1,4 @@
 import cx from 'clsx'
-import type { User } from 'lucia'
 import { useRouter } from 'next/navigation'
 import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
@@ -11,6 +10,7 @@ import ReplyModal from '@/components/ReplyModal'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useModal } from '@/hooks/useModal'
 import type { Post } from '@/lib/db/Schema'
+import type { SessionUser } from '@/lib/Session'
 import { handleLikeAction, handleRepostAction, handleShareAction } from '@/services/posts/posts.actions'
 import type { PostUser } from '@/services/users/users.queries'
 import { formatCount } from '@/utils/format/formatCount'
@@ -20,7 +20,7 @@ const iconStyle =
 
 type ThreadActionsProps = {
   post: Post & { isLiked?: boolean; isReposted?: boolean }
-  currentUser: User | null
+  currentUser: SessionUser | null
   author: PostUser
   isAuthenticated: boolean
   className?: string

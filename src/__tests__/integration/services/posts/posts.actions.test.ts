@@ -1,5 +1,4 @@
 import { sql } from 'drizzle-orm'
-import type { Session } from 'lucia'
 import { redirect } from 'next/navigation'
 import type OpenAI from 'openai'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -8,10 +7,11 @@ import { createTestPost, createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
 import { DEFAULT_ERROR } from '@/lib/constants'
+import type { Session } from '@/lib/db/Schema'
 import { likeSchema, notificationSchema, postSchema, repostSchema } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
 import { moderateContent } from '@/lib/OpenAi'
+import { validateRequest } from '@/lib/Session'
 import {
   createPost,
   createReply,
@@ -29,7 +29,7 @@ vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
 }))
 
-vi.mock('@/lib/Lucia', () => ({
+vi.mock('@/lib/Session', () => ({
   validateRequest: vi.fn(),
 }))
 
@@ -64,7 +64,6 @@ describe('Posts Actions', () => {
     id: 'session-1',
     userId,
     expiresAt: new Date(Date.now() + 3600 * 1000), // 1 hour from now
-    fresh: false,
   })
 
   beforeEach(async () => {

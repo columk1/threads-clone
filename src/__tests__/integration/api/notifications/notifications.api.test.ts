@@ -5,12 +5,12 @@ import { createTestUser } from '@/__tests__/utils/factories'
 import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { GET as notificationsRouteHandler } from '@/app/api/notifications/route'
 import { NOT_AUTHORIZED_ERROR, SERVER_ERROR } from '@/lib/constants'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 import type { Notification } from '@/repositories/users.repository'
 import { getNotifications, getUnseenNotificationsCount } from '@/repositories/users.repository'
 
 // Mock dependencies
-vi.mock('@/lib/Lucia', () => ({
+vi.mock('@/lib/Session', () => ({
   validateRequest: vi.fn(),
 }))
 
@@ -66,7 +66,6 @@ describe('Notifications API Routes', () => {
           id: 'test-session',
           userId: testUser.id,
           expiresAt: new Date(),
-          fresh: true,
         },
       })
       vi.mocked(getNotifications).mockResolvedValueOnce(mockNotifications)
@@ -97,7 +96,6 @@ describe('Notifications API Routes', () => {
           id: 'test-session',
           userId: testUser.id,
           expiresAt: new Date(),
-          fresh: true,
         },
       })
       vi.mocked(getUnseenNotificationsCount).mockResolvedValueOnce(mockCount)
@@ -129,7 +127,6 @@ describe('Notifications API Routes', () => {
           id: 'test-session',
           userId: testUser.id,
           expiresAt: new Date(),
-          fresh: true,
         },
       })
       vi.mocked(getNotifications).mockResolvedValueOnce(mockNotifications)
@@ -161,7 +158,6 @@ describe('Notifications API Routes', () => {
           id: 'test-session',
           userId: testUser.id,
           expiresAt: new Date(),
-          fresh: true,
         },
       })
       vi.mocked(getNotifications).mockResolvedValueOnce(mockNotifications)
@@ -208,7 +204,6 @@ describe('Notifications API Routes', () => {
           id: 'test-session',
           userId: testUser.id,
           expiresAt: new Date(),
-          fresh: true,
         },
       })
       vi.mocked(getNotifications).mockRejectedValueOnce(new Error('Database error'))

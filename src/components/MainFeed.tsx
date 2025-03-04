@@ -1,5 +1,6 @@
-import type { User } from 'lucia'
 import { type FunctionComponent, Suspense } from 'react'
+
+import type { SessionUser } from '@/lib/Session'
 
 import LoadingSplashOverlay from './LoadingSplashOverlay'
 import { MobileHomeFeedFilter } from './MobileHomeFeedFilter'
@@ -8,7 +9,7 @@ import Skeleton from './Skeleton'
 import Threads from './Threads'
 
 type Props = {
-  user?: User | null
+  user?: SessionUser | null
   filter?: string
 }
 

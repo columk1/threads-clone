@@ -1,10 +1,10 @@
 'use client'
 
-import type { User } from 'lucia'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import { useFollow } from '@/hooks/useFollow'
+import type { SessionUser } from '@/lib/Session'
 import type { getNotifications as getNotificationsDb } from '@/repositories/users.repository'
 
 import Avatar from './Avatar'
@@ -18,7 +18,7 @@ import UnfollowModal from './UnfollowModal'
 
 type NotificationItem = Awaited<ReturnType<typeof getNotificationsDb>>[number]
 
-const Notification = ({ data, currentUser }: { data: NotificationItem; currentUser: User }) => {
+const Notification = ({ data, currentUser }: { data: NotificationItem; currentUser: SessionUser }) => {
   const { notification, sourceUser, post, reply } = data
   const { user, handleToggleFollow, unfollowModalProps } = useFollow({
     initialUser: sourceUser,

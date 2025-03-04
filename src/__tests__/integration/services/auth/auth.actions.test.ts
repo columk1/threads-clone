@@ -8,7 +8,7 @@ import { setupIntegrationTest } from '@/__tests__/utils/setupIntegrationTest'
 import { testDb } from '@/__tests__/utils/testDb'
 import { ROUTES, VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 import { emailVerificationCodeSchema, sessionSchema } from '@/lib/db/Schema'
-import { lucia } from '@/lib/Lucia'
+import { createSessionAndSetCookie } from '@/lib/Session'
 import { login, logout, resendVerificationEmail, signup } from '@/services/auth/auth.actions'
 
 setupIntegrationTest()
@@ -173,8 +173,8 @@ describe('Auth Actions', () => {
     it('should successfully log out a user', async () => {
       // Create a user and session
       const user = await createTestUser()
-      const session = await lucia.createSession(user.id, {})
-      mockCookieStore.get.mockReturnValue({ value: session.id })
+      const { session, token } = await createSessionAndSetCookie(user.id)
+      mockCookieStore.get.mockReturnValue({ value: token })
 
       await logout()
 
@@ -187,7 +187,7 @@ describe('Auth Actions', () => {
 
       // Verify blank session cookie was set
       expect((await cookies()).set).toHaveBeenCalledWith(
-        'user_session',
+        'session',
         '',
         expect.objectContaining({
           httpOnly: true,
@@ -250,7 +250,7 @@ describe('Auth Actions', () => {
         VERIFIED_EMAIL_ALERT,
         'true',
         expect.objectContaining({
-          maxAge: expect.any(Number),
+          expires: expect.any(Date),
         }),
       )
 
@@ -319,8 +319,8 @@ describe('Auth Actions', () => {
         emailVerified: 0,
       })
 
-      const _session = await lucia.createSession(testUser.id, {})
-      mockCookieStore.get.mockReturnValue({ value: _session.id })
+      const { token } = await createSessionAndSetCookie(testUser.id)
+      mockCookieStore.get.mockReturnValue({ value: token })
 
       const result = await resendVerificationEmail()
 
@@ -345,15 +345,15 @@ describe('Auth Actions', () => {
       await testDb.insert(emailVerificationCodeSchema).values({
         userId: testUser.id,
         code: '123456',
-        expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes from now
+        expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes from now
       })
 
-      const _session = await lucia.createSession(testUser.id, {})
-      mockCookieStore.get.mockReturnValue({ value: _session.id })
+      const { token } = await createSessionAndSetCookie(testUser.id)
+      mockCookieStore.get.mockReturnValue({ value: token })
 
       const result = await resendVerificationEmail()
 
-      expect(result.error).toContain('Please wait')
+      expect(result.error).toMatch(/^Please wait \d+m \d+s before resending$/)
     })
 
     it('should redirect if user is not authenticated', async () => {

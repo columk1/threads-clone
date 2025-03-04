@@ -1,9 +1,9 @@
 'use client'
 
-import type { User } from 'lucia'
 import { useEffect, useRef, useState } from 'react'
 
 import type { Post } from '@/lib/db/Schema'
+import type { SessionUser } from '@/lib/Session'
 import type { PostUser } from '@/services/users/users.queries'
 
 import ScrollManager from './ScrollManager'
@@ -18,7 +18,7 @@ type ThreadViewProps = {
     post: Post & { isLiked: boolean; isReposted: boolean }
     user: PostUser
   }
-  currentUser: User | null
+  currentUser: SessionUser | null
   isCurrentUser: boolean
   isAuthenticated: boolean
 }

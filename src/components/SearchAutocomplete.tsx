@@ -1,6 +1,5 @@
 'use client'
 
-import type { User } from 'lucia'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -14,6 +13,7 @@ import UnfollowModal from '@/components/UnfollowModal'
 import { useSearch } from '@/contexts/SearchContext'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useFollow } from '@/hooks/useFollow'
+import type { SessionUser } from '@/lib/Session'
 import type { PostUser } from '@/services/users/users.queries'
 import { handleNestedInteraction } from '@/utils/handleNestedInteraction'
 
@@ -25,7 +25,7 @@ const SearchResult = ({
   navigate,
 }: {
   user: PostUser
-  currentUser?: User
+  currentUser?: SessionUser
   navigate: () => void
 }) => {
   const isCurrentUser = initialUser.id === currentUser?.id
@@ -99,7 +99,7 @@ const SearchButton = ({ value, onClick }: { value: string; onClick: () => void }
   )
 }
 
-export default function SearchAutocomplete({ currentUser }: { currentUser?: User }) {
+export default function SearchAutocomplete({ currentUser }: { currentUser?: SessionUser }) {
   const { searchHistory, currentQuery, setCurrentQuery, addToHistory } = useSearch()
   const [searchResults, setSearchResults] = useState<PostUser[]>([])
   const [isSearching, setIsSearching] = useState(false)

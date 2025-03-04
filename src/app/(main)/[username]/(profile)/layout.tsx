@@ -4,8 +4,8 @@ import { ContentPane } from '@/components/ContentPane'
 import CurrentUserProfile from '@/components/CurrentUserProfile'
 import Header from '@/components/Header'
 import VisitorProfile from '@/components/UserProfile'
-import { validateRequest } from '@/lib/Lucia'
 import { usernameParamSchema } from '@/lib/schemas/zod.schema'
+import { validateRequest } from '@/lib/Session'
 import { getPublicUserInfo, getUserInfo, type PostUser } from '@/services/users/users.queries'
 
 type Props = {
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props) {
     return notFound()
   }
   return {
-    title: `${res.user.username}`,
+    title: res.user.username,
   }
 }
 
@@ -59,7 +59,7 @@ const UserProfileLayout = async ({ params, children }: Props) => {
   if (currentUser?.username !== user.username) {
     return (
       <>
-        <Header title={`${user.username}`} />
+        <Header title={user.username} />
         <ContentPane>
           <VisitorProfile initialUser={user}>{children}</VisitorProfile>
         </ContentPane>

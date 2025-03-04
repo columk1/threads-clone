@@ -8,7 +8,7 @@ import FloatingActionButton from '@/components/NewPostFAB'
 import NewThreadModal from '@/components/NewThreadModal'
 import Sidebar from '@/components/Sidebar'
 import { NotificationsProvider } from '@/contexts/NotificationsContext'
-import { validateRequest } from '@/lib/Lucia'
+import { validateRequest } from '@/lib/Session'
 
 export const metadata: Metadata = {
   title: {

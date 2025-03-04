@@ -1,6 +1,5 @@
 'use client'
 
-import type { User } from 'lucia'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { FunctionComponent } from 'react'
@@ -8,6 +7,7 @@ import type { FunctionComponent } from 'react'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useModal } from '@/hooks/useModal'
 import { sidebarLinks } from '@/lib/constants/navigation'
+import type { SessionUser } from '@/lib/Session'
 
 import Logo from './Logo'
 import SidebarDropdown from './SidebarDropdown'
@@ -20,7 +20,7 @@ const navItemHoverBgStyles =
   'absolute z-0 size-full scale-80 rounded-lg transition duration-200 group-hover:scale-100 group-hover:bg-elevated-bg'
 
 type SidebarProps = {
-  user: User | null
+  user: SessionUser | null
 }
 
 const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {

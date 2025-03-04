@@ -7,9 +7,9 @@ import { after } from 'next/server'
 import { DEFAULT_ERROR, ROUTES } from '@/lib/constants'
 import { reportedPostStatusEnum } from '@/lib/db/Schema'
 import { logger } from '@/lib/Logger'
-import { validateRequest } from '@/lib/Lucia'
 import { moderateContent } from '@/lib/OpenAi'
 import { newPostSchema, replySchema } from '@/lib/schemas/zod.schema'
+import { validateRequest } from '@/lib/Session'
 import {
   deleteLike,
   deletePost,

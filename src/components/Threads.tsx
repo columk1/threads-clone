@@ -1,10 +1,9 @@
-import type { User } from 'lucia'
 import type { FunctionComponent } from 'react'
 
 import HydrateStore from '@/components/HydrateStore'
 import LoadMore from '@/components/LoadMore'
 import Thread from '@/components/Thread'
-import { validateRequest } from '@/lib/Lucia'
+import { type SessionUser, validateRequest } from '@/lib/Session'
 import { getFollowingPosts, getLikedPosts, getPosts, QUERY_LIMIT } from '@/services/posts/posts.queries'
 
 type ThreadsProps = {
@@ -16,7 +15,7 @@ export type PostList = PostData['posts']
 
 export type ThreadListProps = {
   posts: PostList
-  currentUser: User | null
+  currentUser: SessionUser | null
 }
 
 const ThreadList = ({ posts, currentUser }: ThreadListProps) => {
