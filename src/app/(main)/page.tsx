@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
 
 import { ContentPane } from '@/components/ContentPane'
+import { CookieToast } from '@/components/CookieToast'
 import Header from '@/components/Header'
 import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
-import { ROUTES } from '@/lib/constants'
+import { ROUTES, VERIFIED_EMAIL_ALERT } from '@/lib/constants'
 import { validateRequest } from '@/lib/Session'
 
 export const metadata = {
@@ -13,7 +14,6 @@ export const metadata = {
 
 export default async function Home() {
   const { user } = await validateRequest()
-  // const verified = user && user.emailVerified
   if (user && !user?.emailVerified) {
     return redirect(ROUTES.VERIFY_EMAIL)
   }
@@ -24,6 +24,7 @@ export default async function Home() {
       <ContentPane>
         <MainFeed user={user} />
       </ContentPane>
+      <CookieToast cookieName={VERIFIED_EMAIL_ALERT} message="Email verified" />
     </>
   )
 }

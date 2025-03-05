@@ -149,7 +149,7 @@ export async function verifyEmail(_: unknown, formData: FormData) {
   logger.info(`\n😊 ${user.email} has been verified.\n`)
 
   await createSessionAndSetCookie(user.id)
-  // setEmailVerificationAlertCookie(new Date(Date.now() + 5 * 60 * 1000)) // Not needed
+  setEmailVerificationAlertCookie(new Date(Date.now() + 5 * 60 * 1000))
 
   return redirect('/')
 }

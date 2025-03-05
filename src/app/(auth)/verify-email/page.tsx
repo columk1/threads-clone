@@ -15,13 +15,6 @@ export default async function VerifyEmailPage() {
     return redirect('/')
   }
 
-  // if (await downloadLimiter.hasExceededLimit(userKey, fallbackKey)) {
-  //   return errorResponse(
-  //     429,
-  //     `We've noticed an unusual amount of downloading from your account. Contact support@civitai.com or come back later.`
-  //   );
-  // }
-
   return (
     <div className="w-full px-3 sm:px-0">
       <div className="mb-2 flex justify-center">
