@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { CookiesProvider } from 'next-client-cookies/server'
 
 import { ContentPane } from '@/components/ContentPane'
 import { CookieToast } from '@/components/CookieToast'
@@ -24,7 +25,9 @@ export default async function Home() {
       <ContentPane>
         <MainFeed user={user} />
       </ContentPane>
-      <CookieToast cookieName={VERIFIED_EMAIL_ALERT} message="Email verified" />
+      <CookiesProvider>
+        <CookieToast cookieName={VERIFIED_EMAIL_ALERT} message="Email verified" />
+      </CookiesProvider>
     </>
   )
 }
