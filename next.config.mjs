@@ -40,7 +40,7 @@ const nextConfig = {
       dynamic: 300,
       static: 300,
     },
-    nodeMiddleware: true,
+    // nodeMiddleware: true,
     reactCompiler: true,
   },
 }

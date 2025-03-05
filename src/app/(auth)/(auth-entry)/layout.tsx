@@ -1,4 +1,13 @@
+import { redirect } from 'next/navigation'
+
+import { validateRequest } from '@/lib/Session'
+
 export default async function AuthEntryLayout({ children }: { children: React.ReactNode }) {
+  const { user } = await validateRequest()
+  if (user) {
+    return redirect('/')
+  }
+
   return (
     <div className="flex w-full flex-col items-center gap-2">
       <div className="p-3 sm:hidden">
