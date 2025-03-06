@@ -1,5 +1,6 @@
 {
   "name": "threads-clone",
+  "packageManager": "pnpm@10.6.0",
   "author": "Colum Kelly",
   "scripts": {
     "dev:next": "next dev --turbopack",
@@ -108,6 +109,15 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.8",
     "vitest-fail-on-console": "^0.7.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@percy/core",
+      "bcrypt",
+      "core-js",
+      "esbuild",
+      "sharp"
+    ]
   },
   "overrides": {
     "@types/react": "npm:types-react@rc",
