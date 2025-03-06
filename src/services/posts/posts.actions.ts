@@ -159,9 +159,9 @@ export const handleDeleteAction = async (postId: string) => {
     if (typeof postId !== 'string') {
       throw new TypeError('Invalid post ID')
     }
-    await deletePost(postId)
+    const parentId = await deletePost(postId)
     // revalidatePath(`/@${user.username}`, 'page')
-    return { success: true }
+    return { success: true, data: { parentId } }
   } catch (err) {
     logger.error(err, 'Error deleting post')
     return { error: DEFAULT_ERROR, success: false }

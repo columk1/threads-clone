@@ -377,7 +377,7 @@ export const searchPosts = (searchTerm: string, userId?: string, limit: number =
 }
 
 export const deletePost = async (postId: string) => {
-  await db.transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     // Get the post's parent ID before deletion
     const post = await tx
       .select({ parentId: postSchema.parentId })
@@ -395,6 +395,8 @@ export const deletePost = async (postId: string) => {
         .set({ replyCount: sql`${postSchema.replyCount} - 1` })
         .where(eq(postSchema.id, post.parentId))
     }
+    // Return the parent ID in case this was a reply and we need to update the parent on the client
+    return post?.parentId
   })
 }
 

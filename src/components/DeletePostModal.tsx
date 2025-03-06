@@ -3,6 +3,7 @@ import type { FunctionComponent } from 'react'
 import { toast } from 'sonner'
 
 import { DialogClose, DialogContent, DialogTitle } from '@/components/Dialog'
+import { useAppStore } from '@/hooks/useAppStore'
 import { handleDeleteAction } from '@/services/posts/posts.actions'
 
 type DeletePostModalProps = {
@@ -11,10 +12,25 @@ type DeletePostModalProps = {
 
 const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) => {
   const router = useRouter()
+  const updatePost = useAppStore((state) => state.updatePost)
+  const cachedPosts = useAppStore((state) => state.posts)
 
   const onDelete = async () => {
-    const result = await handleDeleteAction(postId)
-    if (result.success) {
+    const { success, data } = await handleDeleteAction(postId)
+    if (success) {
+      // If this was a reply, update the parent's reply count in the app store
+      if (data?.parentId) {
+        const parentPost = cachedPosts[data.parentId]
+        if (parentPost) {
+          updatePost(data.parentId, {
+            isLiked: parentPost.isLiked,
+            likeCount: parentPost.likeCount,
+            replyCount: parentPost.replyCount - 1,
+            isReposted: parentPost.isReposted,
+            repostCount: parentPost.repostCount,
+          })
+        }
+      }
       setTimeout(() => toast.success('Deleted'), 500)
       router.refresh()
     } else {
