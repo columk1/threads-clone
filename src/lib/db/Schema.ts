@@ -78,7 +78,7 @@ export const userSchema = sqliteTable(
     bio: text('bio'),
     followerCount: integer('follower_count').notNull().default(0),
   },
-  (table) => [index('username_idx').on(table.followerCount)],
+  (table) => [index('users_username_idx').on(table.username)],
 )
 
 export type User = InferSelectModel<typeof userSchema>
@@ -151,8 +151,9 @@ export const postSchema = sqliteTable(
   },
   (table) => {
     return [
-      index('user_idx').on(table.userId),
-      index('parent_idx').on(table.parentId),
+      index('posts_user_idx').on(table.userId),
+      index('posts_parent_idx').on(table.parentId),
+      index('posts_created_at_idx').on(table.createdAt),
       check(
         'text_or_image',
         sql`(${table.text} IS NOT NULL AND TRIM(${table.text}) <> '') 
@@ -187,6 +188,8 @@ export const followerSchema = sqliteTable(
   (table) => {
     return [
       primaryKey({ columns: [table.userId, table.followerId] }),
+      index('followers_user_idx').on(table.userId),
+      index('followers_follower_idx').on(table.followerId),
       check('no_self_follow', sql`${table.userId} != ${table.followerId}`),
     ]
   },
@@ -215,7 +218,11 @@ export const likeSchema = sqliteTable(
     createdAt: integer('created_at').default(sql`(cast(unixepoch() as int))`),
   },
   (table) => {
-    return [primaryKey({ columns: [table.userId, table.postId] })]
+    return [
+      primaryKey({ columns: [table.userId, table.postId] }),
+      index('likes_user_created_idx').on(table.userId, table.createdAt),
+      index('likes_post_idx').on(table.postId),
+    ]
   },
 )
 
@@ -244,7 +251,11 @@ export const repostSchema = sqliteTable(
       .default(sql`(cast(unixepoch() as int))`),
   },
   (table) => {
-    return [primaryKey({ columns: [table.userId, table.postId] })]
+    return [
+      primaryKey({ columns: [table.userId, table.postId] }),
+      index('reposts_user_created_idx').on(table.userId, table.createdAt),
+      index('reposts_post_idx').on(table.postId),
+    ]
   },
 )
 
