@@ -1,8 +1,6 @@
 import { ChevronRight } from 'lucide-react'
-import Link from 'next/link'
 
 type GoogleAuthButtonProps = {
-  // callback?: () => void
   className?: string
   children?: React.ReactNode
   iconSize?: string
@@ -10,9 +8,8 @@ type GoogleAuthButtonProps = {
 
 const GoogleAuthButton = ({ className, iconSize, children }: GoogleAuthButtonProps) => {
   return (
-    <Link
+    <a
       href="/api/login/google"
-      type="button"
       className={`flex w-full items-center justify-between gap-2 rounded-xl border border-primary-outline bg-transparent p-5 pr-3 font-bold ${className}`}
     >
       <svg xmlns="http://www.w3.org/2000/svg" width={iconSize || '45'} height={iconSize || '45'} viewBox="0 0 24 24">
@@ -36,7 +33,7 @@ const GoogleAuthButton = ({ className, iconSize, children }: GoogleAuthButtonPro
       </svg>
       {children}
       <ChevronRight className="size-5 text-placeholder-text" />
-    </Link>
+    </a>
   )
 }
 
