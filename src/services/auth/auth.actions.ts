@@ -24,7 +24,7 @@ import {
   deleteEmailVerificationCode,
   getEmailVerificationCode,
   getLatestVerificationCode,
-  getUserByEmail,
+  getUserByIdentifier,
   updateEmailVerified,
 } from '@/repositories/auth.repository'
 import { createUser, getUserById } from '@/repositories/users.repository'
@@ -193,7 +193,7 @@ export async function resendVerificationEmail(): Promise<{
 export async function login(_: unknown, formData: FormData) {
   const submission = await parseWithZod(formData, {
     schema: loginSchema.transform(async (data, ctx) => {
-      const user = await getUserByEmail(data.email)
+      const user = await getUserByIdentifier(data.email)
       if (!(user && user.id)) {
         ctx.addIssue({
           path: ['password'],

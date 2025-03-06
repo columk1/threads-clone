@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, or } from 'drizzle-orm'
 
 import { db } from '../lib/db/Drizzle'
 import { emailVerificationCodeSchema, userSchema } from '../lib/db/Schema'
@@ -43,4 +43,13 @@ export const getUserByEmail = async (email: string) => {
 
 export const getUserByGoogleId = async (googleId: string) => {
   return await db.select().from(userSchema).where(eq(userSchema.googleId, googleId)).get()
+}
+
+// Retrieve a user by their email or username
+export const getUserByIdentifier = async (identifier: string) => {
+  return await db
+    .select()
+    .from(userSchema)
+    .where(or(eq(userSchema.email, identifier), eq(userSchema.username, identifier)))
+    .get()
 }
