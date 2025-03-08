@@ -9,6 +9,7 @@ type SidebarDropdownProps = { isAuthenticated: boolean }
 
 const SidebarDropdown: FunctionComponent<SidebarDropdownProps> = ({ isAuthenticated }) => {
   const [open, setOpen] = useState(false)
+  const [closedByKeyboardEvent, setClosedByKeyboardEvent] = useState(false)
 
   return (
     <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
@@ -21,7 +22,20 @@ const SidebarDropdown: FunctionComponent<SidebarDropdownProps> = ({ isAuthentica
           <MoreIcon />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" alignOffset={5} sideOffset={-51} className="w-60 origin-bottom-left text-ms">
+      <DropdownMenuContent
+        // Only return focus to the trigger when the dropdown is closed by a keyboard event
+        onClick={() => setClosedByKeyboardEvent(false)}
+        onKeyDown={() => setClosedByKeyboardEvent(true)}
+        onCloseAutoFocus={(e) => {
+          if (!closedByKeyboardEvent) {
+            e.preventDefault()
+          }
+        }}
+        align="start"
+        alignOffset={5}
+        sideOffset={-51}
+        className="w-60 origin-bottom-left text-ms"
+      >
         <DropdownMenuItem asChild>
           <a href="https://github.com/columk1/threads-clone/issues/new" target="_blank" rel="noopener noreferrer">
             Report a problem

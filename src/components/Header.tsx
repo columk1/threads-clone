@@ -39,7 +39,9 @@ const Header: FunctionComponent<HeaderProps> = async ({ title, children }) => {
         </div>
         <div className="col-start-2 flex items-center justify-center gap-3 text-ms font-semibold text-primary-text">
           <h1>
-            <a href="/">{title}</a>
+            <a href="/" className="p-2">
+              {title}
+            </a>
           </h1>
           {children}
         </div>

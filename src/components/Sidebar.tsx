@@ -38,9 +38,11 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ user }) => {
       aria-label="Primary navigation"
       className="fixed left-0 top-0 z-10 flex h-full w-sidebar-width flex-col items-center justify-between overflow-x-visible pb-5 text-navigation-icon max-md:hidden"
     >
-      <Link href="/" className="flex w-[34px] items-center justify-center gap-4 py-[15px]">
-        <Logo />
-      </Link>
+      <div className="py-[15px]">
+        <Link href="/" className="flex w-[34px] items-center justify-center gap-4">
+          <Logo />
+        </Link>
+      </div>
       <div className="flex flex-col gap-1">
         {sidebarLinks.map((link) => {
           const isActive = (route: string) => pathname === link.route || (pathname.includes(route) && route.length > 1)

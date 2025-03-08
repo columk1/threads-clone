@@ -22,17 +22,15 @@ export const MobileSidebarDropdown = () => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
+        onCloseAutoFocus={(e) => e.preventDefault()}
         align="end"
         alignOffset={8}
         sideOffset={-9}
         className="w-60 origin-top-right text-ms md:hidden"
       >
-        <DropdownMenuItem asChild className="leading-none">
-          <Link href="/settings">Settings</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="leading-none">
+        {/* <DropdownMenuItem asChild className="leading-none">
           <Link href="/saved">Saved</Link>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
         <DropdownMenuItem asChild className="leading-none">
           <Link href="/liked">Liked</Link>
         </DropdownMenuItem>

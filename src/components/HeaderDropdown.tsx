@@ -42,14 +42,14 @@ export const HeaderDropdown: FunctionComponent<HeaderDropdownProps> = ({ pathnam
             </div>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="py-3.5">
+        {/* <DropdownMenuItem asChild className="py-3.5">
           <Link href="/saved">
             <div className="flex flex-1 items-center justify-between">
               <span>Saved</span>
               {pathname === '/saved' && <CheckmarkIcon />}
             </div>
           </Link>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   )

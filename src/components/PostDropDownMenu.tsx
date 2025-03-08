@@ -1,6 +1,6 @@
 'use client'
 
-import type { FunctionComponent } from 'react'
+import { type FunctionComponent, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Dialog, DialogTrigger } from '@/components/Dialog'
@@ -32,6 +32,7 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
   isCurrentUser,
   postId,
 }) => {
+  const [closedByKeyboardEvent, setClosedByKeyboardEvent] = useState(false)
   const handleReport = () => {
     moderatePost(postId)
     toast(REPORTED_CONFIRMATION_MESSAGE)
@@ -47,6 +48,14 @@ const PostDropDownMenu: FunctionComponent<PostDropDownMenuProps> = ({
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent
+          // Only return focus to the trigger when the dropdown is closed by a keyboard event
+          onClick={() => setClosedByKeyboardEvent(false)}
+          onKeyDown={() => setClosedByKeyboardEvent(true)}
+          onCloseAutoFocus={(e) => {
+            if (!closedByKeyboardEvent) {
+              e.preventDefault()
+            }
+          }}
           align="end"
           alignOffset={-18}
           sideOffset={6}
