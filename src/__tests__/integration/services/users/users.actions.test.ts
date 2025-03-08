@@ -299,14 +299,14 @@ describe('User Actions', () => {
 
       const result = await updateBio(null, formData)
 
-      expect(result).toHaveProperty('error')
+      expect(result).toEqual({ success: true })
 
-      // Verify bio was not updated
+      // Verify bio was updated
       const user = await testDb.query.userSchema.findFirst({
         where: (users, { eq }) => eq(users.id, testUser.id),
       })
 
-      expect(user?.bio).toBeNull()
+      expect(user?.bio).toBe('')
     })
 
     it('should handle unauthorized user', async () => {

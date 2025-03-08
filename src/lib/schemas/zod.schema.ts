@@ -76,7 +76,7 @@ export const replySchema = refinePostSchema({
 })
 
 export const bioSchema = z.object({
-  bio: z.string().trim().max(150, { message: 'Maximum 150 characters' }),
+  bio: z.string().trim().max(150, { message: 'Maximum 150 characters' }).default(''),
 })
 
 export type BioSchema = z.infer<typeof bioSchema>

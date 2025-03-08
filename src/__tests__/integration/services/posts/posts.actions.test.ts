@@ -578,7 +578,12 @@ describe('Posts Actions', () => {
     it('should successfully delete a post', async () => {
       const result = await handleDeleteAction(testPost.id)
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({
+        success: true,
+        data: {
+          parentId: null,
+        },
+      })
 
       // Verify post was deleted from DB
       const post = await testDb.query.postSchema.findFirst({
@@ -603,7 +608,12 @@ describe('Posts Actions', () => {
 
       const result = await handleDeleteAction(testPost.id)
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({
+        success: true,
+        data: {
+          parentId: null,
+        },
+      })
 
       // Verify likes were deleted
       const likes = await testDb.query.likeSchema.findMany({
@@ -632,7 +642,12 @@ describe('Posts Actions', () => {
 
       const result = await handleDeleteAction(testPost.id)
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({
+        success: true,
+        data: {
+          parentId: null,
+        },
+      })
 
       // Verify replies were deleted
       const replies = await testDb.query.postSchema.findMany({
@@ -656,6 +671,9 @@ describe('Posts Actions', () => {
 
       expect(result).toEqual({
         success: true,
+        data: {
+          parentId: undefined,
+        },
       })
     })
 
