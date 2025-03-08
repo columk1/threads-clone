@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
+import type { PluginAPI } from 'tailwindcss/types/config'
 import tailwindcssAnimate from 'tailwindcss-animate'
 
 export default {
@@ -74,7 +75,12 @@ export default {
           'mask-image': 'linear-gradient(to top, black 0% 75%, transparent 25% 100%)',
         },
       }
+
       addUtilities(newUtilities)
     }),
+    /* Starting style used for elments that have delayed animations, allowing them to mount with opacity 0 */
+    ({ addVariant }: PluginAPI) => {
+      addVariant('starting', '@starting-style')
+    },
   ],
 } satisfies Config

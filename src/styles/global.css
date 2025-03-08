@@ -1,3 +1,4 @@
+/** eslint-disable format/prettier */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,6 +36,7 @@
     --header-height-extended: 74px;
     --mobile-nav-height: 68px;
   }
+
   /* Global focus styles, plus [data-highlighted] styles to override Radix dropdowns */
   .link:focus-visible:not(:hover),
   button:focus-visible:not(:hover):not(.subtle-focus),
@@ -42,7 +44,8 @@
   *[data-highlighted]:not(:hover) {
     @apply !outline-none focus:outline-2 focus:outline-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
   }
-  /* ? hack to stop the scrollbar being hidden (but hide the thumb) when a Radix Dialog is open */
+
+  /* Hack to stop the scrollbar being hidden (but hide the thumb) when a Radix Dialog is open */
   html body[data-scroll-locked] {
     overflow-y: scroll !important;
     margin-right: 0 !important;
@@ -51,9 +54,8 @@
     html:has(body[data-scroll-locked]) {
       scrollbar-color: transparent rgb(44, 44, 44);
     }
-  }
-  /* Splash screen that fades out when the threads are loaded for a public user */
-  @supports selector(:has(*)) {
+
+    /* Splash screen that fades out when the threads are loaded for a public user */
     html:has([data-threads-loaded='true']) .splash-overlay {
       opacity: 0;
       pointer-events: none;
@@ -62,9 +64,16 @@
       }
     }
   }
+
+  /* Allow discrete transitions for animations, used for delayed entry-animations */
+  * {
+    @media (prefers-reduced-motion: no-preference) {
+      transition-behavior: allow-discrete;
+    }
+  }
 }
 
-/* autofill style hack: https://github.com/tailwindlabs/tailwindcss/discussions/8679 */
+/* Autofill style hack: https://github.com/tailwindlabs/tailwindcss/discussions/8679 */
 @layer components {
   .autofill-text:-webkit-autofill {
     -webkit-text-fill-color: var(--primary-text);
@@ -72,6 +81,5 @@
   .text-input {
     @apply autofill-text; /* set text colour */
     @apply autofill:shadow-[inset_0_0_0px_1000px_#272e3c]; /* set 'background' colour */
-    /* @apply autofill:text-md; set font size */
   }
 }
