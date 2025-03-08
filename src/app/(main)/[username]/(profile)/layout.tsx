@@ -61,7 +61,9 @@ const UserProfileLayout = async ({ params, children }: Props) => {
       <>
         <Header title={user.username} />
         <ContentPane>
-          <VisitorProfile initialUser={user}>{children}</VisitorProfile>
+          <VisitorProfile initialUser={user} isAuthenticated={!!currentUser}>
+            {children}
+          </VisitorProfile>
         </ContentPane>
       </>
     )

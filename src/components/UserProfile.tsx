@@ -10,10 +10,11 @@ import UnfollowModal from './UnfollowModal'
 type VisitorProfileProps = {
   initialUser: PostUser
   children: React.ReactNode
+  isAuthenticated: boolean
 }
 
-export default function VisitorProfile({ initialUser, children }: VisitorProfileProps) {
-  const { user, handleToggleFollow, unfollowModalProps } = useFollow({ initialUser, isAuthenticated: true })
+export default function VisitorProfile({ initialUser, children, isAuthenticated }: VisitorProfileProps) {
+  const { user, handleToggleFollow, unfollowModalProps } = useFollow({ initialUser, isAuthenticated })
 
   const actions = (
     <div className="flex w-full gap-2">
@@ -29,7 +30,7 @@ export default function VisitorProfile({ initialUser, children }: VisitorProfile
 
   return (
     <BaseProfile user={user} actions={actions}>
-      <UnfollowModal {...unfollowModalProps} />
+      {isAuthenticated && <UnfollowModal {...unfollowModalProps} />}
       {children}
     </BaseProfile>
   )
