@@ -117,8 +117,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
         })
       }
       showPostSuccessToast({
-        router,
-        username: author.username,
+        username: user.username,
         postId: state.data?.id,
       })
       router.refresh()
@@ -134,7 +133,7 @@ const ReplyModal: FunctionComponent<ReplyModalProps> = ({ author, post, user, tr
     post.id,
     post.replyCount,
     cachedPost,
-    author.username,
+    user.username,
     state?.data?.id,
   ])
 

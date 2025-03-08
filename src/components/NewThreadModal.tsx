@@ -277,7 +277,6 @@ const NewThreadModal: FunctionComponent<NewThreadModalProps> = ({ username, avat
     } else {
       if (state?.success) {
         showPostSuccessToast({
-          router,
           username,
           postId: state.data?.postId,
         })

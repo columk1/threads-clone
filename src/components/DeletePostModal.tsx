@@ -1,8 +1,8 @@
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 import { toast } from 'sonner'
 
-import { DialogClose, DialogContent, DialogTitle } from '@/components/Dialog'
+import { DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/Dialog'
 import { useAppStore } from '@/hooks/useAppStore'
 import { handleDeleteAction } from '@/services/posts/posts.actions'
 
@@ -12,6 +12,7 @@ type DeletePostModalProps = {
 
 const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) => {
   const router = useRouter()
+  const pathname = usePathname()
   const updatePost = useAppStore((state) => state.updatePost)
   const cachedPosts = useAppStore((state) => state.posts)
 
@@ -31,7 +32,15 @@ const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) =>
           })
         }
       }
+
       setTimeout(() => toast.success('Deleted'), 500)
+
+      // Check if we're on the deleted post's page
+      const isOnDeletedPostPage = pathname.includes(`/post/${postId}`)
+
+      if (isOnDeletedPostPage) {
+        router.push('/')
+      }
       router.refresh()
     } else {
       toast.error('Something went wrong')
@@ -40,6 +49,9 @@ const DeletePostModal: FunctionComponent<DeletePostModalProps> = ({ postId }) =>
 
   return (
     <DialogContent className="flex w-[278px] flex-col items-center justify-center gap-4 dark:bg-elevated-bg">
+      <div className="sr-only">
+        <DialogDescription>Confirm delete</DialogDescription>
+      </div>
       <DialogTitle className="px-6 pt-6 text-base font-bold">Delete post?</DialogTitle>
       <div className="px-6 pb-0.5 text-center text-ms text-secondary-text">
         If you delete this post, you won't be able to restore it.
