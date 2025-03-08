@@ -30,7 +30,7 @@ const Activity = async () => {
       <ContentPane>
         <div className="h-2" />
         {'error' in data || data.length === 0 ? (
-          <div className="mx-auto my-[calc(50%+60px)] py-3 text-secondary-text">No activity yet</div>
+          <div className="m-auto py-3 text-secondary-text">No activity yet</div>
         ) : (
           <div role="list">
             <HydrateStore initialPosts={replies} />
@@ -39,7 +39,6 @@ const Activity = async () => {
             ))}
           </div>
         )}
-        {/* <div className="mx-auto my-[calc(50%+60px)] py-3 text-secondary-text">Under development</div> */}
       </ContentPane>
     </>
   )

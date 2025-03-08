@@ -58,6 +58,8 @@ const Threads: FunctionComponent<ThreadsProps> = async ({ filter }) => {
         <LoadMore loadMoreAction={loadMorePosts} initialOffset={QUERY_LIMIT}>
           <ThreadList posts={posts} currentUser={currentUser} />
         </LoadMore>
+      ) : 'error' in posts || posts.length === 0 ? (
+        <div className="m-auto py-3 text-secondary-text">No activity yet</div>
       ) : (
         <ThreadList posts={posts} currentUser={currentUser} />
       )}
