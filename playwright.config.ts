@@ -1,4 +1,9 @@
+import path from 'node:path'
+
 import { defineConfig, devices } from '@playwright/test'
+import dotenv from 'dotenv'
+
+dotenv.config({ path: path.resolve(__dirname, '.env.local') })
 
 // Use process.env.PORT by default and fallback to port 3000
 const PORT = process.env.PORT || 3000
