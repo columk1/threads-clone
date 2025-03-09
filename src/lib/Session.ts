@@ -103,12 +103,12 @@ export const validateRequest = cache(async (): Promise<SessionValidationResult> 
     const cookieStore = await cookies()
     const token = cookieStore.get('session')?.value ?? null
     if (token === null) {
-      throw new Error('No session token found')
+      return { session: null, user: null }
     }
     const result = await validateSessionToken(token)
     return result
-  } catch (error) {
-    logger.error(error)
+  } catch (err) {
+    logger.error(err, 'Error validating session token')
     return { session: null, user: null }
   }
 })

@@ -76,7 +76,7 @@ export async function signup(_: unknown, formData: FormData) {
     throw new Error('Failed to create user')
   }
 
-  logger.info(user, 'User created successfully:')
+  logger.info(`User created successfully: ${user.id}`)
 
   try {
     const firstName = name.split(' ')[0] || name
@@ -84,7 +84,7 @@ export async function signup(_: unknown, formData: FormData) {
     await createSessionAndSetCookie(user.id)
     logger.info(`Session created successfully for user: ${userId}`)
   } catch (err) {
-    logger.error(err, `Signup error for user ${userId}`)
+    logger.error(err, `Signup error for user: ${userId}`)
     throw new Error(DEFAULT_ERROR)
   }
 
@@ -218,8 +218,6 @@ export async function login(_: unknown, formData: FormData) {
     }),
     async: true,
   })
-  logger.info(submission)
-
   if (submission.status !== 'success') {
     return submission.reply()
   }
@@ -234,7 +232,6 @@ export async function login(_: unknown, formData: FormData) {
     await sendEmailVerificationCode(user.id, user.name, user.email)
     return redirect(ROUTES.VERIFY_EMAIL)
   }
-
   return redirect('/')
 }
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -14,6 +15,8 @@ const LoginForm = () => {
   const [isValid, setIsValid] = useState(false)
 
   const formRef = useRef<HTMLFormElement>(null)
+
+  const router = useRouter()
 
   const getValidity = useCallback(
     () => formRef?.current?.email?.value !== '' && formRef?.current?.password?.value !== '',
@@ -61,6 +64,8 @@ const LoginForm = () => {
         <div className="flex flex-col gap-4">
           <button
             type="submit"
+            // Ensure cached dashboard isn't served after successful login
+            onClick={() => router.refresh()}
             disabled={!isValid && !isPending}
             className="flex h-[3.25rem] w-full items-center justify-center rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text"
           >
