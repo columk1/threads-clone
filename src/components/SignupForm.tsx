@@ -9,6 +9,7 @@ import { signup } from '@/services/auth/auth.actions'
 import AuthInput from './AuthInput'
 import Divider from './Divider'
 import GoogleAuthButton from './GoogleAuthButton'
+import Spinner from './Spinner/Spinner'
 
 const VALIDATION_DELAY = 300
 
@@ -18,18 +19,12 @@ const SignupForm: FunctionComponent = () => {
 
   const formRef = useRef<HTMLFormElement>(null)
 
-  const handleInput = useCallback(() => {
-    if (formRef.current) {
-      setIsFormValid(formRef.current.checkValidity())
-    }
-  }, [])
-
   const setCustomValidity = useCallback((isValid: boolean) => {
     setIsFormValid(isValid)
   }, [])
 
   return (
-    <form ref={formRef} action={formAction} autoComplete="off" onInput={handleInput}>
+    <form ref={formRef} action={formAction} autoComplete="off">
       <div className="flex w-full flex-col gap-4 text-ms">
         <GoogleAuthButton iconSize="30" className="h-[3.25rem]">
           Log in with Google
@@ -95,10 +90,10 @@ const SignupForm: FunctionComponent = () => {
           />
           <button
             type="submit"
-            disabled={isPending || !isFormValid}
-            className="h-[3.25rem] w-full rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text"
+            disabled={!isPending && !isFormValid}
+            className="flex h-[3.25rem] w-full items-center justify-center rounded-xl bg-primary-text font-semibold text-secondary-button disabled:text-placeholder-text"
           >
-            Sign up
+            {isPending ? <Spinner /> : 'Sign up'}
           </button>
         </div>
         <div className="text-center text-sm text-secondary-text">
