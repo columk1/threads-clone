@@ -120,4 +120,4 @@ Website: [columkelly.com](https://columkelly.com)
 
 Live Project Link: [threads-clone-omega-bay.vercel.app](https://threads-clone-omega-bay.vercel.app/)
 
-[home-screenshot]: ./docs/home-screenshot.jpg
+[home-screenshot]: ./docs/home-screenshot.webp
