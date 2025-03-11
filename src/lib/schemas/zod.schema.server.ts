@@ -10,6 +10,7 @@ export const signupSchema = z.object({
     .string({ required_error })
     .min(1, { message: 'Email is required' })
     .email({ message: 'Enter a valid email address' })
+    .transform((val) => val.toLowerCase())
     .refine(async (val) => await isUniqueUserField('email', val), {
       message: 'Another account is using the same email.',
     }),
@@ -18,6 +19,7 @@ export const signupSchema = z.object({
   username: z
     .string()
     .min(1, { message: 'Username is required' })
+    .transform((val) => val.toLowerCase())
     .refine(async (val) => await isUniqueUserField('username', val), {
       message: 'A user with that username already exists.',
     }),

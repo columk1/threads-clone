@@ -11,11 +11,11 @@ export const GET = async (req: NextRequest) => {
     const username = searchParams.get('username')
 
     if (email) {
-      const isUnique = await isUniqueUserField('email', email.trim())
+      const isUnique = await isUniqueUserField('email', email.trim().toLowerCase())
       return NextResponse.json({ isUnique })
     }
     if (username) {
-      const isUnique = await isUniqueUserField('username', username.trim())
+      const isUnique = await isUniqueUserField('username', username.trim().toLowerCase())
       return NextResponse.json({ isUnique })
     }
     return NextResponse.json({ error: 'Invalid field.' }, { status: 400 })
