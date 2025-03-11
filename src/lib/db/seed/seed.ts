@@ -53,15 +53,14 @@ export async function seed() {
     await db.insert(followerSchema).values(seedData.followers)
 
     // Add my user with hashed password
-    const myHashedPassword = await bcrypt.hash(process.env.TEST_USER_PASSWORD, saltRounds)
     await db.insert(userSchema).values({
       id: '01JBXMJGX3JABF1GQXSW38MXMN',
       email: 'columk1@gmail.com',
-      password: myHashedPassword,
+      password: hashedPassword,
       name: 'Colum Kelly',
-      username: 'columk1',
+      username: 'columk',
       emailVerified: 1,
-      bio: '"The past is always tense, the future perfect."',
+      bio: '',
       followerCount: 0,
       avatar: 'https://res.cloudinary.com/dsrekt1mo/image/upload/v1735805136/threads-clone/avatars/389b973e.jpg',
       googleId: null,
