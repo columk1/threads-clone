@@ -5,10 +5,12 @@ import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
 
 import { ModalProvider } from '@/contexts/ModalContext'
+import { getBaseUrl } from '@/utils/getBaseUrl'
 
 const description = 'Join Threads to share ideas, ask questions, post random thoughts, find your people and more.'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getBaseUrl()),
   title: {
     default: 'Threads',
     template: '%s • Threads',
