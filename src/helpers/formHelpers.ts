@@ -52,13 +52,13 @@ export const validateUniqueField = async (field: UniqueField, value: string) => 
     username: 'A user with that username already exists.',
   }
 
-  const { isUnique } = await validateUniqueUserField(field, value)
-  if (isUnique === false) {
+  const response = await validateUniqueUserField(field, value)
+  if ('isUnique' in response && response.isUnique === false) {
     return {
       error: errorMessages[field],
     }
   }
-  return Promise.resolve({ error: '' })
+  return { error: '' }
 }
 
 // Convenience functions to maintain backwards compatibility

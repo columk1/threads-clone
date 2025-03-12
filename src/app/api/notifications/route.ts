@@ -5,12 +5,13 @@ import { NOT_AUTHORIZED_ERROR, SERVER_ERROR } from '@/lib/constants'
 import { logger } from '@/lib/Logger'
 import { validateRequest } from '@/lib/Session'
 import { getNotifications, getUnseenNotificationsCount } from '@/repositories/users.repository'
+import type { InferNextResponse } from '@/utils/types'
 
 /**
  * GET /api/notifications
  * Get notifications or notification count for the current user
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(request: NextRequest) {
   try {
     const { user } = await validateRequest()
     if (!user) {
@@ -39,3 +40,5 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: SERVER_ERROR }, { status: 500 })
   }
 }
+
+export type NotificationsResponse = InferNextResponse<ReturnType<typeof GET>>

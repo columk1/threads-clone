@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 
 import { logger } from '@/lib/Logger'
 import { isUniqueUserField } from '@/services/users/users.queries'
+import type { InferNextResponse } from '@/utils/types'
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -25,7 +26,4 @@ export const GET = async (req: NextRequest) => {
   }
 }
 
-export type ValidateUserFieldResponse = {
-  isUnique: boolean
-  error?: string
-}
+export type ValidateUserFieldResponse = InferNextResponse<ReturnType<typeof GET>>

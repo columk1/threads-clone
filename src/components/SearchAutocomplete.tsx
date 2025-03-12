@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import type { SearchResponse } from '@/app/api/users/search/route'
 import Avatar from '@/components/Avatar'
 import FollowButton from '@/components/FollowButton'
 import { SearchIcon } from '@/components/icons'
@@ -138,7 +139,7 @@ export default function SearchAutocomplete({ currentUser }: { currentUser?: Sess
       setIsSearching(true)
       try {
         const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`, { signal })
-        const data = await response.json()
+        const data: SearchResponse = await response.json()
         setSearchResults(data.users)
         addUsers(
           data.users.map((user: PostUser) => ({

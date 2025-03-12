@@ -2,6 +2,8 @@
 
 import { createContext, type ReactNode, use, useEffect, useMemo, useRef, useState } from 'react'
 
+import type { NotificationsResponse } from '@/app/api/notifications/route'
+
 type NotificationsContextType = {
   unseenCount: number
 }
@@ -42,8 +44,8 @@ export function NotificationsProvider({
         return
       }
 
-      const data = await response.json()
-      if (typeof data.count === 'number') {
+      const data: NotificationsResponse = await response.json()
+      if ('count' in data) {
         setUnseenCount(data.count)
       }
     } catch (error) {

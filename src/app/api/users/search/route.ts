@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { logger } from '@/lib/Logger'
 import { searchUsers } from '@/services/users/users.queries'
+import type { InferNextResponse } from '@/utils/types'
 
 export async function GET(request: Request) {
   try {
@@ -22,3 +23,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ users: [] })
   }
 }
+
+export type SearchResponse = InferNextResponse<ReturnType<typeof GET>>
