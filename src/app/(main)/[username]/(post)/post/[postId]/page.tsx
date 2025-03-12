@@ -11,14 +11,18 @@ import { usernameParamSchema } from '@/lib/schemas/zod.schema'
 import { validateRequest } from '@/lib/Session'
 import { getAuthPostById, getPublicPostById } from '@/services/posts/posts.queries'
 
-type Props = {
+export const metadata = {
+  title: 'Thread',
+}
+
+type PostPageProps = {
   params: Promise<{
     username: string
     postId: string
   }>
 }
 
-export default async function PostPage({ params }: Props) {
+export default async function PostPage({ params }: PostPageProps) {
   const { user: currentUser } = await validateRequest()
   const postParams = await params
   const { postId } = postParams

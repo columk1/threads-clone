@@ -6,6 +6,10 @@ import { HeaderDropdown } from '@/components/HeaderDropdown'
 import MainFeed from '@/components/MainFeed'
 import { validateRequest } from '@/lib/Session'
 
+export const metadata = {
+  title: 'Following',
+}
+
 export default async function Following() {
   const { user } = await validateRequest()
   const userExists = user && user.emailVerified

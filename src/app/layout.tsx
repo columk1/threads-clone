@@ -6,10 +6,26 @@ import { Toaster } from 'sonner'
 
 import { ModalProvider } from '@/contexts/ModalContext'
 
+const description = 'Join Threads to share ideas, ask questions, post random thoughts, find your people and more.'
+
 export const metadata: Metadata = {
   title: {
     default: 'Threads',
     template: '%s • Threads',
+  },
+  description,
+  openGraph: {
+    title: 'Threads Clone',
+    description,
+    type: 'article',
+    authors: ['Colum Kelly'],
+    images: [{ url: '/assets/images/logo.png' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Threads Clone',
+    description,
+    images: [{ url: '/assets/images/logo.png' }],
   },
   icons: [
     {
@@ -28,10 +44,6 @@ export const metadata: Metadata = {
     },
   ],
 }
-
-// export function generateStaticParams() {
-//   return '/'
-// }
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
