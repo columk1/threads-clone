@@ -12,8 +12,7 @@ export const metadata = {
 
 export default async function Following() {
   const { user } = await validateRequest()
-  const userExists = user && user.emailVerified
-  if (!userExists) {
+  if (!user) {
     return redirect('/')
   }
 

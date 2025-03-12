@@ -31,6 +31,10 @@ export const createPost = async (_: unknown, formData: FormData) => {
   if (!user) {
     return redirect(ROUTES.LOGIN)
   }
+  if (!user.emailVerified) {
+    return redirect(ROUTES.VERIFY_EMAIL)
+  }
+
   const userId = user.id
   const submission = parseWithZod(formData, {
     schema: newPostSchema,
@@ -55,6 +59,9 @@ export async function createReply(_: unknown, formData: FormData) {
   const { user } = await validateRequest()
   if (!user) {
     redirect(ROUTES.LOGIN)
+  }
+  if (!user.emailVerified) {
+    return redirect(ROUTES.VERIFY_EMAIL)
   }
 
   const submission = parseWithZod(formData, {
