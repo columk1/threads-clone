@@ -3,7 +3,6 @@
 import cx from 'clsx'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import type { FunctionComponent } from 'react'
 
 import Avatar from '@/components/Avatar'
@@ -15,13 +14,11 @@ import ThreadActions from '@/components/ThreadActions'
 import TimeAgo from '@/components/TimeAgo'
 import UnfollowModal from '@/components/UnfollowModal'
 import UserModal from '@/components/UserModal'
-import { useFollow } from '@/hooks/useFollow'
+import { ThreadProvider, useThread } from '@/contexts/ThreadContext'
+import { URL_PATTERN } from '@/lib/constants/misc'
 import type { SessionUser } from '@/lib/Session'
 import type { PostData } from '@/repositories/posts.repository'
 import type { PostUser } from '@/services/users/users.queries'
-
-// URL regex pattern that matches URLs starting with http://, https://, or www.
-const URL_PATTERN = /(https?:\/\/\S+)|(www\.\S+)/g
 
 type ThreadTextProps = {
   text: string | null
@@ -118,18 +115,6 @@ export const ThreadMedia = ({
   )
 }
 
-type ThreadProps = {
-  post: PostData
-  user: PostUser
-  currentUser: SessionUser | null
-  isCurrentUser: boolean
-  isAuthenticated: boolean
-  isTarget?: boolean
-  isParent?: boolean
-  reposted?: { username: string; createdAt: number }
-  imagePriority?: boolean
-}
-
 type ThreadLayoutProps = {
   children: React.ReactNode
   isParent: boolean
@@ -181,16 +166,9 @@ const RepostHeader: FunctionComponent<{
   </Link>
 )
 
-const ThreadContent: FunctionComponent<{
-  post: PostData
-  user: PostUser
-  isTarget: boolean
-  isAuthenticated: boolean
-  isCurrentUser: boolean
-  currentUser: SessionUser | null
-  onToggleFollow?: () => Promise<void>
-  imagePriority?: boolean
-}> = ({ post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, onToggleFollow, imagePriority }) => {
+const ThreadContent = () => {
+  const { post, user, isTarget, isAuthenticated, isCurrentUser, currentUser, handleToggleFollow, imagePriority } =
+    useThread()
   const canFollow = !isCurrentUser && !user.isFollowed
 
   return (
@@ -201,7 +179,7 @@ const ThreadContent: FunctionComponent<{
             <UserModal
               user={user}
               isCurrentUser={isCurrentUser}
-              onToggleFollow={onToggleFollow}
+              onToggleFollow={handleToggleFollow}
               trigger={
                 <button type="button">
                   <Avatar url={user.avatar} isFollowed={canFollow && user.isFollowed} />
@@ -222,14 +200,14 @@ const ThreadContent: FunctionComponent<{
       </div>
       <div className="flex w-full items-center justify-between gap-2">
         <div className="flex items-center gap-2 leading-6">
-          <PostAuthor user={user} isCurrentUser={isCurrentUser} onToggleFollow={onToggleFollow} />
+          <PostAuthor user={user} isCurrentUser={isCurrentUser} onToggleFollow={handleToggleFollow} />
           <a href={`/@${user.username}/post/${post.id}`}>
             <TimeAgo publishedAt={post.createdAt} />
           </a>
         </div>
         <PostDropDownMenu
           isFollowed={user.isFollowed}
-          onToggleFollow={onToggleFollow}
+          onToggleFollow={handleToggleFollow}
           isAuthenticated={isAuthenticated}
           isCurrentUser={isCurrentUser}
           postId={post.id}
@@ -260,6 +238,30 @@ const ThreadContent: FunctionComponent<{
   )
 }
 
+const ThreadWrapper = () => {
+  const { navigateToThread, unfollowModalProps } = useThread()
+  return (
+    <>
+      <NestedLinkWrapper onClick={navigateToThread}>
+        <ThreadContent />
+      </NestedLinkWrapper>
+      <UnfollowModal {...unfollowModalProps} />
+    </>
+  )
+}
+
+type ThreadProps = {
+  post: PostData
+  user: PostUser
+  currentUser: SessionUser | null
+  isCurrentUser: boolean
+  isAuthenticated: boolean
+  isTarget?: boolean
+  isParent?: boolean
+  reposted?: { username: string; createdAt: number }
+  imagePriority?: boolean
+}
+
 export default function Thread({
   post,
   user,
@@ -271,32 +273,22 @@ export default function Thread({
   reposted,
   imagePriority = false,
 }: ThreadProps) {
-  const router = useRouter()
-  const {
-    user: followableUser,
-    handleToggleFollow,
-    unfollowModalProps,
-  } = useFollow({
-    initialUser: user,
-    isAuthenticated,
-  })
-
   return (
-    <ThreadLayout isParent={isParent} isTarget={isTarget} currentUser={currentUser}>
-      <NestedLinkWrapper onClick={() => router.push(`/@${followableUser.username}/post/${post.id}`)}>
+    <ThreadProvider
+      post={post}
+      user={user}
+      currentUser={currentUser}
+      isCurrentUser={isCurrentUser}
+      isAuthenticated={isAuthenticated}
+      isTarget={isTarget}
+      isParent={isParent}
+      reposted={reposted}
+      imagePriority={imagePriority}
+    >
+      <ThreadLayout isParent={isParent} isTarget={isTarget} currentUser={currentUser}>
         {reposted && <RepostHeader username={reposted.username} createdAt={reposted.createdAt} />}
-        <ThreadContent
-          post={post}
-          user={followableUser}
-          isTarget={isTarget}
-          isAuthenticated={isAuthenticated}
-          isCurrentUser={isCurrentUser}
-          currentUser={currentUser}
-          onToggleFollow={handleToggleFollow}
-          imagePriority={imagePriority}
-        />
-      </NestedLinkWrapper>
-      <UnfollowModal {...unfollowModalProps} />
-    </ThreadLayout>
+        <ThreadWrapper />
+      </ThreadLayout>
+    </ThreadProvider>
   )
 }

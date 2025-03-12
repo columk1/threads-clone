@@ -9,3 +9,6 @@ export const IMG_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${Env.NEXT_PUBLIC
 
 export const MAX_CHARACTERS = 500
 export const BIO_CHARACTER_LIMIT = 150
+
+// URL regex pattern that matches URLs starting with http://, https://, or www.
+export const URL_PATTERN = /(https?:\/\/\S+)|(www\.\S+)/g
