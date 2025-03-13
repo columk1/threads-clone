@@ -58,7 +58,7 @@ export const createPost = async (_: unknown, formData: FormData) => {
 export async function createReply(_: unknown, formData: FormData) {
   const { user } = await validateRequest()
   if (!user) {
-    redirect(ROUTES.LOGIN)
+    return redirect(ROUTES.LOGIN)
   }
   if (!user.emailVerified) {
     return redirect(ROUTES.VERIFY_EMAIL)
