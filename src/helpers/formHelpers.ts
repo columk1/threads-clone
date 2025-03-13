@@ -1,5 +1,4 @@
 import type { ValidateUserFieldResponse } from '@/app/api/users/validate/route'
-import { getBaseUrl } from '@/utils/getBaseUrl'
 
 type ValidationMessageFunction = (field: HTMLInputElement) => string
 
@@ -39,7 +38,7 @@ export const getError = (field: HTMLInputElement, errorMessages: ErrorMessages):
 type UniqueField = 'email' | 'username'
 
 const validateUniqueUserField = async (field: UniqueField, value: string): Promise<ValidateUserFieldResponse> => {
-  const response = await fetch(`${getBaseUrl()}/api/users/validate?${field}=${encodeURIComponent(value)}`)
+  const response = await fetch(`/api/users/validate?${field}=${encodeURIComponent(value)}`)
   return response.json()
 }
 
